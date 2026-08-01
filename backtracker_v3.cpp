@@ -152,25 +152,23 @@ bool extendWord(std::string& currentWord, int targetLength, const std::string& o
     return false; 
 }
 
-
-
 int main(int argc, char* argv[]) {
-    // Default fallback values
-    std::string seed = "aaabaaacaaabbbaaacccaaabaaacabbbacccbaaa";
+    // 1. Set your new mirrored seed as the default fallback
+    std::string seed = "bbcccacbcccaaabaaacaaabbbaaacccabcbbbabb";
     int targetLength = 2000; 
 
-    // Override with command-line arguments if provided
+    // 2. Override with command-line arguments if provided
     if (argc >= 2) {
         seed = argv[1];
     }
     if (argc >= 3) {
         targetLength = std::stoi(argv[2]);
     }
-	
-	// Use like this: backtracker_v3.exe [YOUR_LONG_SEED_HERE] 2500
+    
+    // Use like this: backtracker_v3.exe [YOUR_LONG_SEED_HERE] 2500
     std::string dictionaryPath = "D:\\ExtremeMathMmaComputations\\aa2fr3LetLen40ex80ms200MextendableAllPermsMirs.txt"; 
     std::string outputPath     = "D:\\ExtremeMathMmaComputations\\record_word_" + std::to_string(targetLength) + ".txt";
-	    
+        
     validFactors.reserve(2403132); 
     std::cout << "Loading dictionary..." << std::endl;
     auto startLoad = std::chrono::high_resolution_clock::now();
@@ -195,8 +193,7 @@ int main(int argc, char* argv[]) {
     std::cout << "Dictionary loaded and sorted in " 
               << std::chrono::duration<double>(endLoad - startLoad).count() << " seconds.\n\n";
 
-    std::string seed = "bbcccacbcccaaabaaacaaabbbaaacccabcbbbabb";
-    int targetLength = 2000; 
+    // *** THE SECOND DECLARATION BLOCK HAS BEEN REMOVED FROM HERE ***
 
     maxDepthReached = seed.length();
     std::cout << "Starting seed: " << seed << "\n";
