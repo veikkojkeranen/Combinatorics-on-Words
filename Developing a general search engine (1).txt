@@ -1,0 +1,132 @@
+Developing a general search engine (April 2026)
+
+A little bit of background for the next mission.
+
+There are many long aa2f words over 3 letter alphabet at
+
+https://algebra.fi/keranen/research/web110117/aa2f15796_aa2f25379_aa2f1928.html
+
+They have been produced by very long computations, and we still do not know any systematic way to produce such, or infinitely long aa2f words over three letters.
+
+At the page mentioned above, there are not only the original long words themselves but also their six permutations, together with the mirror words.
+
+The permutations and mirror images are included because they allow one to quickly find certain kinds of factors (subwords).
+
+The next goal is to study the factors of those long words and, at the same time, find new words that would fit as image words of some morphism h that could be used to generate an infinite aa2f structure, if such a structure exists. For example, a morphism h could be a mapping from well-known a2f words of over a 4-letter, or 8-letter, alphabet to words over a 3-letter alphabet (e.g. h: ALph_8* -> ALph_3*).
+
+---
+However, the main mission here is the following:
+
+We should design and implement a search engine where the user can enter multiple search criteria at once, and all the matching parts of the long word (perhaps of on entire page) would be highlighted, with a different colour for each search criterion.
+
+Possibly, perhaps at a later stage, the search criteria could also be regular expressions.
+
+In any case, the search criterion need not be a set of words; for example, it could be defined by searching for words that have a certain Parikh vector (or belong to a given Parikh vector set).
+
+In fact, there should be a possibility for the user to define any desired function as the search criterion.
+
+We could at least initially target the search to websites. Of course, one would probably have to download the pages to one's own computer first, because the computation for some search criteria can be very heavy indeed.
+
+How could such a generalised search engine be designed and implemented in practice?
+
+Could it function for any webpage on the Internet?  Use of Java Script would be preferable.
+
+Please advise. Thank you.
+
+
+setx PATH "%PATH%;C:\Users\Veikko\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\Scripts"
+
+Permanent (User Only): Run setx PATH "%PATH%;C:\Your\Path\Here" in PowerShell.
+
+abc 1665 1679 1631
+
+
+2.  **Run the App:**
+```bash
+python word_analyzer.py
+3.  **Open your Web Browser:**
+Navigate to `http://127.0.0.1:5000`
+---
+
+To run these checks again, launch Python install manager from your Start menu,
+or py install --configure from the terminal.
+
+********************************************************************************
+
+Usage:
+    py <regular Python options>
+                         Launch the default runtime with specified options. This
+                         is the equivalent of the python command.
+    py -V:<TAG>          Launch runtime identified by <TAG>, which should
+                         include the company name if not PythonCore. Regular
+                         Python options may follow this option.
+    py -3<VERSION>       Equivalent to -V:PythonCore\3<VERSION>. The version
+                         must begin with the digit 3, platform overrides are
+                         permitted, and regular Python options may follow. py -3
+                         is the equivalent of the python3 command.
+    py exec <any of the above>
+                         Equivalent to any of the above launch options, and the
+                         requested runtime will be installed if needed.
+    py help [<CMD>]      Show help for Python installation manager commands
+    py install <TAG>     Download new Python runtimes, or pass --update to
+                         update existing installs.
+    py list [<FILTER>]   Show installed Python runtimes, optionally filtering by
+                         <FILTER>.
+    py uninstall <TAG>   Remove one or more runtimes from your machine. Pass
+                         --purge to clean up all runtimes and cached files.
+
+Find additional information at https://docs.python.org/dev/using/windows.
+
+View online help? [y/N]
+
+
+
+C:\Windows\System32>pip install flask
+Collecting flask
+  Downloading flask-3.1.3-py3-none-any.whl.metadata (3.2 kB)
+Collecting blinker>=1.9.0 (from flask)
+  Downloading blinker-1.9.0-py3-none-any.whl.metadata (1.6 kB)
+Collecting click>=8.1.3 (from flask)
+  Downloading click-8.3.2-py3-none-any.whl.metadata (2.6 kB)
+Collecting itsdangerous>=2.2.0 (from flask)
+  Downloading itsdangerous-2.2.0-py3-none-any.whl.metadata (1.9 kB)
+Collecting jinja2>=3.1.2 (from flask)
+  Downloading jinja2-3.1.6-py3-none-any.whl.metadata (2.9 kB)
+Collecting markupsafe>=2.1.1 (from flask)
+  Downloading markupsafe-3.0.3-cp314-cp314-win_amd64.whl.metadata (2.8 kB)
+Collecting werkzeug>=3.1.0 (from flask)
+  Downloading werkzeug-3.1.8-py3-none-any.whl.metadata (4.0 kB)
+Collecting colorama (from click>=8.1.3->flask)
+  Downloading colorama-0.4.6-py2.py3-none-any.whl.metadata (17 kB)
+Downloading flask-3.1.3-py3-none-any.whl (103 kB)
+Downloading blinker-1.9.0-py3-none-any.whl (8.5 kB)
+Downloading click-8.3.2-py3-none-any.whl (108 kB)
+Downloading itsdangerous-2.2.0-py3-none-any.whl (16 kB)
+Downloading jinja2-3.1.6-py3-none-any.whl (134 kB)
+Downloading markupsafe-3.0.3-cp314-cp314-win_amd64.whl (15 kB)
+Downloading werkzeug-3.1.8-py3-none-any.whl (226 kB)
+Downloading colorama-0.4.6-py2.py3-none-any.whl (25 kB)
+Installing collected packages: markupsafe, itsdangerous, colorama, blinker, werkzeug, jinja2, click, flask
+   ----------------------------------- ---- 7/8 [flask]  WARNING: The script flask.exe is installed in 'C:\Users\veikk\AppData\Local\Python\pythoncore-3.14-64\Scripts' which is not on PATH.
+  Consider adding this directory to PATH or, if you prefer to suppress this warning, use --no-warn-script-location.
+Successfully installed blinker-1.9.0 click-8.3.2 colorama-0.4.6 flask-3.1.3 itsdangerous-2.2.0 jinja2-3.1.6 markupsafe-3.0.3 werkzeug-3.1.8
+
+[notice] A new release of pip is available: 25.3 -> 26.0.1
+[notice] To update, run: C:\Users\veikk\AppData\Local\Python\pythoncore-3.14-64\python.exe -m pip install --upgrade pip
+
+C:\Windows\System32>C:\Users\veikk\AppData\Local\Python\pythoncore-3.14-64\python.exe -m pip install --upgrade pip
+Requirement already satisfied: pip in c:\users\veikk\appdata\local\python\pythoncore-3.14-64\lib\site-packages (25.3)
+Collecting pip
+  Downloading pip-26.0.1-py3-none-any.whl.metadata (4.7 kB)
+Downloading pip-26.0.1-py3-none-any.whl (1.8 MB)
+   ---------------------------------------- 1.8/1.8 MB 13.2 MB/s  0:00:00
+Installing collected packages: pip
+  Attempting uninstall: pip
+    Found existing installation: pip 25.3
+    Uninstalling pip-25.3:
+      Successfully uninstalled pip-25.3
+  WARNING: The scripts pip.exe, pip3.14.exe and pip3.exe are installed in 'C:\Users\veikk\AppData\Local\Python\pythoncore-3.14-64\Scripts' which is not on PATH.
+  Consider adding this directory to PATH or, if you prefer to suppress this warning, use --no-warn-script-location.
+Successfully installed pip-26.0.1
+
+C:\Windows\System32> 
