@@ -1,0 +1,33 @@
+Remember to place the dictionary 
+aa2fr3LetLen40ex80ms200MextendableAllPermsMirs.txt
+in the same folder as the other files.
+
+Here, current_seed_1900.txt contains the prefix (seed) that will be extended to the right, backtracking when necessary.
+
+Start backtracker_v5.exe as follows (after the input line, part of the output to the console window is shown):
+
+>backtracker_v5.exe D:\ExtremeMathMmaComputations\current_seed_1900.txt 2500
+Loaded seed from file: D:\ExtremeMathMmaComputations\current_seed_1900.txt
+Loading dictionary...
+Dictionary loaded and sorted in 0.741955 seconds.
+
+Starting seed length: 1900
+Starting seed preview: abcccbbbaaabbbcbbbabbbcccabbbaaacaaabaaacccaaabbba...
+Hunting for target length: 2500...
+Stall threshold set to 50000000 steps.
+...
+[PROGRESS] Reached new max depth: 2321 letters
+2220 2173 2162 2220 2220
+[PROGRESS] Reached new max depth: 2322 letters
+
+[PROGRESS] Reached new max depth: 2323 letters
+
+[PROGRESS] Reached new max depth: 2324 letters
+
+[PROGRESS] Reached new max depth: 2325 letters
+
+[PROGRESS] Reached new max depth: 2326 letters
+2226 2175 2175
+…
+
+The resulting aa2fr words, in increasing lengths step by step, will be saved in progressive_log.txt file.
