@@ -1,0 +1,281 @@
+aa2f3letEXTp4s4wl24[w_String]:=Sort[Flatten[(aa2fInt32MakeFreeWordUsingList3let[StringReverse[#1]<>BGJM,29]&)/@aa2fInt32MakeFreeWordUsingList3let[StringReverse[w]<>AFHL,25]]]
+
+aa2f3letEXTp4s4wl32[w_String]:=Sort[Flatten[(aa2fInt32MakeFreeWordUsingList3let[StringReverse[#1]<>BGJM,37]&)/@aa2fInt32MakeFreeWordUsingList3let[StringReverse[w]<>AFHL,33]]]
+
+aa2fCreateList3let[str_String,startOfInfix_Integer:4]:=Module[{u,v,pu,pv,b,m,e,res={}},e=startOfInfix;While[e<=StringLength[str],m=e-1;b=m-2;While[b>0,v=StringTake[str,{m,e}];u=StringTake[str,{b,m-1}];pv=aa2fParikh[v];pu=aa2fParikh[u];AppendTo[res,pv-pu];m=m-1;b=b-2;];e=e+1;];res]
+aa2fCreateListSuffix3let[str_String]:=Module[{pu,pv,b,m,e,res={}},e=StringLength[str];m=e-1;b=m-2;While[b>0,pv=aa2fParikh[StringTake[str,{m,e}]];pu=aa2fParikh[StringTake[str,{b,m-1}]];AppendTo[res,pv-pu];m=m-1;b=b-2;];res]
+
+aa2fCreatePolynoms3let[str_String,startOfInfix_Integer:4]:=Module[{u,v,pu,pv,b,m,e,res={}},e=startOfInfix;While[e<=StringLength[str],m=e-1;b=m-2;While[b>0,v=StringTake[str,{m,e}];u=StringTake[str,{b,m-1}];pv=aa2fParikh[v];pu=aa2fParikh[u];AppendTo[res,pv-pu];m=m-1;b=b-2;];e=e+1;];Times@@res]
+ 
+aa2fCreatePolynoms3let[str_String,startOfInfix_Integer,endOfInfix_Integer]:=Module[{u,v,pu,pv,b,m,e,res={}},e=startOfInfix;While[e<=StringLength[str],If[e>endOfInfix+1,If[OddQ[endOfInfix]==OddQ[e],b=endOfInfix-1;m=Ceiling[(e-b)/2]+b;,b=endOfInfix;m=Ceiling[(e-b)/2]+b;];,m=e-1;b=m-2;];While[b>0,v=StringTake[str,{m,e}];u=StringTake[str,{b,m-1}];pv=aa2fParikh[v];pu=aa2fParikh[u];AppendTo[res,pv-pu];m=m-1;b=b-2;];e=e+1;];Times@@res]
+
+aa2fCreatePolynomsSuffix3let[str_String]:=Module[{pu,pv,b,m,e,res={}},e=StringLength[str];m=e-1;b=m-2;While[b>0,pv=aa2fParikh[StringTake[str,{m,e}]];pu=aa2fParikh[StringTake[str,{b,m-1}]];AppendTo[res,pv-pu];m=m-1;b=b-2;];Times@@res]
+
+aa2fCreateVariables3let[variableCount_Integer,startingCode_Integer:65]:=Module[{},FromCharacterCode[(Range[#1,#1+variableCount-1]&)[startingCode]]]
+
+aa2fFindTestChars3let[var_,charList_]:=Module[{pos,subList,res},pos=Flatten[Position[charList,var]];If[pos=={},res=Characters[abc];,subList=Flatten[Take[charList,{pos[[1]],pos[[1]]}]];res=(Extract[subList,#1]&)/@Flatten[(Position[subList,#1]&)/@Characters[abc]];res=Flatten[Characters[res]];];Return[res]]
+aa2fGiveMeAPolynom3let[pref_String,inf_String,suff_String]:=Module[{str},str=pref<>inf<>suff;aa2fCreatePolynoms3let[str,StringLength[pref]+1,StringLength[inf]+StringLength[pref]]]
+
+aa2fInt32CreateList3let[str_String,startOfInfix_Integer:4]:=Block[{u,v,pu,pv,b,m,e,res={}},e=startOfInfix;While[e<=StringLength[str],m=e-1;b=m-2;While[b>0,v=StringTake[str,{m,e}];u=StringTake[str,{b,m-1}];pv=aa2fInt32Parikh[v];pu=aa2fInt32Parikh[u];AppendTo[res,pv-pu];m=m-1;b=b-2;];e=e+1;];res]
+
+aa2fInt32MakeFreeWordUsingList3let[str_String,startingPointer_Integer:4]:=Block[{myL,myV,myRes},myL=Union[aa2fInt32CreateList3let[str,startingPointer]];myV=aa2fInt32PickVariables3let[str];myRes=aa2fInt32TestList3let[myL,myV];intToCharAndNonCharVarsToCharVars=myRes/. Flatten[{{0->a,1->b,2^16->c},nonCharVarsToCharVars}];(StringReplace[str,#1]&)/@intToCharAndNonCharVarsToCharVars]
+aa2fInt32Parikh[x_List]:=ReplaceAll[Flatten[{a->0,b->1,c->2^16,charVarsToNonCharVars}]][Plus@@x]
+ 
+aa2fInt32Parikh[x_String]:=ReplaceAll[Flatten[{a->0,b->1,c->2^16,charVarsToNonCharVars}]][Plus@@Characters[x]]
+
+aa2fInt32PickVariables3let[str_String]:=Block[{},(ToExpression[#1]&)/@Complement[Union[Characters[str]],Characters[abc]]]
+aa2fInt32SolveList3let[li_,var_,intList_:{0,1,65536}]:=Flatten[(Catch[Do[If[(li/. var->#1)[[i]]==0,Throw[{}]],{i,1,Length[li]}];var->#1]&)/@intList]
+
+aa2fInt32TestList3let[linList_List,vars_List]:=Module[{replWithList,replLinList,res,pr,silmu=3},replWithList=DeleteCases[({Take[vars,{1}][[1]]->#1,Catch[Do[If[(substLinList=linList/. Take[vars,{1}][[1]]->#1)[[i]]==0,Throw[0]],{i,1,Length[linList]}];substLinList]}&)/@{0,1,2^16},{_,0}];If[Length[vars]==1,Return[(Take[#1,1][[1]]&)/@replWithList]];res=DeleteCases[({{#1[[1]]},aa2fInt32SolveList3let[#1[[2]],Take[vars,{2}][[1]]]}&)/@replWithList,{_,{}}];pr=(Flatten[#1,2]&)[(Outer[List,#1[[1]],#1[[2]]]&)/@res];While[silmu<=Length[vars],replWithList=({#1,linList/. #1}&)/@pr;res=DeleteCases[({{#1[[1]]},aa2fInt32SolveList3let[#1[[2]],Take[vars,{silmu}][[1]]]}&)/@replWithList,{_,{}}];pr=(Flatten[#1,2]&)[(Outer[List,#1[[1]],#1[[2]],1,1]&)/@res];pr=Flatten/@pr;silmu=silmu+1;];Return[pr]]
+
+aa2fMakeFreeInfix3let[pref_String,inf_String,suff_String]:=Module[{myP,myV,myRes},myP=aa2fGiveMeAPolynom3let[pref,inf,suff];myV=StringJoin[Union[Characters[inf]]];myRes=aa2fTestPolynom3let[myP,myV,1];(StringReplace[pref<>inf<>suff,#1]&)/@myRes]
+ 
+aa2fMakeFreeInfix3let[pref_String,inf_String,suff_String,charList_List]:=Module[{myP,myV,myRes},myP=aa2fGiveMeAPolynom3let[pref,inf,suff];myV=StringJoin[Union[Characters[inf]]];myRes=aa2fTestPolynom3let[myP,myV,1,charList];(StringReplace[pref<>inf<>suff,#1]&)/@myRes]
+ 
+aa2fMakeFreeInfix3let[pref_String,infLen_Integer,suff_String]:=Module[{myP,myV,myRes},myV=aa2fCreateVariables3let[infLen,256];myP=aa2fGiveMeAPolynom3let[pref,myV,suff];myRes=aa2fTestPolynom3let[myP,myV,1];(StringReplace[pref<>myV<>suff,#1]&)/@myRes]
+
+aa2fMakeFreeSuffix3let[str_String]:=Module[{myP,myV,myRes},myP=aa2fCreatePolynomsSuffix3let[str];myV=aa2fPickVariables3let[str];myRes=aa2fTestPolynom3let[myP,myV,1];(StringReplace[str,#1]&)/@myRes]
+
+aa2fMakeFreeSuffixes3let[strs_List]:=Module[{myP,myV,myRes,mixUp},myP=(aa2fCreatePolynomsSuffix3let[#1]&)/@strs;myV=Flatten[Characters[(aa2fPickVariables3let[#1]&)/@strs]];myV=StringJoin[DeleteDuplicates[myV]];mixUp=Times@@myP;myRes=aa2fTestPolynom3let[mixUp,myV,1];(StringReplace[strs,#1]&)/@myRes]
+
+aa2fMakeFreeWord3let[str_String]:=Module[{myP,myV,myRes},myP=aa2fCreatePolynoms3let[str];myV=aa2fPickVariables3let[str];myRes=aa2fTestPolynom3let[myP,myV,1];(StringReplace[str,#1]&)/@myRes]
+ 
+aa2fMakeFreeWord3let[str_String,charList_List]:=Module[{myP,myV,myRes},myP=aa2fCreatePolynoms3let[str];myV=aa2fPickVariables3let[str];myRes=aa2fTestPolynom3let[myP,myV,1,charList];(StringReplace[str,#1]&)/@myRes]
+
+aa2fMakeFreeWords3let[{},___]:={}
+ 
+aa2fMakeFreeWords3let[strs_List]:=Module[{myP,myV,myRes,mixUp},myP=(aa2fCreatePolynoms3let[#1]&)/@strs;myV=Flatten[Characters[(aa2fPickVariables3let[#1]&)/@strs]];myV=StringJoin[DeleteDuplicates[myV]];mixUp=Times@@myP;myRes=aa2fTestPolynom3let[mixUp,myV,1];(StringReplace[strs,#1]&)/@myRes]
+ 
+aa2fMakeFreeWords3let[strs_List,charList_List]:=Module[{myP,myV,myRes,mixUp},myP=(aa2fCreatePolynoms3let[#1]&)/@strs;myV=Flatten[Characters[(aa2fPickVariables3let[#1]&)/@strs]];myV=StringJoin[DeleteDuplicates[myV]];mixUp=Times@@myP;myRes=aa2fTestPolynom3let[mixUp,myV,1,charList];(StringReplace[strs,#1]&)/@myRes]
+
+aa2fParikh[x_List]:=Plus@@x
+ 
+aa2fParikh[x_String]:=Plus@@Characters[x]
+
+aa2fPickVariables3let[str_String]:=Module[{},StringJoin[Complement[Union[Characters[str]],Characters[abc]]]]
+
+aa2fSolvePolynom3let[pol_,var_,charList_:{a,b,c}]:=Flatten[(If[(pol/. ToString[var]->#1)=!=0,ToString[var]->#1,{}]&)/@charList]
+aa2fTestPolynom3let[polynGroup_,vars_String,outputType_Integer:1]:=Module[{polyList,res,pr,silmu=3},polyList=DeleteCases[({StringTake[vars,{1}]->#1,polynGroup/. StringTake[vars,{1}]->#1}&)/@Characters[abc],{_,0}];If[StringLength[vars]==1,Return[(Take[#1,1]&)/@polyList]];res=DeleteCases[({{#1[[1]]},aa2fSolvePolynom3let[#1[[2]],StringTake[vars,{2}]]}&)/@polyList,{_,{}}];pr=(Flatten[#1,2]&)[(Outer[List,#1[[1]],#1[[2]]]&)/@res];While[silmu<=StringLength[vars],polyList=({#1,polynGroup/. #1}&)/@pr;res=DeleteCases[({{#1[[1]]},aa2fSolvePolynom3let[#1[[2]],StringTake[vars,{silmu}]]}&)/@polyList,{_,{}}];pr=(Flatten[#1,2]&)[(Outer[List,#1[[1]],#1[[2]],1,1]&)/@res];pr=Flatten/@pr;silmu=silmu+1;];If[outputType==2,Return[(StringReplace[StringTake[vars,silmu-1],#1]&)/@pr],Return[pr]]]
+ 
+aa2fTestPolynom3let[polynGroup_,vars_String,outputType_Integer:1,charList_List]:=Module[{polyList,res,pr,silmu=3},polyList=DeleteCases[({StringTake[vars,{1}]->#1,polynGroup/. StringTake[vars,{1}]->#1}&)/@aa2fFindTestChars3let[StringTake[vars,{1}],charList],{_,0}];If[StringLength[vars]==1,Return[(Take[#1,1]&)/@polyList]];res=DeleteCases[({{#1[[1]]},aa2fSolvePolynom3let[#1[[2]],StringTake[vars,{2}],aa2fFindTestChars3let[StringTake[vars,{2}],charList]]}&)/@polyList,{_,{}}];pr=(Flatten[#1,2]&)[(Outer[List,#1[[1]],#1[[2]]]&)/@res];While[silmu<=StringLength[vars],polyList=({#1,polynGroup/. #1}&)/@pr;res=DeleteCases[({{#1[[1]]},aa2fSolvePolynom3let[#1[[2]],StringTake[vars,{silmu}],aa2fFindTestChars3let[StringTake[vars,{silmu}],charList]]}&)/@polyList,{_,{}}];pr=(Flatten[#1,2]&)[(Outer[List,#1[[1]],#1[[2]],1,1]&)/@res];pr=Flatten/@pr;silmu=silmu+1;];If[outputType==2,Return[(StringReplace[StringTake[vars,silmu-1],#1]&)/@pr],Return[pr]]]
+
+
+aaabANDrest3letLen4CasesReducedFactorFORM[x_String,factorPointer_]:=StringReplace[x,aaabANDrest3letLen4CasesReducedRule[Characters[StringTake[x,{factorPointer,factorPointer+3}]]]]
+
+aaabANDrest3letLen4CasesReducedFORM[{}]:={}
+ 
+aaabANDrest3letLen4CasesReducedFORM[x_String]:=StringReplace[x,aaabANDrest3letLen4CasesReducedPREF[Characters[StringTake[x,4]]]]
+
+aaabANDrest3letLen4CasesReducedPREF[{a_,a_,a_,b_}]:={a->a,b->b,Complement[{a,b,c},{a,b}][[1]]->c}
+ 
+aaabANDrest3letLen4CasesReducedPREF[{a_,a_,b_,a_}]:={a->a,b->b,Complement[{a,b,c},{a,b}][[1]]->c}
+ 
+aaabANDrest3letLen4CasesReducedPREF[{a_,a_,b_,b_}]:={a->a,b->b,Complement[{a,b,c},{a,b}][[1]]->c}
+ 
+aaabANDrest3letLen4CasesReducedPREF[{a_,a_,b_,c_}]:={a->a,b->b,c->c}/;Sort[{a,b,c}]==={a,b,c}
+ 
+aaabANDrest3letLen4CasesReducedPREF[{a_,b_,a_,a_}]:={a->a,b->b,Complement[{a,b,c},{a,b}][[1]]->c}
+ 
+aaabANDrest3letLen4CasesReducedPREF[{a_,b_,a_,c_}]:={a->a,b->b,c->c}/;Sort[{a,b,c}]==={a,b,c}
+ 
+aaabANDrest3letLen4CasesReducedPREF[{a_,b_,b_,b_}]:={a->a,b->b,Complement[{a,b,c},{a,b}][[1]]->c}
+ 
+aaabANDrest3letLen4CasesReducedPREF[{a_,b_,b_,c_}]:={a->a,b->b,c->c}/;Sort[{a,b,c}]==={a,b,c}
+ 
+aaabANDrest3letLen4CasesReducedPREF[{a_,b_,c_,a_}]:={a->a,b->b,c->c}/;Sort[{a,b,c}]==={a,b,c}
+ 
+aaabANDrest3letLen4CasesReducedPREF[{a_,b_,c_,b_}]:={a->a,b->b,c->c}/;Sort[{a,b,c}]==={a,b,c}
+ 
+aaabANDrest3letLen4CasesReducedPREF[{a_,b_,c_,c_}]:={a->a,b->b,c->c}/;Sort[{a,b,c}]==={a,b,c}
+
+
+aaabANDrest3letLen4CasesReducedRule[{a_,a_,a_,b_}]:={a->a,b->b,Complement[{a,b,c},{a,b}][[1]]->c}
+ 
+aaabANDrest3letLen4CasesReducedRule[{a_,a_,b_,a_}]:={a->a,b->b,Complement[{a,b,c},{a,b}][[1]]->c}
+ 
+aaabANDrest3letLen4CasesReducedRule[{a_,a_,b_,b_}]:={a->a,b->b,Complement[{a,b,c},{a,b}][[1]]->c}
+ 
+aaabANDrest3letLen4CasesReducedRule[{a_,a_,b_,c_}]:={a->a,b->b,c->c}/;Sort[{a,b,c}]==={a,b,c}
+ 
+aaabANDrest3letLen4CasesReducedRule[{a_,b_,a_,a_}]:={a->a,b->b,Complement[{a,b,c},{a,b}][[1]]->c}
+ 
+aaabANDrest3letLen4CasesReducedRule[{a_,b_,a_,c_}]:={a->a,b->b,c->c}/;Sort[{a,b,c}]==={a,b,c}
+ 
+aaabANDrest3letLen4CasesReducedRule[{a_,b_,b_,b_}]:={a->a,b->b,Complement[{a,b,c},{a,b}][[1]]->c}
+ 
+aaabANDrest3letLen4CasesReducedRule[{a_,b_,b_,c_}]:={a->a,b->b,c->c}/;Sort[{a,b,c}]==={a,b,c}
+ 
+aaabANDrest3letLen4CasesReducedRule[{a_,b_,c_,a_}]:={a->a,b->b,c->c}/;Sort[{a,b,c}]==={a,b,c}
+ 
+aaabANDrest3letLen4CasesReducedRule[{a_,b_,c_,b_}]:={a->a,b->b,c->c}/;Sort[{a,b,c}]==={a,b,c}
+ 
+aaabANDrest3letLen4CasesReducedRule[{a_,b_,c_,c_}]:={a->a,b->b,c->c}/;Sort[{a,b,c}]==={a,b,c}
+
+
+aaabTOxxxyANDrest3letLen4CasesReducedFactorFORM[abc_String,factorPointer_][xyz_String]:=StringReplace[abc,aaabTOxxxyANDrest3letLen4CasesReducedRule[Characters[StringTake[xyz,{factorPointer,factorPointer+3}]]]]
+
+aaabTOxxxyANDrest3letLen4CasesReducedFORM[abc_String][xyz_String]:=StringReplace[abc,aaabTOxxxyANDrest3letLen4CasesReducedRule[Characters[StringTake[xyz,4]]]]
+aaabTOxxxyANDrest3letLen4CasesReducedRule[{x_,x_,x_,y_}]:={x->a,y->b,Complement[{a,b,c},{x,y}][[1]]->c}
+ 
+aaabTOxxxyANDrest3letLen4CasesReducedRule[{x_,x_,y_,x_}]:={a->x,b->y,c->Complement[{a,b,c},{x,y}][[1]]}
+ 
+aaabTOxxxyANDrest3letLen4CasesReducedRule[{x_,x_,y_,y_}]:={a->x,b->y,c->Complement[{a,b,c},{x,y}][[1]]}
+ 
+aaabTOxxxyANDrest3letLen4CasesReducedRule[{x_,x_,y_,z_}]:={a->x,b->y,c->z}/;Sort[{x,y,z}]==={a,b,c}
+ 
+aaabTOxxxyANDrest3letLen4CasesReducedRule[{x_,y_,x_,x_}]:={a->x,b->y,c->Complement[{a,b,c},{x,y}][[1]]}
+ 
+aaabTOxxxyANDrest3letLen4CasesReducedRule[{x_,y_,x_,z_}]:={a->x,b->y,c->z}/;Sort[{x,y,z}]==={a,b,c}
+ 
+aaabTOxxxyANDrest3letLen4CasesReducedRule[{x_,y_,y_,y_}]:={a->x,b->y,c->Complement[{a,b,c},{x,y}][[1]]}
+ 
+aaabTOxxxyANDrest3letLen4CasesReducedRule[{x_,y_,y_,z_}]:={a->x,b->y,c->z}/;Sort[{x,y,z}]==={a,b,c}
+ 
+aaabTOxxxyANDrest3letLen4CasesReducedRule[{x_,y_,z_,x_}]:={a->x,b->y,c->z}/;Sort[{x,y,z}]==={a,b,c}
+ 
+aaabTOxxxyANDrest3letLen4CasesReducedRule[{x_,y_,z_,y_}]:={a->x,b->y,c->z}/;Sort[{x,y,z}]==={a,b,c}
+ 
+aaabTOxxxyANDrest3letLen4CasesReducedRule[{x_,y_,z_,z_}]:={a->x,b->y,c->z}/;Sort[{x,y,z}]==={a,b,c}
+
+
+abacXabcaXabcbXabcdFactorFORM[x_String,factorPointer_]:=StringReplace[x,abacXabcaXabcbXabcdRule[Characters[StringTake[x,{factorPointer,factorPointer+3}]]]]
+
+abacXabcaXabcbXabcdFORM[x_String]:=StringReplace[x,abacXabcaXabcbXabcdPREF[Characters[StringTake[x,4]]]]
+abacXabcaXabcbXabcdPREF[{a_,b_,a_,c_}]:={a->a,b->b,c->c,Complement[{a,b,c,d},{a,b,c}][[1]]->d}
+ 
+abacXabcaXabcbXabcdPREF[{a_,b_,c_,a_}]:={a->a,b->b,c->c,Complement[{a,b,c,d},{a,b,c}][[1]]->d}
+ 
+abacXabcaXabcbXabcdPREF[{a_,b_,c_,b_}]:={a->a,b->b,c->c,Complement[{a,b,c,d},{a,b,c}][[1]]->d}
+ 
+abacXabcaXabcbXabcdPREF[{a_,b_,c_,d_}]:={a->a,b->b,c->c,d->d}/;Sort[{a,b,c,d}]==={a,b,c,d}
+
+
+abacXabcaXabcbXabcdRule[{a_,b_,a_,c_}]:={a->a,b->b,c->c,Complement[{a,b,c,d},{a,b,c}][[1]]->d}
+ 
+abacXabcaXabcbXabcdRule[{a_,b_,c_,a_}]:={a->a,b->b,c->c,Complement[{a,b,c,d},{a,b,c}][[1]]->d}
+ 
+abacXabcaXabcbXabcdRule[{a_,b_,c_,b_}]:={a->a,b->b,c->c,Complement[{a,b,c,d},{a,b,c}][[1]]->d}
+ 
+abacXabcaXabcbXabcdRule[{a_,b_,c_,d_}]:={a->a,b->b,c->c,d->d}/;Sort[{a,b,c,d}]==={a,b,c,d}
+
+
+allPerm3Let[x_String]:=(StringReplace[x,Thread[{a,b,c}->#1]]&)/@Permutations[{a,b,c}]
+allPerm4let[x_String]:=(StringReplace[x,Thread[{a,b,c,d}->#1]]&)/@Permutations[{a,b,c,d}]
+
+
+createPermsAndMirsOfWord[w_String]:=Block[{myList=(StringReplace[w,#1]&)/@permsRules},{myList,StringReverse/@myList}]
+
+createPermsAndMirsOfWordFlUnion[w_String]:=Union[Flatten[Block[{myList=(StringReplace[w,#1]&)/@permsRules},{myList,StringReverse/@myList}]]]
+
+deleteMirrorPermutations4let[{x_List,y_List}]:={{x,y[[1]]},Complement[Rest[y],allPerm4let[StringReverse[y[[1]]]]]}
+
+deletePermutations4let[{x_List,y_List}]:={{x,y[[1]]},Complement[Rest[y],allPerm4let[y[[1]]]]}
+
+hasNonNegativeComponentsThree[x_Plus|x_Times|x_String]:=(x/. {a->1,b->0,c->0,->0})>=0&&(x/. {a->0,b->1,c->0,->0})>=0&&(x/. {a->0,b->0,c->1,->0})>=0
+ 
+hasNonNegativeComponentsThree[x_List]:=And@@(#1>=0&)/@x
+
+myStringTake[x_String,{i_Integer,j_Integer}]:=/;i>j
+ 
+myStringTake[x_String,{i_Integer,j_Integer}]:=/;i<1
+ 
+myStringTake[x_String,{0,0}]:=
+ 
+myStringTake[x_String,{i_Integer,j_Integer}]:=StringTake[x,{i,j}]
+
+
+norm[0]=0
+ 
+norm[x_Plus|x_Times|x_String]:=Abs[x/. {a->1,b->1,c->1}]
+ 
+norm[x_List]:=Abs[Plus@@x]
+
+
+normWithSign[0]=0
+ 
+normWithSign[x_Plus|x_Times|x_String]:=x/. {a->1,b->1,c->1}
+ 
+normWithSign[x_List]:=Plus@@x
+
+
+pat[pv_]:=StringExpression@@PadRight[{},Total[pv],_]
+
+
+permutationsOFsc[fct_]:=Permutations[{StringCount[fct,a],StringCount[fct,b],StringCount[fct,c]}]
+s[x_String]:=Plus@@Characters[x]
+ 
+s[x_List]:=Plus@@x
+
+
+sc[fct_]:={StringCount[fct,a],StringCount[fct,b],StringCount[fct,c]}
+sc3[s_String]:={StringCount[s,a],StringCount[s,b],StringCount[s,c]}
+
+sc3OdEv[s_String]:={EvenQ[StringCount[s,a]],EvenQ[StringCount[s,b]],EvenQ[StringCount[s,c]]}
+sc3OdEvAdd[tv_List,s_String]:=MapThread[Xnor,{tv,sc3OdEv[s]}]
+sc3OdEvAddCumul[tv_List,s_String,partitionStep_Integer]:=FoldList[sc3OdEvAdd,tv,StringPartition[s,partitionStep]]
+
+sc3OdEvAddCumulRest01[tv_List,s_String,partitionStep_Integer]:=Rest[sc3OdEvAddCumul[tv,s,partitionStep]/. {True->0,False->1}]
+
+sc3OdEvAddIncr[tv_List,s_String,pos_Integer,step_Integer:0]:=sc3OdEvAdd[tv,StringTake[s,{pos,pos+step}]]
+
+selectInneRxxFree[str_String]:=If[StringFreeQ[str,y_~~x_~~x_~~z_/;y!=x&&z!=x],str,{}]
+
+selectNoThreeVec2uPLUSvNor2vPLUSuFromAdotBdoTpCCsDoTpDDs[x_String,vecA&B&AminusB]:=If[testThreeVec2uPLUSvAnd2vPLUSuFromAdotBdoTpCCsDoTpDDs[x,vecA&B&AminusB],x,{}]
+
+selectNoThreeVecFromAdotBdoTpCCsDoTpDDs[x_String,vecA&B&AminusB]:=If[testThreeVecFromAdotBdoTpCCsDoTpDDs[x,vecA&B&AminusB],x,{}]
+
+showThreeVecAnBnAminusBfromAdotBdoTpCCsDoTpDDs[x_String,vecA&B&AminusB]:=Block[{rules=toRulesFromAdotBdoTpCCsDoTpDDs[x],spList,vecA,vecB},{vecA=s[StringReplace[A,rules]],vecB=s[StringReplace[B,rules]],vecAminusB=s[StringReplace[A,rules]]-s[StringReplace[B,rules]]}]
+
+st[x_String,m_Integer,n_Integer]:=StringTake[x,{m,n}]
+
+testA2[x_,a2FreePrefLen_:2]:=If[StringLength[x]<2,Too short string,Module[{sl=StringLength[x],i=0,res},While[a2FreePrefLen+i<=sl&&(res=testSuff[StringTake[x,a2FreePrefLen+i]]),i++];(asp=a2FreePrefLen+i;res)]]
+
+testA2Mir[x_,a2FreePrefLen_:2]:=testA2[StringReverse[x],a2FreePrefLen]
+
+testA2MirThree[x_,a2FreePrefLen_:4]:=testA2Three[StringReverse[x],a2FreePrefLen]
+
+testA2MirVecStr[x_,a2FreePrefLen_:2]:=testA2VecStr[Reverse[x],a2FreePrefLen]
+
+testA2MirVis[x_,a2FreePrefLen_:2]:=testA2Vis[StringReverse[x],a2FreePrefLen]
+
+testA2MirVisThree[x_,a2FreePrefLen_:4]:=testA2VisThree[StringReverse[x],a2FreePrefLen]
+
+testA2MirVisVecStr[x_,a2FreePrefLen_:2]:=testA2VisVecStr[Reverse[x],a2FreePrefLen]
+
+testA2Three[x_,a2FreePrefLen_:4]:=If[StringLength[x]<4,Too short string,Block[{sl=StringLength[x],i=0,res},While[a2FreePrefLen+i<=sl&&(res=testSuffThree[StringTake[x,a2FreePrefLen+i]]),i++];(asp=a2FreePrefLen+i;res)]]
+testA2VecStr[x_,a2FreePrefLen_:2]:=If[Length[x]<2,Too short string of vetors,Module[{sl=Length[x],i=0,res},While[a2FreePrefLen+i<=sl&&(res=testSuffVecStr[Take[x,a2FreePrefLen+i]]),i++];(asp=a2FreePrefLen+i;res)]]
+
+testA2Vis[x_,a2FreePrefLen_:2]:=If[StringLength[x]<2,Too short string,Module[{sl=StringLength[x],i=0,res},While[a2FreePrefLen+i<=sl,If[(res=testSuffVis[StringTake[x,a2FreePrefLen+i]])===True,True,Print[res]];i++];End]]
+
+testA2VisThree[x_,a2FreePrefLen_:4]:=If[StringLength[x]<4,Too short string,Block[{sl=StringLength[x],i=0,res},While[a2FreePrefLen+i<=sl,If[(res=testSuffVisThree[StringTake[x,a2FreePrefLen+i]])===True,True,Print[res]];i++];End]]
+
+testA2VisVecStr[x_,a2FreePrefLen_:2]:=If[Length[x]<2,Too short string of vetors,Module[{sl=Length[x],i=0,res},While[a2FreePrefLen+i<=sl,If[(res=testSuffVisVecStr[Take[x,a2FreePrefLen+i]])===True,True,Print[res]];i++];End]]
+
+testSuff[x_]:=Module[{sl=StringLength[x],i=0,res=True},While[i<Floor[sl/2]&&(res=!s[StringTake[x,{sl-1-2 i,sl-1-i}]]===s[StringTake[x,{sl-i,sl}]]),i++];res]
+
+testSuffThree[x_]:=Block[{sl=StringLength[x],i=1,res=True},While[i<Floor[sl/2]&&(res=!s[StringTake[x,{sl-1-2 i,sl-1-i}]]===s[StringTake[x,{sl-i,sl}]]),i++];res]
+
+testSuffThreeVec[x_String,vec_Plus|vec_Times|vec_String]:=Block[{sl=StringLength[x],i=0,res=True},While[i<Floor[sl/2]&&(res=!(s[StringTake[x,{sl-1-2 i,sl-1-i}]]===s[StringTake[x,{sl-i,sl}]]-vec||s[StringTake[x,{sl-1-2 i,sl-1-i}]]===s[StringTake[x,{sl-i,sl}]]+vec)),i++];res]/;norm[vec]===0
+ 
+testSuffThreeVec[x_String,0]:=Block[{sl=StringLength[x],i=0,res=True},While[i<Floor[sl/2]&&(res=!s[StringTake[x,{sl-1-2 i,sl-1-i}]]===s[StringTake[x,{sl-i,sl}]]),i++];res]
+ 
+testSuffThreeVec[x_String,vec_Plus|vec_Times|vec_String]:=Block[{sl=StringLength[x],i=0,res=True,nws=normWithSign[vec],nrm=norm[vec]},If[nws<0,If[s[StringTake[x,-nrm]]===-vec,res=False;Return[res]];While[i<Floor[(sl-nrm)/2]&&(res=!(s[StringTake[x,{sl-1-2 i-nrm,sl-1-i}]]===s[StringTake[x,{sl-i,sl}]]-vec||s[StringTake[x,{sl-1-2 i-nrm,sl-1-i-nrm}]]===s[StringTake[x,{sl-i-nrm,sl}]]+vec)),i++],If[s[StringTake[x,-nrm]]===vec,res=False;Return[res]];While[i<Floor[(sl-nrm)/2]&&(res=!(s[StringTake[x,{sl-1-2 i-nrm,sl-1-i-nrm}]]===s[StringTake[x,{sl-i-nrm,sl}]]-vec||s[StringTake[x,{sl-1-2 i-nrm,sl-1-i}]]===s[StringTake[x,{sl-i,sl}]]+vec)),i++]];res]
+
+
+testSuffThreeVec2uPLUSvAnd2vPLUSu[x_String,vec_Plus|vec_Times|vec_String]:=Block[{sl=StringLength[x],i,j=0,res=True,nrm=norm[vec]},i=nrm-2 j;While[2 j<=norm[vec]&&(res=!(Expand[s[myStringTake[x,{sl-i-j+1,sl-j}]]+2 s[myStringTake[x,{sl-j+1,sl}]]]===vec||Expand[2 s[myStringTake[x,{sl-i-j+1,sl-i}]]+s[myStringTake[x,{sl-i+1,sl}]]]===vec)),j++;i=nrm-2 j];res]/;hasNonNegativeComponentsThree[vec]&&norm[vec]>0
+ 
+testSuffThreeVec2uPLUSvAnd2vPLUSu[x_String,vec_Plus|vec_Times|vec_String]:=True
+
+testSuffVecStr[x_]:=Module[{sl=Length[x],i=0,res=True},While[i<Floor[sl/2]&&(res=!s[Take[x,{sl-1-2 i,sl-1-i}]]===s[Take[x,{sl-i,sl}]]),i++];res]
+
+testSuffVis[x_]:=Module[{sl=StringLength[x],i=0,res},While[i<Floor[sl/2]&&(res=!s[StringTake[x,{sl-1-2 i,sl-1-i}]]===s[StringTake[x,{sl-i,sl}]]),i++];If[res,True,{StringTake[x,{sl-1-2 i,sl-1-i}],StringTake[x,{sl-i,sl}],2 (i+1)}]]
+testSuffVisThree[x_]:=Block[{sl=StringLength[x],i=1,res},While[i<Floor[sl/2]&&(res=!s[StringTake[x,{sl-1-2 i,sl-1-i}]]===s[StringTake[x,{sl-i,sl}]]),i++];If[res,True,{StringTake[x,{sl-1-2 i,sl-1-i}],StringTake[x,{sl-i,sl}],2 (i+1)}]]
+
+testSuffVisVecStr[x_]:=Module[{sl=Length[x],i=0,res},While[i<Floor[sl/2]&&(res=!s[Take[x,{sl-1-2 i,sl-1-i}]]===s[Take[x,{sl-i,sl}]]),i++];If[res,True,{Take[x,{sl-1-2 i,sl-1-i}],Take[x,{sl-i,sl}],2 (i+1)}]]
+
+testThreeVec[x_String,vec_Plus|vec_Times|vec_String]:=If[StringLength[x]<norm[vec],Too short string,Block[{sl=StringLength[x],vecFreePrefLen=Max[norm[vec],2],i=0,res},While[vecFreePrefLen+i<=sl&&(res=testSuffThreeVec[StringTake[x,vecFreePrefLen+i],vec]),i++];(vecPrefLen=vecFreePrefLen+i;res)]]
+testThreeVec2uPLUSvAnd2vPLUSu[x_String,vec_Plus|vec_Times|vec_String]:=If[StringLength[x]<Ceiling[norm[vec]/2],Too short string,Block[{sl=StringLength[x],vecFreePrefLen=Ceiling[norm[vec]/2],i=0,res},While[vecFreePrefLen+i<=sl&&(res=testSuffThreeVec2uPLUSvAnd2vPLUSu[StringTake[x,vecFreePrefLen+i],vec]),i++];(vecPrefLen=vecFreePrefLen+i;res)]]
+
+testThreeVec2uPLUSvAnd2vPLUSuFromAdotBdoTpCCsDoTpDDs[x_String,vecA&B&AminusB]:=Block[{rules=toRulesFromAdotBdoTpCCsDoTpDDs[x],spList,vecA,vecB},spList=StringReplace[{CspD,DspC},rules];vecA=s[StringReplace[A,rules]];vecB=s[StringReplace[B,rules]];vecAminusB=s[StringReplace[A,rules]]-s[StringReplace[B,rules]];testThreeVec2uPLUSvAnd2vPLUSu[spList[[1]],vecAminusB]&&testThreeVec2uPLUSvAnd2vPLUSu[spList[[2]],vecAminusB]&&testThreeVec2uPLUSvAnd2vPLUSu[spList[[1]],vecA]&&testThreeVec2uPLUSvAnd2vPLUSu[spList[[2]],vecA]&&testThreeVec2uPLUSvAnd2vPLUSu[spList[[1]],vecB]&&testThreeVec2uPLUSvAnd2vPLUSu[spList[[2]],vecB]]
+
+testThreeVecFromAdotBdoTpCCsDoTpDDs[x_String,vecA&B&AminusB]:=Block[{rules=toRulesFromAdotBdoTpCCsDoTpDDs[x],spList,vecA,vecB},spList=StringReplace[{CspD,DspC},rules];vecA=s[StringReplace[A,rules]];vecB=s[StringReplace[B,rules]];vecAminusB=s[StringReplace[A,rules]]-s[StringReplace[B,rules]];testThreeVec[spList[[1]],vecAminusB]&&testThreeVec[spList[[2]],vecAminusB]&&testThreeVec[spList[[1]],vecA]&&testThreeVec[spList[[2]],vecA]&&testThreeVec[spList[[1]],vecB]&&testThreeVec[spList[[2]],vecB]]
