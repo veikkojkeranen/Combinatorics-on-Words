@@ -1,0 +1,9 @@
+https://wordstructures.org/
+
+This is under construction.
+
+Word Structures is a research programme in combinatorics on words: the study of repetition, order and structure in sequences of symbols. Its central question concerns abelian squares — two adjacent blocks of equal length that hold the same letters the same number of times, in any order — and how far a word can go while avoiding them.
+
+Abelian Square-Free Structures — Interactive Explorer
+
+Start | Learn | Play | Explore | Research | Evidence
