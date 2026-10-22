@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>From four-letter a2f words to ternary aa2f words</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=STIX+Two+Text:ital,wght@0,400;0,600;0,700;1,400;1,600&family=JetBrains+Mono:wght@400;600&family=Noto+Sans+Mono:wght@400;600&display=swap">
+<style>
+  :root{
+    --bg:#FBFBF8; --ink:#1D2230; --ink-soft:#505769; --ink-faint:#80869A; --rule:#D9DBD2;
+    --accent:#2F4F8A; --panel:#F1F2EC; --claim-bg:#EEF1F8; --claim-edge:#2F4F8A;
+    --neg-bg:#F7EFEC; --neg-edge:#A0522D;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#15171E; --ink:#E7E8E2; --ink-soft:#B0B5C4; --ink-faint:#7C8296; --rule:#33374A;
+      --accent:#8FAAE6; --panel:#1E212B; --claim-bg:#1B2233; --claim-edge:#8FAAE6;
+      --neg-bg:#2A201D; --neg-edge:#D9967A;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#15171E; --ink:#E7E8E2; --ink-soft:#B0B5C4; --ink-faint:#7C8296; --rule:#33374A;
+    --accent:#8FAAE6; --panel:#1E212B; --claim-bg:#1B2233; --claim-edge:#8FAAE6;
+    --neg-bg:#2A201D; --neg-edge:#D9967A;
+  }
+  *{box-sizing:border-box;}
+  html{ -webkit-text-size-adjust:100%; }
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:"STIX Two Text","Cambria","Times New Roman",Georgia,serif;
+    font-size:19px; line-height:1.62; font-feature-settings:"liga","kern"; -webkit-font-smoothing:antialiased;
+  }
+  .page{ max-width:860px; margin:0 auto; padding:72px 24px 110px; }
+  header{ margin-bottom:44px; }
+  h1{ font-weight:600; font-size:clamp(1.75rem,4.4vw,2.35rem); line-height:1.14; margin:0 0 20px; text-wrap:balance; }
+  h1 .sub{ display:block; font-weight:400; font-style:italic; color:var(--ink-soft); font-size:0.72em; margin-top:8px; }
+  .byline{
+    font-family:"JetBrains Mono",ui-monospace,Consolas,monospace; font-size:13px; letter-spacing:0.02em;
+    color:var(--ink-soft); display:flex; gap:14px; flex-wrap:wrap; align-items:baseline;
+    padding-top:16px; border-top:1px solid var(--rule);
+  }
+  .byline b{ color:var(--ink); font-weight:600; }
+  h2{
+    font-size:0.82rem; font-family:"JetBrains Mono",ui-monospace,Consolas,monospace; font-weight:600;
+    letter-spacing:0.1em; text-transform:uppercase; color:var(--accent); margin:52px 0 14px;
+  }
+  h3{ font-size:1.02rem; font-weight:600; margin:30px 0 8px; }
+  p{ margin:0 0 1.05em; max-width:78ch; text-wrap:pretty; }
+  i, var{ font-style:italic; }
+  .l{ font-style:normal; font-family:"Noto Sans Mono","JetBrains Mono",ui-monospace,Consolas,monospace; font-size:0.84em; font-weight:600; }
+  .term{ font-style:italic; }
+  .tt{ font-family:"JetBrains Mono",ui-monospace,Consolas,monospace; font-size:0.84em; }
+  sub, sup{ line-height:0; } sub{ font-size:0.72em; vertical-align:-0.28em; } sup{ font-size:0.72em; vertical-align:0.42em; }
+  .nowrap{ white-space:nowrap; }
+  ul, ol{ margin:0 0 1.05em; padding-left:1.4em; } li{ margin-bottom:0.35em; max-width:76ch; }
+  .claim, .neg{ padding:16px 22px 4px; margin:26px 0 30px; border-radius:0 4px 4px 0; }
+  .claim{ background:var(--claim-bg); border-left:3px solid var(--claim-edge); }
+  .neg{ background:var(--neg-bg); border-left:3px solid var(--neg-edge); }
+  .claim p, .neg p{ max-width:none; }
+  .lbl{ font-weight:700; font-variant:small-caps; letter-spacing:0.04em; }
+  .proof .lbl{ font-style:italic; font-variant:normal; letter-spacing:0; }
+  .qed{ float:right; margin-left:14px; }
+  .word{
+    font-family:"JetBrains Mono",ui-monospace,Consolas,monospace; font-size:13.5px; line-height:1.55;
+    background:var(--panel); border:1px solid var(--rule); border-radius:4px; padding:10px 14px;
+    overflow-wrap:anywhere; margin:10px 0 22px;
+  }
+  .word .w3{ color:var(--accent); font-weight:600; }
+  .tablewrap{ overflow-x:auto; margin:10px 0 26px; }
+  table.vt{ border-collapse:collapse; width:100%; font-size:0.86em; }
+  table.vt th, table.vt td{ padding:7px 10px; text-align:left; border-bottom:1px solid var(--rule); vertical-align:top; font-variant-numeric:tabular-nums; }
+  table.vt th{
+    font-family:"JetBrains Mono",ui-monospace,Consolas,monospace; font-size:11px; letter-spacing:0.08em;
+    text-transform:uppercase; color:var(--ink-faint); font-weight:600; border-bottom:1px solid var(--ink-faint);
+  }
+  table.vt th.n{ text-align:right; }
+  table.vt td.n{ text-align:right; white-space:nowrap; font-family:"JetBrains Mono",ui-monospace,Consolas,monospace; font-size:0.92em; }
+  .tag{ font-family:"JetBrains Mono",ui-monospace,Consolas,monospace; font-size:11px; padding:1px 6px; border-radius:3px; white-space:nowrap; }
+  .tag.ex{ background:var(--claim-bg); color:var(--accent); border:1px solid var(--claim-edge); }
+  .tag.to{ background:var(--panel); color:var(--ink-soft); border:1px solid var(--rule); }
+  .scale{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin:18px 0 28px; }
+  .scale div{ border:1px solid var(--rule); border-radius:4px; padding:12px 14px; background:var(--panel); }
+  .scale b{ display:block; font-family:"JetBrains Mono",ui-monospace,Consolas,monospace; font-size:12px; letter-spacing:0.06em; color:var(--ink-faint); text-transform:uppercase; }
+  .scale span{ display:block; font-size:1.25rem; font-weight:600; margin:2px 0; }
+  .scale small{ color:var(--ink-soft); font-size:0.82rem; line-height:1.35; display:block; }
+  details{ margin:6px 0 20px; } summary{ cursor:pointer; color:var(--accent); font-size:0.92rem; }
+  code{ font-family:"JetBrains Mono",ui-monospace,Consolas,monospace; font-size:0.82em; background:var(--panel); padding:1px 5px; border-radius:3px; }
+  footer{
+    margin-top:68px; padding-top:18px; border-top:1px solid var(--rule);
+    font-family:"JetBrains Mono",ui-monospace,Consolas,monospace; font-size:12px; color:var(--ink-faint); line-height:1.6;
+  }
+  @media (max-width:560px){
+    body{ font-size:17.5px; } .page{ padding:44px 16px 80px; } .claim, .neg{ padding:14px 16px 2px; }
+    .scale{ grid-template-columns:1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+<header>
+  <h1>From abelian square-free words over four letters to aa2f words over three letters
+    <span class="sub">Computational experiments, a lifting principle, and a sharp limit for four-letter decorations</span></h1>
+  <div class="byline"><b>V. Keränen</b><span>Working notes, 22 October 2026</span><span>Experiments run with Claude Code</span></div>
+</header>
+
+<section>
+<h2>The question</h2>
+<p>Can abelian square-free (a2f) words over four letters, such as the fixed point of <i>g</i><sub>85</sub>, be turned systematically into very long, ideally infinite, aa2f or aa2fr words over <span class="l">{a, b, c}</span>? Letters may be added, either inserted between existing letters or used to replace some occurrences of a letter. Both operations keep the a2f property.</p>
+<p>Recall that a ternary word is <span class="term">aa2f</span> if its only abelian squares have period 1. It is <span class="term">aa2fr</span> if, in addition, it contains no factor <i>yxxz</i> with <i>y</i> ≠ <i>x</i> ≠ <i>z</i>. Since <i>xxxx</i> is an abelian square of period 2, the maximal runs of an aa2fr word have length 1 or 3.</p>
+</section>
+
+<section>
+<h2>1 · The molecule alphabet and a lifting principle</h2>
+<p>Write a ternary word <i>t</i> as a sequence of maximal runs. Each run <i>x<sup>k</sup></i> becomes one letter, a <span class="term">molecule</span>, of the alphabet</p>
+<p style="text-align:center"><span class="nowrap">Γ<sub>6</sub> = <span class="l">{a, b, c, aaa, bbb, ccc}</span></span> (aa2fr), &nbsp; <span class="nowrap">Γ<sub>9</sub> = Γ<sub>6</sub> ∪ <span class="l">{aa, bb, cc}</span></span> (aa2f).</p>
+<p>Denote the resulting <span class="term">molecule word</span> by μ(<i>t</i>). Neighbouring molecules always have different base letters. This generalises the double-width letters <span class="l">ȧ, ḃ, ċ</span> of the geometric note, with one important difference: here a molecule of width <i>k</i> counts <i>k</i> times in the ternary Parikh vector.</p>
+
+<div class="claim">
+  <p><span class="lbl">Proposition 1</span> (lifting). If <i>t</i> is aa2fr, then μ(<i>t</i>) is an a2f word over the six-letter alphabet Γ<sub>6</sub>. If <i>t</i> is aa2f, then μ(<i>t</i>) is a2f over Γ<sub>9</sub>.</p>
+  <p class="proof"><span class="lbl">Proof.</span> Suppose <i>UV</i> is a factor of μ(<i>t</i>) with Ψ(<i>U</i>) = Ψ(<i>V</i>) over the molecule alphabet. Expanding the molecules gives a factor <i>uv</i> of <i>t</i> with the same ternary Parikh vector and the same length, so <i>uv</i> is an abelian square of period |<i>u</i>|. If |<i>u</i>| ≥ 2, this contradicts the aa2f property. If |<i>u</i>| = 1, then <i>U</i> = <i>V</i> is one molecule of width 1, and two equal molecules would be adjacent. That is impossible because the runs are maximal. <span class="qed">∎</span></p>
+</div>
+
+<p>Verified on the published words. aa2fr3268 has 1528 molecules over Γ<sub>6</sub>: 213 <span class="l">a</span>, 225 <span class="l">b</span>, 220 <span class="l">c</span>, 296 <span class="l">aaa</span>, 298 <span class="l">bbb</span>, 276 <span class="l">ccc</span>. aa2f25379 has 12587 molecules over Γ<sub>9</sub>. Both molecule words are a2f.</p>
+
+<p>The converse fails, and the reason explains everything that follows. A real abelian square in <i>t</i> can show up in μ(<i>t</i>) in two ways:</p>
+<ol>
+  <li><b>Aligned, but weighted.</b> <i>U</i> and <i>V</i> have the same ternary Parikh vector with <span class="l">aaa</span> counted as 3 · <span class="l">a</span>. This is a square modulo the weight map ω: Γ<sub>6</sub> → ℤ<sup>3</sup>, whose kernel has rank 3.</li>
+  <li><b>Unaligned.</b> The square starts, ends or is split inside a run of length 2 or 3, so it cuts a molecule.</li>
+</ol>
+<p>The second kind is what separates the claim in the geometric note from real aa2f-ness. That claim is correct, because it concerns squares modulo Φ′, which are aligned and count a double-width letter once. But take the actual ternary word <i>w</i>′ obtained from <i>g</i><sub>85</sub>(<span class="l">a</span>) by replacing each <span class="l">d</span> with its left neighbour. Its first abelian square of period ≥ 2 already ends at position 14:</p>
+<div class="word">w&nbsp; = abcacdcbcd<span class="w3">cadc</span>dbdaba…<br>w′ = abcacccbcc<span class="w3">ca|ac</span>cbbaba…</div>
+<p>The square <span class="l">ca|ac</span> cuts the double-width letter <span class="l">ȧ</span> = <span class="l">aa</span>. Geometrically, <span class="l">c ȧ c</span> is not a square, but as a ternary word it is.</p>
+</section>
+
+<section>
+<h2>2 · Rigid constructions from g85 fail early</h2>
+<p>All searches below are depth-first with backtracking, carried out letter by letter, with an exact abelian-square test on the ternary word. <span class="tag ex">exhaustive</span> means the whole search tree was explored, so the number shown is the exact maximum. <span class="tag to">limit</span> means the search stopped at a node or time limit, so the number is only a lower bound for that family.</p>
+<div class="tablewrap">
+<table class="vt">
+<thead><tr><th>#</th><th>Construction (skeleton = fixed point of <i>g</i><sub>85</sub> unless noted)</th><th>Longest ternary word</th><th>Status</th></tr></thead>
+<tbody>
+<tr><td>E1</td><td><span class="l">d</span> → left neighbour (the construction of the geometric note)</td><td class="n">13</td><td><span class="tag ex">exact</span></td></tr>
+<tr><td>E2</td><td><span class="l">a, b, c</span> kept, each <span class="l">d</span> replaced by a word of length ≤ 2 (any of ε, <span class="l">a</span>, …, <span class="l">cc</span>)</td><td class="n">24 / 22 (r)</td><td><span class="tag ex">exhaustive</span></td></tr>
+<tr><td>E3</td><td>Sliding-block code: each letter → one molecule, chosen by its context <i>w</i>[<i>i</i>−<i>l</i> .. <i>i</i>+<i>r</i>]; window ≤ 2</td><td class="n">31</td><td><span class="tag ex">exhaustive</span></td></tr>
+<tr><td></td><td>same, windows of length 3 … 7 (36 … 224 contexts)</td><td class="n">≤ 174</td><td><span class="tag to">limit</span></td></tr>
+<tr><td>E4</td><td>Uniform morphism φ: {<span class="l">a,b,c,d</span>} → {<span class="l">a,b,c</span>}<sup><i>m</i></sup>, images searched letter by letter; <i>m</i> ≤ 9 (aa2f), <i>m</i> ≤ 14 (aa2fr)</td><td class="n">≤ 10.6 <i>g</i><sub>85</sub>-letters</td><td><span class="tag ex">exhaustive</span></td></tr>
+<tr><td></td><td>same, <i>m</i> up to 24</td><td class="n">152</td><td><span class="tag to">limit</span></td></tr>
+<tr><td>E5</td><td>Splitting: partition Γ<sub>6</sub> into 4 classes, one class per letter, in-class choices free (all 1560 assignments)</td><td class="n">26</td><td><span class="tag ex">exhaustive</span></td></tr>
+<tr><td></td><td>Splitting + insertion of a fifth letter <span class="l">e</span> before any letter (1800 assignments)</td><td class="n">45</td><td><span class="tag ex">exhaustive</span></td></tr>
+<tr><td>E6</td><td>Pleasants' five-letter a2f word as skeleton, Γ<sub>6</sub> split into 5 classes (1800 assignments)</td><td class="n">24</td><td><span class="tag ex">exhaustive</span></td></tr>
+<tr><td>E7</td><td>Blocks: φ(<i>x</i>) ∈ aa2fr words of length 40 (pool of 3000 from the 2.4 M list)</td><td class="n">120</td><td><span class="tag ex">exhaustive (pool)</span></td></tr>
+</tbody>
+</table>
+</div>
+<p>The obstruction is local. Every rigid construction dies within the first 10 to 20 letters of <i>g</i><sub>85</sub>(<span class="l">a</span>), whatever the block length. This fits the known structure of <i>g</i><sub>85</sub>: its fixed point contains all a2f factors of length 4 except eight. A fixed coding therefore has to survive almost every local pattern, including <span class="l">cacdc</span>, <span class="l">cbcdc</span> and <span class="l">dcdbd</span>.</p>
+<p>For morphisms φ from four to three letters there is also a global obstruction, which would remain even if every local problem were solved. It has three steps.</p>
+<p><b>Kernel.</b> Let <i>M</i> be the 3 × 4 Parikh matrix of φ, whose column for letter <i>x</i> is Ψ(φ(<i>x</i>)). Then Ψ(φ(<i>u</i>)) = <i>M</i> Ψ(<i>u</i>) for every word <i>u</i>. Since <i>M</i> has rank at most 3, it has a nonzero integer kernel vector <b>k</b>, with <i>M</i><b>k</b> = 0. Write ℤ<b>k</b> = {<i>t</i><b>k</b> : <i>t</i> ∈ ℤ} for its integer multiples. If <i>xy</i> is a factor with Ψ(<i>x</i>) − Ψ(<i>y</i>) = <i>t</i><b>k</b> and <i>t</i> ≠ 0, then φ(<i>x</i>) and φ(<i>y</i>) have equal Parikh vectors, so φ(<i>x</i>)φ(<i>y</i>) is an abelian square. Here <i>x</i> and <i>y</i> may have different lengths. For example, with φ(<span class="l">a</span>) = <span class="l">a</span>, φ(<span class="l">b</span>) = <span class="l">b</span>, φ(<span class="l">c</span>) = <span class="l">c</span> and φ(<span class="l">d</span>) = <span class="l">abc</span>, we get <b>k</b> = (1, 1, 1, −1). The factor <span class="l">abcd</span>, which occurs in the <i>g</i><sub>85</sub> fixed point, then maps to <span class="l">abc|abc</span>. Abelian square-freeness of the four-letter word only guarantees Ψ(<i>x</i>) ≠ Ψ(<i>y</i>). It says nothing about differences along <b>k</b>.</p>
+<p><b>Imbalance.</b> Write Ψ(<i>x</i>) = (<i>n</i>/4)(1,1,1,1) + <i>e</i>(<i>x</i>) for a factor <i>x</i> of length <i>n</i>. The error <i>e</i>(<i>x</i>) measures how far the factor is from the ideal letter frequencies 1/4. The Parikh matrix of <i>g</i><sub>85</sub> is circulant, with first column (19, 21, 27, 18), and its eigenvalues are 85 (eigenvector (1,1,1,1)), −8 ± 3<i>i</i> (modulus 8.544) and 7. One application of <i>g</i><sub>85</sub> multiplies lengths by 85 but errors by at most 8.544. The error therefore grows like <i>n</i><sup>α</sup>, with α = ln 8.544 / ln 85 ≈ 0.48. Measured on factors of length 10, 10², …, 10⁵, the maximal |<i>e</i>(<i>x</i>)| is 3.3, 11, 32, 96 and 265: about three times larger per factor 10, as 10<sup>0.48</sup> ≈ 3 predicts. Geometrically, the Parikh vectors of all factors lie in a tube around the diagonal ℝ(1,1,1,1) whose radius at length <i>n</i> is about <i>C n</i><sup>0.48</sup>.</p>
+<p><b>Reaching the kernel.</b> Write <b>k</b> = (Σ<i>k</i><sub><i>i</i></sub>/4)(1,1,1,1) + <b>k</b><sub>⊥</sub>. Here <b>k</b><sub>⊥</sub> ≠ 0, because <i>M</i>(1,1,1,1) is the sum of the columns of <i>M</i>, a nonzero vector with nonnegative entries. A hit Ψ(<i>x</i>) − Ψ(<i>y</i>) = <i>t</i><b>k</b> needs <i>e</i>(<i>x</i>) − <i>e</i>(<i>y</i>) = <i>t</i><b>k</b><sub>⊥</sub>, so the imbalance must reach at least |<b>k</b><sub>⊥</sub>|. If the tube had bounded width <i>W</i>, any φ with |<b>k</b><sub>⊥</sub>| &gt; 2<i>W</i> would avoid such aligned squares forever. This happens when all eigenvalues other than the largest have modulus below 1. For <i>g</i><sub>85</sub> the tube keeps widening, so this protection is absent. Differences of size |<b>k</b><sub>⊥</sub>| occur once factors are roughly |<b>k</b><sub>⊥</sub>|<sup>2</sup> long. This is a heuristic, not a theorem: a wide enough tube is necessary for a hit, but some adjacent pair must also land exactly on a point <i>t</i><b>k</b>. In the experiments above, the morphisms failed locally long before this scale.</p>
+</section>
+
+<section>
+<h2>3 · A sharp limit for four-letter decorations</h2>
+<p>The experiments in section 2 fix the skeleton in advance. The decisive test leaves the skeleton free. Fix a partition of Γ<sub>6</sub> into <i>k</i> classes, and search over all molecule words whose ternary image is aa2fr and whose <span class="term">shadow</span> is a2f over <i>k</i> letters. The shadow is the word obtained by replacing each molecule with the name of its class. These ternary words are exactly the decorated <i>k</i>-letter a2f words in the sense of the question, where a letter is split into the molecules of its class.</p>
+
+<div class="claim">
+  <p><span class="lbl">Proposition 2</span> (computer-verified, exhaustive). Let <i>t</i> be a ternary word all of whose maximal runs have length 1 or 3, and suppose <i>t</i> is aa2f. If, for some partition of Γ<sub>6</sub> into four classes, the shadow of μ(<i>t</i>) is abelian square-free, then |<i>t</i>| ≤ 85.</p>
+  <p>The bound is attained. All 65 partitions were searched to completion, the largest tree having 3.6 · 10⁶ nodes. The maximum 85 occurs, for example, for the classes {<span class="l">a</span>,<span class="l">b</span>}, {<span class="l">c</span>,<span class="l">ccc</span>}, {<span class="l">aaa</span>}, {<span class="l">bbb</span>}:</p>
+  <div class="word"><i style="font-family:'STIX Two Text',serif">w</i> = aaacaaabbbcccaaabaaacaaabbbcbbbabbbcccaaabcabbbcccaaabaaacaaabbbcbbbabbbcccaaabbbcbbb</div>
+</div>
+
+<h3>The extremal word and its shadow</h3>
+<p>The 85-letter word <i>w</i> above has a symmetric structure. Let</p>
+<div class="word">w<sub>5a</sub> = aaacaa, &nbsp; w<sub>5b</sub> = bbcbbb, &nbsp; w<sub>18</sub> = abbbcccaaabaaacaaa,<br>
+w<sub>36</sub> = w<sub>18</sub> · <span style="font-family:inherit">mir</span>(w<sub>18</sub>),</div>
+<p>where mir(<i>u</i>) is the reversal of <i>u</i> with <span class="l">a</span> and <span class="l">b</span> exchanged. Then</p>
+<p style="text-align:center"><i>w</i> = <i>w</i><sub>5a</sub> · <i>w</i><sub>36</sub> · <span class="l">c</span> · <i>w</i><sub>36</sub> · <i>w</i><sub>5b</sub>.</p>
+<p>The shadow is formed by splitting <i>w</i> into its 37 molecules, <span class="l">aaa · c · aaa · bbb · ccc · aaa · b · …</span>, and replacing each by the name of its class: {<span class="l">a</span>,<span class="l">b</span>} → <span class="l">a</span>, {<span class="l">c</span>,<span class="l">ccc</span>} → <span class="l">b</span>, {<span class="l">aaa</span>} → <span class="l">c</span>, {<span class="l">bbb</span>} → <span class="l">d</span>. The class names are arbitrary; any renaming gives an equivalent shadow. The result is the a2f word</p>
+<div class="word">w<sub>s</sub> = cbcdbcacbcdbdadbcabadbcacbcdbdadbcdbd</div>
+<p>An exhaustive search shows that <i>w</i><sub>s</sub> is an a2f dead end on both sides:</p>
+<ul>
+  <li>to the right, only <i>w</i><sub>s</sub><span class="l">a</span>, <i>w</i><sub>s</sub><span class="l">ab</span> and <i>w</i><sub>s</sub><span class="l">aba</span> are a2f;</li>
+  <li>to the left, only <span class="l">a</span><i>w</i><sub>s</sub>, <span class="l">ba</span><i>w</i><sub>s</sub> and <span class="l">aba</span><i>w</i><sub>s</sub> are a2f;</li>
+  <li>the longest two-sided a2f extension is <span class="l">aba</span> · <i>w</i><sub>s</sub> · <span class="l">aba</span> (43 letters), and it cannot be extended in either direction.</li>
+</ul>
+<p>Hence <i>w</i><sub>s</sub> is not a factor of any infinite a2f word over four letters, and in particular not of any fixed point of an a2f endomorphism. This matches Proposition 2. The maximum 85 is not just where the search happened to stop: the extremal decorated word has a shadow that is boxed in on both sides. The symmetric extensions (<span class="l">aba</span> on both sides) reflect the symmetric structure of <i>w</i>. That symmetry may be what allows the word to reach 85 letters before both ends get stuck at once.</p>
+<p style="font-size:0.88rem;color:var(--ink-soft)">The decomposition of <i>w</i> and the observation that <i>w</i><sub>s</sub> occurs in no known a2f <i>g</i>(<span class="l">a</span>) are due to V. Keränen (22 October 2026). The extension search is computer-verified.</p>
+
+<p>The published words agree with this from the other direction. For aa2fr3268, merging the six molecule letters into 4 or 5 classes creates an abelian square within the first 22 or 51 molecules, respectively. For aa2f25379, merging its nine molecule letters into 4 or 5 classes does so within 15 or 34 molecules. None of the record words is a decorated four- or five-letter a2f word.</p>
+
+<div class="scale">
+  <div><b>4 letters</b><span>≤ 85</span><small>Four-letter decorations of aa2fr words are provably short (Prop. 2).</small></div>
+  <div><b>5 letters</b><span>≥ 603</span><small>Classes {a}, {b,c}, {aaa}, {bbb}, {ccc}: search not exhausted after 3 · 10⁹ nodes.</small></div>
+  <div><b>6 letters</b><span>everything</span><small>Every aa2fr word is a decorated six-letter a2f word (Prop. 1).</small></div>
+</div>
+
+<details><summary>A five-letter decorated aa2fr word of length 603</summary>
+<p>Shadow classes {<span class="l">a</span>}, {<span class="l">b</span>,<span class="l">c</span>}, {<span class="l">aaa</span>}, {<span class="l">bbb</span>}, {<span class="l">ccc</span>}. The ternary word is aa2fr, its 263 molecules give an a2f shadow over five letters, and merging the classes further to four destroys the a2f property. The word is in <code>research_4to3/data/joint5_011234.txt</code>.</p>
+</details>
+
+<p>For aa2f with nine molecules, the four-class question is still open. The best partition, {<span class="l">a</span>,<span class="l">bb</span>,<span class="l">cc</span>}, {<span class="l">b</span>,<span class="l">bbb</span>}, {<span class="l">c</span>,<span class="l">ccc</span>}, {<span class="l">aa</span>,<span class="l">aaa</span>}, reached 303 ternary letters within 3 · 10⁹ nodes without being exhausted.</p>
+
+<div class="neg">
+  <p><span class="lbl">Consequence.</span> In the aa2fr case, decorating a four-letter a2f word, by splitting letters and partially replacing them by others, can never give words longer than 85, whatever the four-letter word. Inserting one new letter <span class="l">e</span> moves the problem to five letters, and five is exactly the critical case: decorated five-letter words reach at least 603, while a fixed five-letter skeleton such as Pleasants' fails at 24.</p>
+</div>
+</section>
+
+<section>
+<h2>4 · Morphisms on the molecule alphabet</h2>
+<p>Following the design of <i>g</i><sub>85</sub>, I looked for morphisms <i>h</i> on Γ<sub>6</sub> that commute with the cyclic shift τ: <span class="l">a → b → c → a</span>. Then only <i>h</i>(<span class="l">a</span>) and <i>h</i>(<span class="l">aaa</span>) need to be chosen, and the candidate word is the fixed point <i>h</i><sup>ω</sup>(<span class="l">a</span>). The images were filled in lazily while the fixed point was being generated.</p>
+<ul>
+  <li>Image lengths ≤ 10 molecules: all 81 length pairs exhausted, longest ternary prefix 154.</li>
+  <li>Image lengths 11–16: at most 218 within 20 s per pair (15 of 36 pairs exhausted).</li>
+  <li>No symmetry (six independent images), lengths ≤ 7: at most 163.</li>
+</ul>
+<p>Short molecule morphisms are therefore not enough. This agrees with Rao and Rosenfeld's finding that abelian squares of periods 2–5 are hard to avoid in ternary morphic words.</p>
+</section>
+
+<section>
+<h2>5 · The five-letter backbone experiment</h2>
+<p>Section 3 singles out five letters, with backbone letters <span class="l">P, Q, R, S, T</span> standing for the classes {<span class="l">a</span>}, {<span class="l">b</span>,<span class="l">c</span>}, {<span class="l">aaa</span>}, {<span class="l">bbb</span>}, {<span class="l">ccc</span>}. This experiment searches two things at the same time:</p>
+<ul>
+  <li>a morphism <i>H</i> on {<span class="l">P, Q, R, S, T</span>}, with <i>H</i>(<i>x</i><sub>0</sub>) beginning with <i>x</i><sub>0</sub>, so that the candidate word is the fixed point <i>H</i><sup>ω</sup>(<i>x</i><sub>0</sub>);</li>
+  <li>a sliding-block rule choosing <span class="l">b</span> or <span class="l">c</span> at every <span class="l">Q</span>. The rule depends either on the 1 or 2 backbone letters to the left (<span class="tt">left:1</span>, <span class="tt">left:2</span>), or on the parent letter and the offset inside its image (<span class="tt">slot</span>). The <span class="tt">slot</span> rule turns the whole construction into a coding of a morphism on six letters.</li>
+</ul>
+<p>The images and the rule entries are unknowns. They are fixed lazily while the fixed point is being generated, and the search backtracks over them. Every run checks that the decorated ternary word is aa2fr. Runs come in two modes, which differ in one extra test. In <span class="tt">a2f</span> mode, the backbone word over <span class="l">P, Q, R, S, T</span> must itself be abelian square-free, which is the decoration idea of section 3. In <span class="tt">free</span> mode, the backbone is not checked at all. Besides the length reached, I recorded the <span class="term">forced streak</span>: the longest stretch of molecules that followed entirely from images and rule entries fixed earlier, with no new free decision. A morphism that really works would show a forced streak growing without bound.</p>
+<div class="tablewrap">
+<table class="vt">
+<thead><tr><th class="n">|<i>H</i>(<i>x</i>)|</th><th class="n">Best ternary prefix (any rule / mode)</th><th class="n">Longest forced streak (molecules)</th></tr></thead>
+<tbody>
+<tr><td class="n">3–7</td><td class="n">145*</td><td class="n">—</td></tr>
+<tr><td class="n">8</td><td class="n">157</td><td class="n">29</td></tr>
+<tr><td class="n">12</td><td class="n">231</td><td class="n">37</td></tr>
+<tr><td class="n">16</td><td class="n">282</td><td class="n">39</td></tr>
+<tr><td class="n">20</td><td class="n">327</td><td class="n">60</td></tr>
+<tr><td class="n">24</td><td class="n">384</td><td class="n">64</td></tr>
+<tr><td class="n">30</td><td class="n">388</td><td class="n">46</td></tr>
+<tr><td class="n">40</td><td class="n">417</td><td class="n">42</td></tr>
+</tbody>
+</table>
+</div>
+<p style="font-size:0.88rem;color:var(--ink-soft)">* For image lengths 3–7, the maximum is 136 in <span class="tt">a2f</span> mode, where the search was <span class="tag ex">exhaustive</span> for every rule. It is 145 in <span class="tt">free</span> mode.</p>
+<p>There were 42 configurations: image lengths 8–40, three rule types, two modes, each with 6 random option orders × 4 start letters at 15 s per run. Uniform lengths 3–16 were also scanned for all five rule types, <span class="tt">left:0</span> to <span class="tt">left:3</span> and <span class="tt">slot</span>. With a single global choice (<span class="tt">left:0</span>), every case is exhausted at 62 letters or fewer. The best prefixes were rebuilt independently by iterating <i>H</i> and applying the rule, and the aa2f prefix lengths agree with the search.</p>
+<div class="neg">
+  <p><span class="lbl">Outcome.</span> No self-sustaining backbone was found. The forced streak never exceeds about one or two image blocks (≤ 64 molecules), so every surviving prefix still depends on fresh free decisions. The best fixed-point prefix, 417 letters, stays below the 603 that free five-class search reaches. The choice of <span class="l">b</span>/<span class="l">c</span> rule matters little, which points to the morphism <i>H</i> as the bottleneck. With longer images the a2f requirement on the backbone helps rather than hurts, because it prunes the search.</p>
+</div>
+<p>This does not rule out five-letter backbones. It shows that image lengths up to 40 are not enough when <i>H</i> is found by naive lazy search. The record words have a long-range structure, as the dead-end phenomenon around position 1557 of aa2fr2107 shows. A morphism capturing that structure would plausibly need images in the hundreds, as <i>g</i><sub>85</sub> needed length 85 for four letters.</p>
+</section>
+
+<section>
+<h2>6 · Suggested directions</h2>
+<ol>
+  <li><b>Work on Γ<sub>6</sub> (or Γ<sub>9</sub>) directly.</b> By Proposition 1 the aa2fr problem is the same as finding an infinite a2f word over six letters, with two extra conditions. The first is avoiding squares modulo the weight map ω, which is a Pirillo–Varricchio square modulo a morphism. The second is avoiding unaligned squares, where at most three molecules are cut and each cut changes the counts by a bounded vector. Both conditions are linear with bounded corrections, which is exactly the setting where Rao and Rosenfeld's template method can decide avoidance for a given morphic word. A candidate molecule morphism <i>h</i> could then be <em>proved</em> correct, not just tested.</li>
+  <li><b>Five-letter backbones, from data rather than blind search.</b> Section 5 shows that naive lazy search for <i>H</i> stalls at 417. A better route is to grow long decorated five-class words first, beyond 603, with the fast backtracker. Then look for a recognisable morphic structure in their backbones, for example by desubstitution, recurring blocks, or return words, and only after that fix <i>H</i>.</li>
+  <li><b>Use the record words as data.</b> Run the joint search with the C++/CUDA backtracker. That needs one extra suffix test on the shadow. It would show whether decorated five-letter words keep growing like plain aa2fr words. On the same 3 · 10⁹-node budget, plain chronological search reached ≥ 1401, and the five-letter variant stalled near 600.</li>
+  <li><b>Decide the aa2f four-letter case.</b> With nine molecules, a bound analogous to Proposition 2 may hold. Exhaustive runs for the top partitions are feasible with the C++ engine.</li>
+</ol>
+</section>
+
+<footer>
+  Scripts (Node.js) are in <code>research_4to3/</code>: <code>lib.js</code> (morphisms g85, g98, Pleasants; incremental abelian-square checker), <code>exp1_left_neighbour.js</code> (E1), <code>skeleton_dfs.js</code> (E2), <code>code_search.js</code> (E3), <code>morphism_search.js</code> (E4), <code>exp6_split_insert.js</code> (E5), <code>exp8_pleasants.js</code> (E6), <code>exp5_block_morphism.js</code> (E7), <code>exp3_structure.js</code> and <code>exp4_merge.js</code> (Prop. 1 data and the merge test), <code>exp7_joint.js</code> and <code>exp9_long_joint.js</code> (Prop. 2 and the five-class runs), <code>molecule_morphism.js</code> (section 4), <code>backbone5.js</code>, <code>exp10_backbone_long.js</code> and <code>backbone5_verify.js</code> (section 5; raw results in <code>data/bb5/</code> and <code>data/bb5long/</code>).<br>
+  Example: <code>node exp7_joint.js r 4</code> reproduces Proposition 2 in about a minute.
+</footer>
+
+</div>
+</body>
+</html>

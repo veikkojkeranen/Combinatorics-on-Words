@@ -1,0 +1,13 @@
+aa2f: decorated 4-letter a2f words, 7770 partitions, all exhausted: false
+  max ternary length 226 (node limit) nodes 300006  classes {a,bb,cc} {b,bbb} {c,ccc} {aa,aaa}
+     abacabbbccaabaacaaabbcccbbbccaaabbcccaaacccbcacccbbbcccaaabcccbbbabcbbbaaabccaaacccabbbccaabbbaaacaaabaaaccbbbaaabbbcbbbabbbcccbbbaaacbbbcccacbcccaaacccbbaacaabaaacccaabbcccabbbcbbaacaaabcccbabbbcbaaabbbccaaabaaacaaabbbaaccbcc
+  max ternary length 205 (node limit) nodes 300001  classes {a,aaa} {b,aa,cc} {c,ccc} {bb,bbb}
+     abacabbccabcccaaacbbaaabbbaacbbbcacbcccaaacbbbacccaaabaaacaaabbbaaaccbbabbcbbbaaabbccaaabcccaabbcccbbabbbcbbaacccbbbcccacbcccaaacbbbacccaaabaaacaaabbbaaaccbbabbbcccaaacbcccacbbbcccaabbcbbbaaabbccabcccbbabb
+  max ternary length 177 (node limit) nodes 300006  classes {a,aaa} {b,bbb} {c,aa,bb} {cc,ccc}
+     abacabbbaccbcccaabccaaabbbacaaabaaacccaaabbccaccbcccaaaccbbaaacbbbaaccbbbccacccbccaabbbcccbbbabcbbbaaabcccabbbaaacabaaacccaaabbccacccbccaaaccbbaaacbbbabbccacccbaaabbbcbaaacccaaa
+  max ternary length 170 (node limit) nodes 300000  classes {a,aaa} {b,bbb} {c,ccc} {aa,bb,cc}
+     abacabbcbbbacccbbaaaccbbbaaabbbcbabbbccaaabaaacaaabbcccacbcccaaacccbbaaaccbbbaacccbbbcccacbcccaabbbcbbbabbbccaaabaaacaaabbcccacccbcccaabbbcbacccaaaccbbbabbbcbaacccbcabbba
+  max ternary length 148 (node limit) nodes 300001  classes {a,aaa} {b,bbb} {c,aa,bb,cc} {ccc}
+     abacabbbacccbaaabcbbbabbbcccbbbaacccbbaaacccaaabaaacaaabbbaaacccbbbaaabbbcbbbabbbcccbbbaacccbbaaabbbaacccbcccacccbbaaaccbbbcccaccbabbbcccbbbaaabbccc
+  max ternary length 145 (node limit) nodes 300001  classes {a,bb} {b,bbb} {c,ccc} {aa,cc,aaa}
+     abacabbbaccbbbcccbaccbbbaacaaabbcccaaacccbcccacccbbbcccaabbbaaabbcccaccbbbabbbcbbbaaabbbcccbacccaabaaacaabbcabbbaaacccbbbcccacbcccaaacccbbaaacaaa

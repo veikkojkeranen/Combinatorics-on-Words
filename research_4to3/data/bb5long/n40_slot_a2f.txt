@@ -1,0 +1,25 @@
+n=40 seed=0 start=P: best ternary 190, longest forced streak 5 molecules 
+n=40 seed=0 start=R: best ternary 303, longest forced streak 11 molecules 
+n=40 seed=0 start=S: best ternary 415, longest forced streak 23 molecules 
+n=40 seed=0 start=T: best ternary 292, longest forced streak 14 molecules 
+n=40 seed=1 start=P: best ternary 306, longest forced streak 10 molecules 
+n=40 seed=1 start=R: best ternary 309, longest forced streak 11 molecules 
+n=40 seed=1 start=S: best ternary 222, longest forced streak 22 molecules 
+n=40 seed=1 start=T: best ternary 196, longest forced streak 4 molecules 
+n=40 seed=2 start=P: best ternary 316, longest forced streak 12 molecules 
+n=40 seed=2 start=R: best ternary 318, longest forced streak 12 molecules 
+n=40 seed=2 start=S: best ternary 208, longest forced streak 8 molecules 
+n=40 seed=2 start=T: best ternary 306, longest forced streak 40 molecules 
+n=40 seed=3 start=P: best ternary 196, longest forced streak 4 molecules 
+n=40 seed=3 start=R: best ternary 387, longest forced streak 11 molecules 
+n=40 seed=3 start=S: best ternary 217, longest forced streak 17 molecules 
+n=40 seed=3 start=T: best ternary 305, longest forced streak 9 molecules 
+n=40 seed=4 start=P: best ternary 316, longest forced streak 12 molecules 
+n=40 seed=4 start=R: best ternary 318, longest forced streak 12 molecules 
+n=40 seed=4 start=S: best ternary 211, longest forced streak 8 molecules 
+n=40 seed=4 start=T: best ternary 306, longest forced streak 40 molecules 
+n=40 seed=5 start=P: best ternary 306, longest forced streak 10 molecules 
+n=40 seed=5 start=R: best ternary 310, longest forced streak 11 molecules 
+n=40 seed=5 start=S: best ternary 198, longest forced streak 4 molecules 
+n=40 seed=5 start=T: best ternary 396, longest forced streak 9 molecules 
+TOP {"n":40,"rule":"slot","mode":"a2f","best":306,"beyond":40,"seed":2,"start":"T","snap":{"H":{"P":"????????????????????????????????????????","Q":"????????????????????????????????????????","R":"????????????????????????????????????????","S":"SQSRSTRSRQPQRTSPSQSRTQTPTSRQPQRTRSTRTQTP","T":"TSTRSTSPSQSRSTRSRQPQRTQRSTQRTQTPTSTRSTSP"},"R":{"S@1":"c","S@9":"c","S@11":"b","S@17":"c","S@21":"b","S@27":"c","S@29":"b","S@37":"b","T@9":"c","T@17":"c","T@19":"b","T@22":"b","T@26":"b","T@29":"b"},"len":294,"molecules":120,"lastDecision":79}}

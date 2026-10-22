@@ -1,0 +1,25 @@
+n=8 seed=0 start=P: best ternary 150, longest forced streak 21 molecules 
+n=8 seed=0 start=R: best ternary 140, longest forced streak 27 molecules 
+n=8 seed=0 start=S: best ternary 125, longest forced streak 24 molecules 
+n=8 seed=0 start=T: best ternary 125, longest forced streak 24 molecules 
+n=8 seed=1 start=P: best ternary 139, longest forced streak 26 molecules 
+n=8 seed=1 start=R: best ternary 140, longest forced streak 27 molecules 
+n=8 seed=1 start=S: best ternary 157, longest forced streak 27 molecules 
+n=8 seed=1 start=T: best ternary 157, longest forced streak 27 molecules 
+n=8 seed=2 start=P: best ternary 154, longest forced streak 25 molecules 
+n=8 seed=2 start=R: best ternary 151, longest forced streak 27 molecules 
+n=8 seed=2 start=S: best ternary 157, longest forced streak 27 molecules 
+n=8 seed=2 start=T: best ternary 157, longest forced streak 27 molecules 
+n=8 seed=3 start=P: best ternary 154, longest forced streak 25 molecules 
+n=8 seed=3 start=R: best ternary 151, longest forced streak 27 molecules 
+n=8 seed=3 start=S: best ternary 155, longest forced streak 26 molecules 
+n=8 seed=3 start=T: best ternary 157, longest forced streak 27 molecules 
+n=8 seed=4 start=P: best ternary 154, longest forced streak 25 molecules 
+n=8 seed=4 start=R: best ternary 151, longest forced streak 27 molecules 
+n=8 seed=4 start=S: best ternary 157, longest forced streak 27 molecules 
+n=8 seed=4 start=T: best ternary 157, longest forced streak 27 molecules 
+n=8 seed=5 start=P: best ternary 139, longest forced streak 26 molecules 
+n=8 seed=5 start=R: best ternary 151, longest forced streak 27 molecules 
+n=8 seed=5 start=S: best ternary 142, longest forced streak 26 molecules 
+n=8 seed=5 start=T: best ternary 157, longest forced streak 27 molecules 
+TOP {"n":8,"rule":"left:1","mode":"free","best":157,"beyond":27,"seed":1,"start":"S","snap":{"H":{"P":"TRSRQPQR","Q":"TQQPQQSR","R":"QSTRTQTP","S":"STPQRTPQ","T":"TSPSQSRS"},"R":{"P":"b","Q":"c","R":"c","S":"c","T":"b"},"len":145,"molecules":67,"lastDecision":39}}

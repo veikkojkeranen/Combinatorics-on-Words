@@ -1,0 +1,4 @@
+best 100 after 14125 nodes, 0 s
+best 200 after 126252 nodes, 0 s
+best 300 after 289057365 nodes, 42 s
+done: best 303, nodes 3000000001, exhausted false, 413 s

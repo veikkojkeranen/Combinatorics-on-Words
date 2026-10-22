@@ -1,0 +1,25 @@
+n=40 seed=0 start=P: best ternary 176, longest forced streak 13 molecules 
+n=40 seed=0 start=R: best ternary 263, longest forced streak 10 molecules 
+n=40 seed=0 start=S: best ternary 299, longest forced streak 35 molecules 
+n=40 seed=0 start=T: best ternary 276, longest forced streak 12 molecules 
+n=40 seed=1 start=P: best ternary 231, longest forced streak 33 molecules 
+n=40 seed=1 start=R: best ternary 227, longest forced streak 27 molecules 
+n=40 seed=1 start=S: best ternary 240, longest forced streak 30 molecules 
+n=40 seed=1 start=T: best ternary 230, longest forced streak 34 molecules 
+n=40 seed=2 start=P: best ternary 306, longest forced streak 16 molecules 
+n=40 seed=2 start=R: best ternary 308, longest forced streak 16 molecules 
+n=40 seed=2 start=S: best ternary 214, longest forced streak 12 molecules 
+n=40 seed=2 start=T: best ternary 336, longest forced streak 40 molecules 
+n=40 seed=3 start=P: best ternary 182, longest forced streak 4 molecules 
+n=40 seed=3 start=R: best ternary 389, longest forced streak 31 molecules 
+n=40 seed=3 start=S: best ternary 195, longest forced streak 12 molecules 
+n=40 seed=3 start=T: best ternary 312, longest forced streak 30 molecules 
+n=40 seed=4 start=P: best ternary 306, longest forced streak 21 molecules 
+n=40 seed=4 start=R: best ternary 308, longest forced streak 21 molecules 
+n=40 seed=4 start=S: best ternary 216, longest forced streak 12 molecules 
+n=40 seed=4 start=T: best ternary 380, longest forced streak 40 molecules 
+n=40 seed=5 start=P: best ternary 346, longest forced streak 42 molecules 
+n=40 seed=5 start=R: best ternary 295, longest forced streak 25 molecules 
+n=40 seed=5 start=S: best ternary 180, longest forced streak 4 molecules 
+n=40 seed=5 start=T: best ternary 388, longest forced streak 30 molecules 
+TOP {"n":40,"rule":"slot","mode":"free","best":346,"beyond":42,"seed":5,"start":"P","snap":{"H":{"P":"PQSQPQQQRQSQPTQQPQRQRSQSPSTSRQSTPQQQRSTR","Q":"QRQRSQSPQQRTSRSQSPSTSRTSQPTQQRTSRSQQPSTQ","R":"????????????????????????????????????????","S":"PTRQRQRSTRTQTPTSTRSPQQTPTSPSQSRSTRSPQQTR","T":"????????????????????????????????????????"},"R":{"P@1":"c","P@3":"c","P@5":"c","P@6":"b","P@7":"c","P@9":"c","P@11":"c","P@14":"b","P@15":"c","P@17":"b","P@19":"c","P@22":"c","P@29":"c","P@33":"c","P@34":"b","P@35":"c","Q@0":"b","Q@2":"c","Q@5":"c","Q@8":"b","Q@9":"c","Q@15":"c","Q@24":"c","Q@27":"b","Q@28":"c","Q@34":"c","Q@35":"b","Q@39":"b","S@3":"b","S@5":"c","S@11":"b","S@20":"c","S@21":"b","S@28":"c","S@36":"c","S@37":"b"},"len":346,"molecules":162,"lastDecision":119}}

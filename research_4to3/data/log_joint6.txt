@@ -1,0 +1,22 @@
+best 100 after 1545 nodes, 0 s
+best 200 after 41501 nodes, 0 s
+best 301 after 121225 nodes, 0 s
+best 401 after 181148 nodes, 0 s
+best 501 after 185406 nodes, 0 s
+best 601 after 224909 nodes, 0 s
+best 701 after 4502951 nodes, 2 s
+best 801 after 12120715 nodes, 7 s
+best 901 after 35724512 nodes, 21 s
+best 1001 after 43589397 nodes, 26 s
+best 1101 after 44210244 nodes, 27 s
+best 1201 after 144134887 nodes, 111 s
+best 1301 after 177627141 nodes, 144 s
+best 1401 after 519028965 nodes, 486 s
+best 1501 after 2362562322 nodes, 2126 s
+best 1601 after 2385404556 nodes, 2153 s
+best 1701 after 2711370946 nodes, 2538 s
+best 1801 after 2711554444 nodes, 2538 s
+best 1901 after 2714252029 nodes, 2542 s
+best 2001 after 2724504221 nodes, 2556 s
+best 2101 after 2869826662 nodes, 2768 s
+done: best 2130, nodes 3000000003, exhausted false, 2955 s
