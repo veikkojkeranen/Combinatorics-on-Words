@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>From four-letter a2f words to ternary aa2f words</title>
+<title>From a2f words over four or more letters to ternary aa2f words</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=STIX+Two+Text:ital,wght@0,400;0,600;0,700;1,400;1,600&family=JetBrains+Mono:wght@400;600&family=Noto+Sans+Mono:wght@400;600&display=swap">
 <style>
@@ -100,9 +100,9 @@
 <div class="page">
 
 <header>
-  <h1>From abelian square-free words over four letters to aa2f words over three letters
-    <span class="sub">Computational experiments, a lifting principle, and a sharp limit for four-letter decorations</span></h1>
-  <div class="byline"><b>V. Keränen</b><span>Working notes, 22 October 2026</span><span>Experiments run with Claude Code</span></div>
+  <h1>From abelian square-free words over four or more letters to aa2f words over three letters
+    <span class="sub">Computational experiments, a lifting principle, a sharp limit for four-letter decorations, and fragile near misses in g85</span></h1>
+  <div class="byline"><b>V. Keränen</b><span>Working notes, 25 October 2026</span><span>Experiments run with Claude Code</span></div>
 </header>
 
 <section>
@@ -261,7 +261,61 @@ w<sub>36</sub> = w<sub>18</sub> · <span style="font-family:inherit">mir</span>(
 </section>
 
 <section>
-<h2>6 · Suggested directions</h2>
+<h2>6 · Fragile near misses inside g85<sup>n</sup>(a)</h2>
+<p>Being abelian square-free does not stop a word from coming very close to an abelian square. Two kinds of near miss are considered here:</p>
+<ul>
+  <li>a <span class="term"><i>uxv</i> pattern</span>: a factor <i>uxv</i> with |<i>u</i>| = |<i>v</i>|, Ψ(<i>u</i>) = Ψ(<i>v</i>) and <i>x</i> a single letter. Removing <i>x</i> would leave an abelian square.</li>
+  <li>a <span class="term"><i>uv</i> pattern</span>: a factor <i>uv</i> with |<i>u</i>| = |<i>v</i>| where <i>u</i> and <i>v</i> differ by one letter, i.e. <span class="nowrap">‖Ψ(<i>u</i>) − Ψ(<i>v</i>)‖<sub>1</sub> = 2</span>. Here <span class="nowrap">‖<i>z</i>‖<sub>1</sub> = |<i>z</i><sub><span class="l">a</span></sub>| + |<i>z</i><sub><span class="l">b</span></sub>| + |<i>z</i><sub><span class="l">c</span></sub>| + |<i>z</i><sub><span class="l">d</span></sub>|</span> is the 1-norm (sum of the absolute values of the components) of a vector <i>z</i> ∈ ℤ<sup>4</sup>; for |<i>u</i>| = |<i>v</i>| the norm <span class="nowrap">‖Ψ(<i>u</i>) − Ψ(<i>v</i>)‖<sub>1</sub></span> is always even, and it is twice the number of letters of <i>u</i> that would have to be changed to make <i>u</i> and <i>v</i> abelian equivalent.</li>
+</ul>
+
+<h3>The records in g85²(a)</h3>
+<p>g85²(a) has 7225 letters. It contains 6010 <i>uxv</i> and 41 985 <i>uv</i> patterns, and the longest of each kind occurs exactly once. All positions below count from 1.</p>
+<div class="tablewrap">
+<table class="vt">
+<thead><tr><th>Pattern</th><th class="n">|<i>u</i>| = |<i>v</i>|</th><th class="n"><i>u</i> starts at</th><th>Details</th></tr></thead>
+<tbody>
+<tr><td><i>uxv</i></td><td class="n">771</td><td class="n">3949</td><td><i>x</i> = <span class="l">a</span> at 4720; Ψ(<i>u</i>) = Ψ(<i>v</i>) = (198, 184, 195, 194). The next longest are 769 and 767, at almost the same place; after them the length drops to 176.</td></tr>
+<tr><td><i>uv</i></td><td class="n">1153</td><td class="n">4132</td><td>Ψ(<i>u</i>) − Ψ(<i>v</i>) = <i>e</i><sub><span class="l">a</span></sub> − <i>e</i><sub><span class="l">d</span></sub>. The next longest are 1144, 1127 and 1125, all in the same region.</td></tr>
+</tbody>
+</table>
+</div>
+<p>The two records overlap: the <i>uxv</i> spans 3949–5491 and the <i>uv</i> spans 4132–6437. In neither pattern are <i>u</i> and <i>v</i> related by a cyclic shift σ<sup><i>k</i></sup> or a mirror image. These are the structures highlighted in the figures of V. Keränen's page <i>Near misses inside g<sub>85</sub><sup>2</sup>(a)</i> (25 October 2026). The full strings are in <code>research_4to3/data/nearmiss/g85sq_near_misses.txt</code>.</p>
+
+<h3>A lifting rule</h3>
+<p>g85 is uniform: every image has length 85. Let <i>A</i> be its Parikh matrix, which is invertible. Every <i>uxv</i> pattern of g85(<i>w</i>) with |<i>u</i>| ≥ 85 cuts the block structure in the same way. It comes from a factor <i>p U y V q</i> of <i>w</i> together with a <span class="term">junction</span> inside g85(<i>p</i>) g85(<i>y</i>) g85(<i>q</i>):</p>
+<p style="text-align:center"><i>u</i> = suf<sub>α</sub>(g85(<i>p</i>)) · g85(<i>U</i>) · pre<sub>β</sub>(g85(<i>y</i>)), &nbsp; <i>x</i> = g85(<i>y</i>)[β+1], &nbsp; <i>v</i> = g85(<i>y</i>)[β+2 .. 85] · g85(<i>V</i>) · pre<sub>γ</sub>(g85(<i>q</i>)).</p>
+<p>Here pre<sub>β</sub>(<i>z</i>) and suf<sub>α</sub>(<i>z</i>) are the prefix of length β and the suffix of length α of a word <i>z</i>, and <i>z</i>[<i>i</i>] is its <i>i</i>-th letter, counting from 1. So <i>x</i> is the letter that follows the prefix pre<sub>β</sub>(g85(<i>y</i>)), and <i>v</i> begins right after <i>x</i>; the ranges are 1 ≤ α ≤ 85 and 0 ≤ β, γ ≤ 84. The condition Ψ(<i>u</i>) = Ψ(<i>v</i>) then becomes</p>
+<p style="text-align:center"><i>A</i> · (Ψ(<i>V</i>) − Ψ(<i>U</i>)) = <i>L</i>(<i>p</i>, <i>y</i>, <i>q</i>; α, β, γ),</p>
+<p>where <i>L</i> is the Parikh difference of the three partial blocks. It depends only on the junction. So a <i>uxv</i> pattern one level up needs a factor <i>p U y V q</i> below whose imbalance δ = Ψ(<i>V</i>) − Ψ(<i>U</i>) equals <i>A</i><sup>−1</sup><i>L</i>. That factor is an exact <i>uxv</i> (δ = 0) or a near miss (δ ≠ 0, small). Over all 64 triples there are 2472 junctions with an integral δ, taking 49 distinct values.</p>
+
+<div class="claim">
+  <p><span class="lbl">The hierarchy behind 771.</span> Inside g85(<span class="l">a</span>) there is the small <i>uxv</i> pattern</p>
+  <div class="word">a · bacadcbc · d · cacdbcba · c &nbsp;&nbsp; (|<i>U</i>| = |<i>V</i>| = 8, Ψ(<i>U</i>) = Ψ(<i>V</i>) = (2, 2, 3, 1))</div>
+  <p>with flank triple (<span class="l">a</span>, <span class="l">d</span>, <span class="l">c</span>). That triple has exactly three exact junctions, with local half-lengths 87, 89 and 91. Hence 85 · 8 + {87, 89, 91} = <b>767, 769, 771</b>, which are exactly the three longest <i>uxv</i> patterns of g85²(a). Among triples of three distinct letters, only (<span class="l">a</span>,<span class="l">d</span>,<span class="l">c</span>), (<span class="l">b</span>,<span class="l">a</span>,<span class="l">d</span>), (<span class="l">c</span>,<span class="l">b</span>,<span class="l">a</span>) and (<span class="l">d</span>,<span class="l">c</span>,<span class="l">b</span>) admit exact junctions, and these are cyclic shifts of each other under σ.</p>
+</div>
+
+<h3>The next step: g85³(a)</h3>
+<p>In g85²(a) the 771-pattern sits as …<span class="l">c</span> · <i>u</i> · <span class="l">a</span> · <i>v</i> · <span class="l">b</span>…, so its flank triple is (<span class="l">c</span>, <span class="l">a</span>, <span class="l">b</span>). In g85³(a), a <i>uxv</i> pattern built on it would need an exact junction inside <i>W</i> = g85(<span class="l">c</span>) g85(<span class="l">a</span>) g85(<span class="l">b</span>), and <i>W</i> has none. All 3612 equal-length cut combinations miss, as measured directly in g85³(a):</p>
+<div class="tablewrap">
+<table class="vt">
+<thead><tr><th class="n"><span class="nowrap">‖Ψ(<i>u</i>) − Ψ(<i>v</i>)‖<sub>1</sub></span></th><th class="n">0</th><th class="n">2</th><th class="n">4</th><th class="n">6</th><th class="n">8</th><th class="n">10</th><th class="n">12</th><th class="n">14–32</th></tr></thead>
+<tbody><tr><td>cases</td><td class="n">0</td><td class="n">0</td><td class="n">2</td><td class="n">15</td><td class="n">23</td><td class="n">37</td><td class="n">178</td><td class="n">3357</td></tr></tbody>
+</table>
+</div>
+<p>These candidates have |<i>u</i>| = |<i>v</i>| between 65 578 and 65 661. The two closest are only two letter swaps away from an exact <i>uxv</i>:</p>
+<ul>
+  <li>|<i>u</i>| = 65 579, <i>u</i> starting at 335 578, <i>x</i> = <span class="l">c</span>: Ψ(<i>u</i>) − Ψ(<i>v</i>) = (+2, 0, −1, −1);</li>
+  <li>|<i>u</i>| = 65 578, <i>u</i> starting at 335 580, <i>x</i> = <span class="l">b</span>: Ψ(<i>u</i>) − Ψ(<i>v</i>) = (+1, +1, 0, −2).</li>
+</ul>
+
+<div class="neg">
+  <p><span class="lbl">Result.</span> Lifting g85²(a) gives the complete list of <i>uxv</i> patterns with |<i>u</i>| ≥ 85 in g85³(a), which has 614 125 letters. There are 3393 of them, all with |<i>u</i>| ≤ 999. The longest is again <b>771</b>, and every one of them comes from a copy or σ-rotation of the |<i>U</i>| = 8 pattern. None comes from the 771-pattern itself or from a near miss. So the record does not grow by a factor of about 85 per level: the 771-pattern forms once, and its context (<span class="l">c</span>, <span class="l">a</span>, <span class="l">b</span>) cannot be balanced at the next level.</p>
+</div>
+<p>Checks. On g85²(a) the rule reproduces the brute-force list of all 39 <i>uxv</i> patterns with |<i>u</i>| ≥ 85 exactly, with nothing missing or extra. In g85³(a), every predicted pattern was confirmed directly. A brute-force search over the first 150 000 letters, for 85 ≤ |<i>u</i>| ≤ 2500, found exactly the 831 predicted patterns. Showing that 771 stays the record at <em>every</em> level would also require lifting the near misses with δ ≠ 0. That is a finite computation, but it has not been done yet.</p>
+</section>
+
+<section>
+<h2>7 · Suggested directions</h2>
 <ol>
   <li><b>Work on Γ<sub>6</sub> (or Γ<sub>9</sub>) directly.</b> By Proposition 1 the aa2fr problem is the same as finding an infinite a2f word over six letters, with two extra conditions. The first is avoiding squares modulo the weight map ω, which is a Pirillo–Varricchio square modulo a morphism. The second is avoiding unaligned squares, where at most three molecules are cut and each cut changes the counts by a bounded vector. Both conditions are linear with bounded corrections, which is exactly the setting where Rao and Rosenfeld's template method can decide avoidance for a given morphic word. A candidate molecule morphism <i>h</i> could then be <em>proved</em> correct, not just tested.</li>
   <li><b>Five-letter backbones, from data rather than blind search.</b> Section 5 shows that naive lazy search for <i>H</i> stalls at 417. A better route is to grow long decorated five-class words first, beyond 603, with the fast backtracker. Then look for a recognisable morphic structure in their backbones, for example by desubstitution, recurring blocks, or return words, and only after that fix <i>H</i>.</li>
@@ -271,7 +325,7 @@ w<sub>36</sub> = w<sub>18</sub> · <span style="font-family:inherit">mir</span>(
 </section>
 
 <footer>
-  Scripts (Node.js) are in <code>research_4to3/</code>: <code>lib.js</code> (morphisms g85, g98, Pleasants; incremental abelian-square checker), <code>exp1_left_neighbour.js</code> (E1), <code>skeleton_dfs.js</code> (E2), <code>code_search.js</code> (E3), <code>morphism_search.js</code> (E4), <code>exp6_split_insert.js</code> (E5), <code>exp8_pleasants.js</code> (E6), <code>exp5_block_morphism.js</code> (E7), <code>exp3_structure.js</code> and <code>exp4_merge.js</code> (Prop. 1 data and the merge test), <code>exp7_joint.js</code> and <code>exp9_long_joint.js</code> (Prop. 2 and the five-class runs), <code>molecule_morphism.js</code> (section 4), <code>backbone5.js</code>, <code>exp10_backbone_long.js</code> and <code>backbone5_verify.js</code> (section 5; raw results in <code>data/bb5/</code> and <code>data/bb5long/</code>), <code>exp11_extend_shadow.js</code> (extensions of the 603-letter word and its shadow; the 40 263-letter extended shadow is in <code>data/extend/</code>).<br>
+  Scripts (Node.js) are in <code>research_4to3/</code>: <code>lib.js</code> (morphisms g85, g98, Pleasants; incremental abelian-square checker), <code>exp1_left_neighbour.js</code> (E1), <code>skeleton_dfs.js</code> (E2), <code>code_search.js</code> (E3), <code>morphism_search.js</code> (E4), <code>exp6_split_insert.js</code> (E5), <code>exp8_pleasants.js</code> (E6), <code>exp5_block_morphism.js</code> (E7), <code>exp3_structure.js</code> and <code>exp4_merge.js</code> (Prop. 1 data and the merge test), <code>exp7_joint.js</code> and <code>exp9_long_joint.js</code> (Prop. 2 and the five-class runs), <code>molecule_morphism.js</code> (section 4), <code>backbone5.js</code>, <code>exp10_backbone_long.js</code> and <code>backbone5_verify.js</code> (section 5; raw results in <code>data/bb5/</code> and <code>data/bb5long/</code>), <code>exp11_extend_shadow.js</code> (extensions of the 603-letter word and its shadow; the 40 263-letter extended shadow is in <code>data/extend/</code>), <code>exp12_near_misses.js</code>, <code>exp13_uxv_lifting.js</code> and <code>exp14_lift_apply.js</code> (section 6: near misses in g85²(a), junctions, lifting to g85³(a); results in <code>data/nearmiss/</code>).<br>
   Example: <code>node exp7_joint.js r 4</code> reproduces Proposition 2 in about a minute.
 </footer>
 
