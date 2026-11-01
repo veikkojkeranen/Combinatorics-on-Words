@@ -1,0 +1,713 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bending the String</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=STIX+Two+Text:ital,wght@0,400;0,600;0,700;1,400;1,600&family=JetBrains+Mono:wght@400;600&family=Noto+Sans+Mono:wght@400;600&display=swap">
+<style>
+  :root{
+    --bg:#FBFBF8; --ink:#1D2230; --ink-soft:#505769; --ink-faint:#80869A; --rule:#D9DBD2;
+    --accent:#2F4F8A; --panel:#F1F2EC; --claim-bg:#EEF1F8; --claim-edge:#2F4F8A; --fig:#FFFFFF;
+    --la:#C0392B; --lb:#2E7D32; --lc:#B7791F; --ld:#1F5FAD;
+    --u:#D6336C; --v:#E8890C; --x:#1D2230; --faint-curve:#C9CCD6;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#15171E; --ink:#E7E8E2; --ink-soft:#B0B5C4; --ink-faint:#7C8296; --rule:#33374A;
+      --accent:#8FAAE6; --panel:#1E212B; --claim-bg:#1B2233; --claim-edge:#8FAAE6; --fig:#1A1D26;
+      --la:#F07167; --lb:#6BCB77; --lc:#F2C14E; --ld:#6FA8FF;
+      --u:#FF6B9A; --v:#FFB347; --x:#E7E8E2; --faint-curve:#3A3F52;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#15171E; --ink:#E7E8E2; --ink-soft:#B0B5C4; --ink-faint:#7C8296; --rule:#33374A;
+    --accent:#8FAAE6; --panel:#1E212B; --claim-bg:#1B2233; --claim-edge:#8FAAE6; --fig:#1A1D26;
+    --la:#F07167; --lb:#6BCB77; --lc:#F2C14E; --ld:#6FA8FF;
+    --u:#FF6B9A; --v:#FFB347; --x:#E7E8E2; --faint-curve:#3A3F52;
+  }
+  *{box-sizing:border-box;}
+  html{ -webkit-text-size-adjust:100%; }
+  body{ margin:0; background:var(--bg); color:var(--ink); font-family:"STIX Two Text","Cambria","Times New Roman",Georgia,serif;
+        font-size:19px; line-height:1.62; -webkit-font-smoothing:antialiased; }
+  .page{ max-width:900px; margin:0 auto; padding:72px 24px 110px; }
+  header{ margin-bottom:40px; }
+  h1{ font-weight:600; font-size:clamp(1.75rem,4.4vw,2.35rem); line-height:1.14; margin:0 0 20px; text-wrap:balance; }
+  h1 .sub{ display:block; font-weight:400; font-style:italic; color:var(--ink-soft); font-size:0.72em; margin-top:8px; }
+  .byline{ font-family:"JetBrains Mono",ui-monospace,Consolas,monospace; font-size:13px; color:var(--ink-soft);
+           display:flex; gap:14px; flex-wrap:wrap; padding-top:16px; border-top:1px solid var(--rule); }
+  .byline b{ color:var(--ink); }
+  h2{ font-size:0.82rem; font-family:"JetBrains Mono",ui-monospace,Consolas,monospace; font-weight:600; letter-spacing:0.1em;
+      text-transform:uppercase; color:var(--accent); margin:56px 0 14px; }
+  h3{ font-size:1.02rem; font-weight:600; margin:28px 0 8px; }
+  p{ margin:0 0 1.05em; max-width:78ch; text-wrap:pretty; }
+  ul,ol{ margin:0 0 1.05em; padding-left:1.4em; } li{ margin-bottom:0.35em; max-width:76ch; }
+  .l{ font-style:normal; font-family:"Noto Sans Mono","JetBrains Mono",ui-monospace,Consolas,monospace; font-size:0.84em; font-weight:600; }
+  .nowrap{ white-space:nowrap; }
+  sub,sup{ line-height:0; } sub{ font-size:0.72em; vertical-align:-0.28em; } sup{ font-size:0.72em; vertical-align:0.42em; }
+  .claim, .neg{ padding:16px 22px 4px; margin:26px 0 30px; border-radius:0 4px 4px 0; }
+  .claim{ background:var(--claim-bg); border-left:3px solid var(--claim-edge); }
+  .neg{ background:var(--panel); border-left:3px solid var(--ink-faint); }
+  .claim p, .neg p{ max-width:none; }
+  .lbl{ font-weight:700; font-variant:small-caps; letter-spacing:0.04em; }
+  .proof .lbl{ font-style:italic; font-variant:normal; letter-spacing:0; }
+  .qed{ float:right; margin-left:14px; }
+  .eq{ text-align:center; max-width:none; margin:14px 0 18px; }
+  figure{ margin:28px 0 34px; }
+  .frame{ background:var(--fig); border:1px solid var(--rule); border-radius:6px; padding:12px; }
+  .grid4{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+  .grid4 .cell.wide{ grid-column:1 / -1; }
+  .grid4 .cell{ background:var(--fig); border:1px solid var(--rule); border-radius:6px; padding:8px 8px 4px; }
+  .cell .cap{ font-family:"JetBrains Mono",ui-monospace,Consolas,monospace; font-size:12px; color:var(--ink-soft); margin:2px 4px 6px; }
+  .cell svg{ display:block; width:100%; height:auto; }
+  canvas{ display:block; width:100%; height:auto; border-radius:4px; touch-action:none; }
+  figcaption{ font-size:0.88rem; color:var(--ink-soft); line-height:1.5; margin-top:12px; max-width:72ch; }
+  figcaption b{ color:var(--ink); }
+  .controls{ display:flex; flex-wrap:wrap; gap:8px 18px; align-items:center; margin:0 0 10px;
+             font-family:"JetBrains Mono",ui-monospace,Consolas,monospace; font-size:12.5px; color:var(--ink-soft); }
+  .seg{ display:inline-flex; border:1px solid var(--rule); border-radius:5px; overflow:hidden; }
+  .seg button{ font:inherit; background:transparent; color:var(--ink-soft); border:0; padding:5px 10px; cursor:pointer; }
+  .seg button + button{ border-left:1px solid var(--rule); }
+  .seg button[aria-pressed="true"]{ background:var(--accent); color:var(--bg); }
+  .controls label{ display:inline-flex; gap:6px; align-items:center; cursor:pointer; }
+  .readout{ font-family:"JetBrains Mono",ui-monospace,Consolas,monospace; font-size:12.5px; color:var(--ink-soft); margin-top:8px; line-height:1.6; }
+  .legend{ display:flex; flex-wrap:wrap; gap:4px 16px; font-family:"JetBrains Mono",ui-monospace,Consolas,monospace; font-size:12px; color:var(--ink-soft); margin-top:8px; }
+  .legend i{ display:inline-block; width:12px; height:12px; border-radius:2px; vertical-align:-1px; margin-right:5px; }
+  code{ font-family:"JetBrains Mono",ui-monospace,Consolas,monospace; font-size:0.82em; background:var(--panel); padding:1px 5px; border-radius:3px; }
+  footer{ margin-top:68px; padding-top:18px; border-top:1px solid var(--rule); font-family:"JetBrains Mono",ui-monospace,Consolas,monospace;
+          font-size:12px; color:var(--ink-faint); line-height:1.6; }
+  @media (max-width:640px){
+    body{ font-size:17.5px; } .page{ padding:44px 16px 80px; } .grid4{ grid-template-columns:1fr; } .grid4 .cell, .grid4 .cell.wide{ grid-column:auto; }
+    .claim, .neg{ padding:14px 16px 2px; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+<header>
+  <h1>Bending the string
+    <span class="sub">Plane and 3D geometries for abelian square-free words over four letters and aa2f words over three</span></h1>
+  <div class="byline"><b>V. Keränen</b><span>Working notes, 1 November 2026</span><span>Drawings and checks with Claude Code</span></div>
+</header>
+
+<section>
+<h2>The idea</h2>
+<p>A word is usually written as a straight string of letters. Here the string is bent so that every letter is tied to its own line or curve, and the question is which bending makes abelian squares <em>visible</em>. Several bendings are possible, and they are not equally useful.</p>
+<ul>
+  <li><b>Letters on their own lines or curves</b> (edges of a square prism, rays, circles). Every occurrence of <span class="l">a</span> sits on the <span class="l">a</span>-line, and the <i>k</i>-th occurrence sits at distance <i>k</i>. This is literally the picture asked for, and abelian squares become "equal advances on every line". But it only redraws the Parikh vector, coordinate by coordinate.</li>
+  <li><b>Letters as directions.</b> Every occurrence of a letter is a step in one fixed direction, so all <span class="l">a</span>-steps are parallel. The word becomes a lattice curve, and an abelian square becomes a <em>midpoint</em>: a single, simple geometric event. For g85 this curve is self-similar, because g85 acts on it as multiplication by the Gaussian integer −8 + 3<i>i</i>.</li>
+</ul>
+<p>The second bending is the one that transforms the setup, and most of the page is about it.</p>
+</section>
+
+<section>
+<h2>1 · Five ways to bend g85(a)</h2>
+<figure>
+  <div class="grid4">
+    <div class="cell wide"><div class="cap">(A) prism: each letter on its own edge of a square prism (drag to rotate)</div>
+      <div class="controls" style="margin:4px 4px 6px">
+        <label>view <input id="aYaw" type="range" min="-180" max="180" value="-12" style="width:120px"></label>
+        <label>tilt <input id="aTilt" type="range" min="-90" max="90" value="26" style="width:100px"></label>
+        <label>spin about the axis <input id="aSpin" type="range" min="-180" max="180" value="0" style="width:120px"></label>
+      </div>
+      <div class="controls" style="margin:0 4px 6px">
+        <button id="aPlay" class="seg" style="font:inherit;color:var(--ink-soft);background:transparent;padding:3px 10px;cursor:pointer">▶ turn 21–46 onto 60–85</button>
+        <label>quarter turn + shift <input id="aMove" type="range" min="0" max="1000" value="0" style="width:150px"></label>
+        <label><input type="checkbox" id="aAll" checked> whole word</label>
+      </div>
+      <canvas id="figA" width="860" height="360" style="cursor:grab"></canvas>
+      <div class="readout" id="aRead" style="margin:4px 4px 4px;word-break:break-all"></div></div>
+    <div class="cell"><div class="cap">(B) rays: k-th occurrence at distance k</div>
+      <div class="controls" style="margin:2px 4px 6px"><span class="seg" id="bMode"><button aria-pressed="false" data-v="plane">plane</button><button aria-pressed="true" data-v="tetra">tetrahedron</button></span>
+        <label><input type="checkbox" id="bSpin" checked> spin</label></div>
+      <svg id="figB" viewBox="0 0 400 300" style="display:none"></svg>
+      <canvas id="figBs" width="400" height="300" style="cursor:grab"></canvas></div>
+    <div class="cell"><div class="cap">(C) circles: each letter on its own curve</div>
+      <div class="controls" style="margin:2px 4px 6px"><span class="seg" id="cMode"><button aria-pressed="false" data-v="plane">plane</button><button aria-pressed="true" data-v="sphere">sphere</button></span>
+        <label><input type="checkbox" id="cSpin" checked> spin</label></div>
+      <svg id="figC" viewBox="0 0 400 300" style="display:none"></svg>
+      <canvas id="figCs" width="400" height="300" style="cursor:grab"></canvas></div>
+    <div class="cell"><div class="cap">(D) directions: a → E, b → N, c → W, d → S</div><svg id="figD" viewBox="0 0 400 300"></svg>
+      <div class="controls" style="margin:6px 4px 2px"><button id="dPlay" class="seg" style="font:inherit;color:var(--ink-soft);background:transparent;padding:3px 10px;cursor:pointer">▶ play</button>
+        <label>step <input id="dStep" type="range" min="0" max="85" value="85" style="width:150px"></label></div>
+      <div class="readout" id="dRead" style="margin:0 4px 4px;word-break:break-all"></div></div>
+    <div class="cell"><div class="cap">(E) tetrahedral steps: (D) in space</div>
+      <canvas id="figE" width="400" height="300" style="cursor:grab"></canvas>
+      <div class="controls" style="margin:6px 4px 2px"><button id="ePlay" class="seg" style="font:inherit;color:var(--ink-soft);background:transparent;padding:3px 10px;cursor:pointer">▶ play</button>
+        <label>step <input id="eStep" type="range" min="0" max="85" value="85" style="width:150px"></label>
+        <label><input type="checkbox" id="eSpin" checked> spin</label></div>
+      <div class="readout" id="eRead" style="margin:0 4px 4px;word-break:break-all"></div></div>
+  </div>
+  <div class="legend"><span><i style="background:var(--la)"></i>a</span><span><i style="background:var(--lb)"></i>b</span><span><i style="background:var(--lc)"></i>c</span><span><i style="background:var(--ld)"></i>d</span></div>
+  <figcaption>The 85 letters of g85(a) in five bendings. In (A)–(C) every letter lies on its own line or curve, and the string jumps between them. In (A) the four lines are the long edges of a square prism, in the cyclic order a, b, c, d around the axis; the <i>i</i>-th letter sits on its edge at distance <i>i</i> along the prism. Drag the prism or use the sliders to rotate it. The factor at positions 21–46 is drawn in pink and the last 26 letters (positions 60–85) in orange; ▶ or the quarter-turn slider turns a copy of 21–46 by 90° about the axis while sliding it 39 places along, and it comes to rest exactly on 60–85. In (B) the rays can be shown in the plane or in space. In space they point from the centre of a regular tetrahedron to its four vertices, so that all four letters are treated alike: any two rays meet at the same angle, arccos(−1/3) ≈ 109.47°. The <i>k</i>-th occurrence of a letter again sits at distance <i>k</i> on its ray, and consecutive letters are joined by straight lines through the inside of the tetrahedron. In (C) the circles can be shown in the plane or on a sphere. The plane picture is the sphere seen from above the north pole: a lies on the circle of latitude 62° N, b on 22° N, c on 22° S and d on 62° S, and the <i>k</i>-th occurrence of a letter keeps its longitude from the plane picture. The first letter of g85(a) is ringed (start) and the last one filled (end); both are a's, so both lie on the a-circle. Consecutive letters are joined by straight chords, so a step between a and d cuts through the inside of the sphere; the translucent disc marks the surface between the far and the near half. Drag the tetrahedron or the sphere to turn it, or untick spin to stop it. In (D) every letter is a step of length 1 in its own direction, drawn as a coloured arrow; the grey dots are the lattice points. <b>How to read (D):</b> start at the ringed point <i>z</i><sub>0</sub> = 0 and follow the letters of g85(a) = abcacd…bdcbca: a one step east, b north, c west, a east again (back along the same edge), c west, d south, which returns to the origin. A step that goes back along an edge is drawn slightly to the right of the edge, so an edge walked both ways shows as two parallel arrows. The walk ends at the filled point <i>z</i><sub>85</sub> = −8 + 3i, the end of …bdcbca. Use the step slider (or ▶) to follow the walk from the start: the path so far is coloured, the rest is grey, and the readout shows the prefix read so far and its point. (E) is the same walk in space: every letter is a unit step towards its own vertex of the regular tetrahedron of (B), so a points up and b, c, d point down to the three base vertices. The ringed point is the start, the filled point the end of g85(a); the step slider, ▶ and the readout work as in (D), and the readout also gives the letter counts of the prefix, which the point determines. Drag to turn the walk, or untick spin.</figcaption>
+</figure>
+<p>The prism makes the symmetry σ of g85 visible. Because the edges are in the order a, b, c, d around the axis, a quarter turn of the prism moves every a onto the b-edge, every b onto the c-edge, and so on: it <em>is</em> σ. In g85(a) the factor at positions 21–46 is cabadbabcbdbcbacbcdcacbabd and the suffix at positions 60–85 is dbcbacbcdcacdcbdcdadbdcbca = σ(cabadbabcbdbcbacbcdcacbabd), so the suffix is the factor turned by a quarter turn and moved 39 places along the axis. Such σ-copies are what the circulant Parikh matrix of g85 records, and in the plane picture of (D) and §3 the same quarter turn becomes multiplication by <i>i</i>.</p>
+<p>In (A)–(C), a factor <i>uv</i> with |<i>u</i>| = |<i>v</i>| is an abelian square when, on every line or curve, the string advances by the same number of occurrences during <i>u</i> as during <i>v</i>. This is a correct picture, but a factor has to be checked line by line, four separate counts. The geometry of the lines plays no role: replacing the rays of (B) by the circles of (C), or by any other curves, changes nothing, because only the occurrence counts matter.</p>
+<p>In (D) and (E) the four counts are combined into one point, and the test becomes geometric. (D) keeps only a shadow of the counts, the plane coordinate <i>z</i>; (E) keeps all of them. (E) is a faithful picture of the walk in ℤ<sup>4</sup> of the next section, drawn in three dimensions; see the remark after Proposition 1.</p>
+</section>
+
+<section>
+<h2>2 · Abelian squares are midpoints</h2>
+<p>Let the word <i>w</i> = <i>w</i><sub>1</sub><i>w</i><sub>2</sub>⋯ be a walk in ℤ<sup>4</sup> that starts at <i>P</i><sub>0</sub> = 0 and takes the unit step <i>e</i><sub><i>x</i></sub> for the letter <i>x</i>, so <i>P</i><sub><i>i</i></sub> = Ψ(<i>w</i><sub>1</sub>⋯<i>w</i><sub><i>i</i></sub>). The factor <i>w</i><sub><i>i</i>+1</sub>⋯<i>w</i><sub><i>i</i>+2<i>p</i></sub> is an abelian square exactly when <span class="nowrap"><i>P</i><sub><i>i</i>+<i>p</i></sub> − <i>P</i><sub><i>i</i></sub> = <i>P</i><sub><i>i</i>+2<i>p</i></sub> − <i>P</i><sub><i>i</i>+<i>p</i></sub></span>, that is, when <i>P</i><sub><i>i</i>+<i>p</i></sub> is the midpoint of <i>P</i><sub><i>i</i></sub> and <i>P</i><sub><i>i</i>+2<i>p</i></sub>.</p>
+<div class="claim">
+  <p><span class="lbl">Proposition 1.</span> A word over {<span class="l">a, b, c, d</span>} is abelian square-free if and only if no point of its walk is the midpoint of two others. Equivalently, the set {<i>P</i><sub>0</sub>, <i>P</i><sub>1</sub>, …} contains no three-term arithmetic progression.</p>
+  <p class="proof"><span class="lbl">Proof.</span> The coordinate sum of <i>P</i><sub><i>i</i></sub> is <i>i</i>. If <i>P</i><sub><i>j</i></sub> = (<i>P</i><sub><i>i</i></sub> + <i>P</i><sub><i>k</i></sub>)/2, taking coordinate sums gives <i>j</i> = (<i>i</i> + <i>k</i>)/2, so the three points are equally spaced in time and the factor between <i>P</i><sub><i>i</i></sub> and <i>P</i><sub><i>k</i></sub> is an abelian square. The converse is the computation above. <span class="qed">∎</span></p>
+</div>
+<p>This is the progression-free viewpoint of Dekking (1978). For ternary words, the same argument gives: <b>a word over {<span class="l">a, b, c</span>} is aa2f if and only if its walk in ℤ<sup>3</sup> has no midpoint triple <i>P</i><sub><i>i</i></sub>, <i>P</i><sub><i>i</i>+<i>p</i></sub>, <i>P</i><sub><i>i</i>+2<i>p</i></sub> with <i>p</i> ≥ 2.</b> The allowed triples with <i>p</i> = 1 are exactly the two equal steps of a run <span class="l">xx</span>, so they are straight pieces of the walk.</p>
+<p><b>The tetrahedral walk (E).</b> The four directions <i>t</i><sub>a</sub>, <i>t</i><sub>b</sub>, <i>t</i><sub>c</sub>, <i>t</i><sub>d</sub> from the centre of a regular tetrahedron to its vertices add up to zero, and any three of them are linearly independent. So the only linear relation among them is <i>t</i><sub>a</sub> + <i>t</i><sub>b</sub> + <i>t</i><sub>c</sub> + <i>t</i><sub>d</sub> = 0. The walk with step <i>t</i><sub><i>x</i></sub> for the letter <i>x</i> is the walk of Proposition 1 seen along the diagonal (1, 1, 1, 1), the direction that only records length. Two prefixes of the same length therefore reach the same point exactly when they have the same Parikh vector. Hence <b>a factor <i>w</i><sub><i>i</i>+1</sub>⋯<i>w</i><sub><i>i</i>+2<i>p</i></sub> is an abelian square if and only if, in the tetrahedral walk, the point at time <i>i</i> + <i>p</i> is the midpoint of the points at times <i>i</i> and <i>i</i> + 2<i>p</i></b>, with no extra coordinate needed. Unlike the plane walk of (D), it needs no height: in g85²(a) there are 6739 planar midpoint triples with <i>p</i> ≤ 300, but the tetrahedral walk has none with <i>p</i> ≤ 500.</p>
+<p>The tetrahedral walk is not new here. In 2004, E. Jensen and V. Keränen drew 4-letter words as walks with tetrahedral steps, including the paths of g85(a), g85²(a) and g98(a), as rotatable 3D graphics (<a href="https://algebra.fi/keranen/JavaApplet/4LetterWalksInDiamondLattice.html">4 Letter Walks in Diamond Lattice</a>, 25 February 2004; local copy <a href="4LetterWalksInDiamondLattice.nb.html">4LetterWalksInDiamondLattice.nb.html</a>). That page credits the vectorgram concept (2003) to Jensen and the tetrahedron concept (2004) to Keränen. Panel (E) redraws that picture; what this page adds is the exact midpoint criterion above and the comparison with the plane walk of (D).</p>
+</section>
+
+<section>
+<h2>3 · The plane hidden in ℤ<sup>4</sup>: g85 is a rotation and a dilation</h2>
+<p>The walk lives in four dimensions, but the cyclic symmetry σ: <span class="l">a → b → c → d → a</span> of g85 suggests the right coordinates. Give the letters the complex directions</p>
+<p class="eq"><span class="l">a</span> ↦ 1, &nbsp; <span class="l">b</span> ↦ <i>i</i>, &nbsp; <span class="l">c</span> ↦ −1, &nbsp; <span class="l">d</span> ↦ −<i>i</i>,</p>
+<p>and let <i>z</i><sub><i>k</i></sub> be the sum of the directions of <i>w</i><sub>1</sub>⋯<i>w</i><sub><i>k</i></sub>. This is drawing (D): a curve in the Gaussian integers ℤ[<i>i</i>]. Two more coordinates complete the picture, the time <i>t</i> = <i>k</i> and the <span class="term">height</span> <i>h</i><sub><i>k</i></sub> = #<span class="l">a</span> − #<span class="l">b</span> + #<span class="l">c</span> − #<span class="l">d</span>. The map Ψ ↦ (<i>t</i>, <i>z</i>, <i>h</i>) is the discrete Fourier transform over ℤ/4, so it is injective, and Proposition 1 reads:</p>
+<p class="eq"><b><i>w</i> is a2f ⇔ there are no <i>k</i>, <i>p</i> with <i>z</i><sub><i>k</i>+<i>p</i></sub> = (<i>z</i><sub><i>k</i></sub> + <i>z</i><sub><i>k</i>+2<i>p</i></sub>)/2 and <i>h</i><sub><i>k</i>+<i>p</i></sub> = (<i>h</i><sub><i>k</i></sub> + <i>h</i><sub><i>k</i>+2<i>p</i></sub>)/2.</b></p>
+<div class="claim">
+  <p><span class="lbl">Proposition 2</span> (g85 is a similarity of the plane). Let <i>w</i>′ = g85(<i>w</i>). At every block boundary,</p>
+  <p class="eq"><i>z</i>′<sub>85<i>k</i></sub> = (−8 + 3<i>i</i>) · <i>z</i><sub><i>k</i></sub>, &nbsp;&nbsp; <i>h</i>′<sub>85<i>k</i></sub> = 7 · <i>h</i><sub><i>k</i></sub>, &nbsp;&nbsp; <i>t</i>′ = 85 <i>t</i>.</p>
+  <p class="proof"><span class="lbl">Proof.</span> g85(σ<i>x</i>) = σ(g85(<i>x</i>)), and σ multiplies every direction by <i>i</i>. Hence the displacement of g85(<i>x</i>) is <i>i</i><sup><i>x</i></sup> times the displacement of g85(<span class="l">a</span>), which is 19 + 21<i>i</i> − 27 − 18<i>i</i> = −8 + 3<i>i</i> (the letter counts of g85(<span class="l">a</span>) are 19, 21, 27, 18). Summing over the letters of <i>w</i> gives the formula for <i>z</i>; the same argument with the signs ±1 gives 19 − 21 + 27 − 18 = 7 for <i>h</i>. <span class="qed">∎</span></p>
+</div>
+<p>So applying g85 rotates the curve by arg(−8 + 3<i>i</i>) ≈ 159.44° and stretches it by |−8 + 3<i>i</i>| = √73 ≈ 8.544, while the 85 letters of each block fill in the gaps. These are the eigenvalues found earlier in the Parikh-matrix analysis; here they appear as plain geometry. Both identities were checked exactly for g85²(a) and g85³(a).</p>
+
+<figure>
+  <div class="frame">
+    <div class="controls">
+      <span>level</span><span class="seg" id="lvl"><button aria-pressed="false" data-v="1">g85(a)</button><button aria-pressed="true" data-v="2">g85²(a)</button><button aria-pressed="false" data-v="3">g85³(a)</button></span>
+      <span>colour</span><span class="seg" id="col"><button aria-pressed="true" data-v="t">time</button><button aria-pressed="false" data-v="h">height h</button></span>
+      <label><input type="checkbox" id="ovl" checked> previous level × (−8+3i)</label>
+    </div>
+    <canvas id="curve" width="860" height="640"></canvas>
+    <div class="readout" id="curveRead"></div>
+  </div>
+  <figcaption><b>The g85 curve.</b> The walk of g85<sup><i>n</i></sup>(a) with steps E, N, W, S. The dots are the previous level's curve multiplied by −8 + 3<i>i</i>: they land exactly on the block boundaries of the current curve. Colouring by height shows the coordinate that the plane picture hides.</figcaption>
+</figure>
+<p>The height matters. In g85²(a) there are 6739 triples with gap <i>p</i> ≤ 300 whose middle point is the midpoint of the outer two <em>in the plane</em>. None of them is an abelian square, because in every one of them the heights fail to match. The plane carries most of the structure, and the height <i>h</i> is the thin extra coordinate that finally separates the points. The tetrahedral walk of (E) carries both at once: its three coordinates are linear combinations of <i>z</i> and <i>h</i>, and g85 acts on it as a linear map with the eigenvalues −8 ± 3<i>i</i> (the turning plane) and 7 (the axis of <i>h</i>).</p>
+</section>
+
+<section>
+<h2>4 · A near miss, seen as geometry</h2>
+<p>A factor <i>uxv</i> with Ψ(<i>u</i>) = Ψ(<i>v</i>) is, in this picture, two <em>equal and parallel chords</em> of the curve: the chord over <i>u</i> and the chord over <i>v</i>, offset by the single step <i>x</i>, with equal height gains. The longest one in g85²(a), with |<i>u</i>| = |<i>v</i>| = 771 and <i>x</i> = <span class="l">a</span>, is drawn below.</p>
+<figure>
+  <div class="frame">
+    <canvas id="miss" width="860" height="560"></canvas>
+    <div class="readout" id="missRead"></div>
+    <div class="legend"><span><i style="background:var(--u)"></i>u (771 steps)</span><span><i style="background:var(--x)"></i>x = a (one step east)</span><span><i style="background:var(--v)"></i>v (771 steps)</span><span><i style="background:var(--faint-curve)"></i>rest of g85²(a)</span></div>
+  </div>
+  <figcaption><b>The 771-pattern of g85²(a).</b> The arrows are the chords <i>z</i>(<i>u</i>) and <i>z</i>(<i>v</i>). They are equal and parallel, and the two parts also gain the same height, so removing the single eastward step <i>x</i> would create a midpoint triple, i.e. an abelian square.</figcaption>
+</figure>
+</section>
+
+<section>
+<h2>5 · Three letters: the Eisenstein walk</h2>
+<p>For three letters, the directions are the cube roots of unity:</p>
+<p class="eq"><span class="l">a</span> ↦ 1, &nbsp; <span class="l">b</span> ↦ ω, &nbsp; <span class="l">c</span> ↦ ω², &nbsp;&nbsp; ω = e<sup>2π<i>i</i>/3</sup>.</p>
+<p>The walk now lives on the triangular lattice of Eisenstein integers ℤ[ω], and no height coordinate is needed: the Fourier transform over ℤ/3 has only the time and this one complex coordinate. The whole Parikh vector of a ternary word is therefore a point of the plane together with the time, and the aa2f condition is purely planar.</p>
+<div class="claim">
+  <p><span class="lbl">Proposition 3.</span> A ternary word is aa2f if and only if its Eisenstein walk has no triple <i>z</i><sub><i>k</i></sub>, <i>z</i><sub><i>k</i>+<i>p</i></sub>, <i>z</i><sub><i>k</i>+2<i>p</i></sub> with <i>p</i> ≥ 2 and <i>z</i><sub><i>k</i>+<i>p</i></sub> the midpoint of the other two. It is aa2fr if, in addition, its straight pieces have length 1 or 3.</p>
+</div>
+<p>Checked on aa2fr3268: no midpoint triple with <i>p</i> ≥ 2, and exactly 1740 with <i>p</i> = 1, two for each of its 870 runs of length 3. A ternary morphism that commutes with the cyclic shift <span class="l">a → b → c → a</span>, like the molecule morphisms tried in the experiments note, acts on this plane as multiplication by a single Eisenstein integer, just as g85 acts by −8 + 3<i>i</i>.</p>
+<figure>
+  <div class="frame">
+    <div class="controls">
+      <span>word</span><span class="seg" id="tw"><button aria-pressed="true" data-v="r">aa2fr3268</button><button aria-pressed="false" data-v="f">aa2f25379</button></span>
+      <label><input type="checkbox" id="runs"> mark runs of length 2 and 3</label>
+    </div>
+    <canvas id="tern" width="860" height="640"></canvas>
+    <div class="readout" id="ternRead"></div>
+  </div>
+  <figcaption><b>The record ternary words on the triangular lattice.</b> Steps at 0°, 120° and 240°, coloured by time. Marked segments are the runs <span class="l">xx</span> and <span class="l">xxx</span>, the only places where the walk goes straight for more than one step.</figcaption>
+</figure>
+</section>
+
+<section>
+<h2>6 · Why straight lines, and what curves would do</h2>
+<p>Abelian equivalence forgets the order of letters, so the geometry must forget it too: the steps must commute. Translations of the plane commute, and that is why straight directions work. If each letter were instead an arc of its own circle, as in turtle geometry ("turn by α<sub><i>x</i></sub>, then move"), the steps would no longer commute. The position after a word would then depend on the order of its letters. Such curved walks see ordinary repetitions <i>uu</i>, not abelian ones: two factors give congruent pieces of the curve when they are equal as words, not merely anagrams.</p>
+<p>Curves do appear in a different way. The imbalance of a factor of length <i>N</i> grows like <i>N</i><sup>0.48</sup>, so the walk is a fractal curve in the plane, similar in spirit to Rauzy fractals and dragon curves: the curve of g85<sup><i>n</i></sup>(a) has length 85<sup><i>n</i></sup>, but the region it fills only grows like (√73)<sup><i>n</i></sup> ≈ 8.544<sup><i>n</i></sup>.</p>
+</section>
+
+<section>
+<h2>7 · What the new geometry suggests</h2>
+<ol>
+  <li><b>Choose a multiplier, not a morphism.</b> For a cyclically symmetric ternary morphism, the whole action on Parikh vectors is one Eisenstein integer μ, and the walk at block boundaries is μ times the previous walk. Searching for long aa2f words could start from μ: its argument and modulus determine how fast the curve spreads (|μ| against the block length) and which directions repeat. Only then would the images be chosen to realise μ.</li>
+  <li><b>Midpoint-free curves.</b> For ternary words, aa2f is the statement that a self-similar lattice curve avoids equal-time midpoints of gap at least 2. Rao and Rosenfeld's avoidance of periods greater than 5 says such curves exist when gaps up to 5 are allowed. Their method can be read as controlling the curve at large scales by the similarity, and checking the small scales by computer.</li>
+  <li><b>Near misses as almost-parallel chords.</b> The fragile patterns of g85, such as the 771-pattern, are pairs of chords that are equal and parallel. The junction analysis of the experiments note asks when such chords survive multiplication by −8 + 3<i>i</i>. In the plane, this becomes a question about how rotation by 159.44° moves the short chords at block boundaries.</li>
+</ol>
+</section>
+
+<footer>
+  All drawings are computed in the page from g85(a) = abcacdcbcdcadcdbdabacabadbabcbdbcbacbcdcacbabdabacadcbcdcacdbcbacbcdcacdcbdcdadbdcbca and the cyclic shift σ; the ternary words are aa2fr3268 and aa2f25379 from <code>aa2f15796_aa2f25379_aa2fr1928+More.html</code>.<br>
+  The numerical checks (Propositions 2 and 3, the 6739 planar midpoint triples, none in the tetrahedral walk) were run with Node.js in <code>research_4to3/</code>; the page is built from <code>research_4to3/geometry_page_template.html</code> by <code>research_4to3/build_geometry_page.js</code>.<br>
+  The tetrahedral walk of panel (E) follows E. Jensen and V. Keränen, <i>4 Letter Walks in Diamond Lattice</i> (2004), <a href="https://algebra.fi/keranen/JavaApplet/4LetterWalksInDiamondLattice.html">algebra.fi/keranen</a>.
+</footer>
+
+</div>
+
+<script>
+'use strict';
+const G85A = 'abcacdcbcdcadcdbdabacabadbabcbdbcbacbcdcacbabdabacadcbcdcacdbcbacbcdcacdcbdcdadbdcbca';
+const AA2FR3268 = 'abcccbbbaaabbbcbbbabbbcccabbbaaacaaabaaacccaaabbbaaacabcbbbaaabbbcccbbbabbbcbbbaaabcccaaabaaacabbbcaaacccabcccbbbabcbbbaaabcccaaabaaacaaabbbaaacccaaabacbcccacccbbbaaacbcacccbbbabbbcbbbaaabbbcccaaabbbacbcccaaabaaacaaabbbcbbbabcaaacccbbbaaabbbcbbbabbbcccbbbaaacccbbbcabaaacabbbcacccbcccaaacccbbbcccacccbcaaabbbcbbbabbbcccbbbaaacccabcbbbaaacaaabaaacccbcccacccbbbacaaabacccbbbcabbbaaacaaabaaacccbbbaaacabcacccbbbabbbcbbbaaabbbcccabbbaaacaaabaaacccaaabbbaaacabcbbbaaabbbcccacbcccaaabbbaaacaaabaaacccbaaabbbcccacccbcccaaacbaaabbbcbbbabbbcccbbbaaacccbcccacccbbbabcbaaabcccaaabaaacaaabbbcaaacccbcccacccbbbcccaaacccbcabaaacaaabbbcbbbabcacccbbbcccaaacccbcccacccbbbcaaabbbcccbbbabbbcbbbaaabcaaacccbbbabbbcbacccbbbcaaacccbcabaaacaaabbbcccaaacccbcccacccbbbcaaabbbcbacbcccacbaaacccabbbaaacbabbbcbbbaaacabacccabbbaaacaaabaaacccbcccacccbbbacccabaaacabcbbbabcccbbbaaabcccaaabacaaabbbaaacccbbbaaabbbcbbbabbbcccbbbaaacccbabcbbbaaacabaaacccbbbcccacbabbbcccbbbaaabbbcbbbabbbcccbaaacccbbbcccacccbcccaaabcccbbbcabbbaaabcabbbcccacccbcaaabcccbbbabcbbbaaacaaabaaacccbaaabbbcbaaacccbcccacccbbbcccaaabbbcbbbabcacccbbbcccaaacccbcccacccbbbacccaaabaaacabcbbbabbbcccacccbcccaaacccbbbaaacccaaabaaacaaabbbaaacccbbbabbbcbbbaaabcaaacccabbbcccacccbcabaaacaaabbbcccaaacccbcccacccbbbcaaabbbcccbbbabbbcbacaaabacbcccacccbbbcaaabbbcccbbbabbbcbbbaaabcaaacccbbbabcbbbaaacaaabaaacccabcccbbbabcabaaacabcbbbabbbcccbaaacbbbcccacccbcccaaabaaacabcccbbbaaacccaaabaaacaaabbbaaacccbbbcabaaacaaabbbcbbbabbbcccabbbaaacabaaacccaaabbbcaaacccbcccacbabbbcbbbaaacccbbbcccacccbcccaaacccbbbaaabcacccbcccaaabaaacaaabbbacccaaabacabbbcacccbcccaaabcccbbbabbbcbbbaaacaaabaaacccabbbcaaacccbcabaaacccaaabbbaaacaaabaaacccbabbbcbbbaaacaaabacccaaabbbacccbbbabbbcbbbaaabcccaaabbbaaacaaabaaacccbcccacccbbbacbaaabbbacbbbcccbaaacbbbcccacccbcccaaabaaacabcccbbbaaacccaaabaaacaaabbbcaaacccbbbcaaabbbcbbbabbbcccabbbaaabcaaacccbcccacbabbbcbaaabbbcccbbbabbbcbbbaaabcaaacccbabbbcbbbaaacaaabaaacccbcabbbaaacccbbbaaabbbcbbbabbbcccbaaacccbcccacccbbbacccaaabacbabbbcccbaaacccbcccacccbbbcccaaacccbcabaaacaaabbbaaacccbbbcccacbacaaabbbcbbbabbbcccacccbcabbbaaacccaaabaaacabcbbbabbbcccaaabbbaaacaaabaaacccaaabbbcccaaacccbcccacbbbacaaabaaacccaaabbbcccaaacccbcccacccbbbcccaaabbbcacbcccaaabacaaabbbcccbbbabcacccbbbcccaaacccbcccacccbbbcaaabbbcccbbbabbbcbbbaaacbcccacccbbbaaabcbbbabcccbbbaaacabaaacccaaabbbcccbbbabcacccbcccaaabcccbbbaaabcccaaabaaacaaabbbcaaacbcacccbbbcaaabbbcbbbabbbcccbaaabbbacabaaacccbaaabbbcccbbbabcacccbcccaaabbbcccbbbabbbcbbbaaabbbcccaaabacbabbbcbacbcccaaabbbcccbbbabbbcbbbaaabbbcccaaabaaacaaabbbcbabbbcccabbbaaacccaaabaaacaaabbbcaaacccabcccbbbacbcccaaabaaacaaabbbcbbbabbbcccbacccaaabbbcccbbbabbbcbbbaaacabacccbbbabcbbbaaacaaabacbcccaaacccbbbaaabcbbbabcccbbbaaacccbbbcccacccbcccaaabacabbbcccbacccaaacbaaabbbcacbcccaaabaaacaaabbbaaacccbbbabbbcbacccaaabbbcccacccbcccaaabaaacaaabbbcbabcccaaabbbcccbbbabbbcbbbaaacabacccbbbaaabbbcbacaaabaaacccabcccbbbaaacccaaabaaacaaabbbaaacccbbbaaabbbcbbbabcccabaaacaaabbbaaacccbbbaaabbbcbbbabbbcccbbbaaacccbcabbbaaacbabbbcbbbaaacccbcccacccbbbaaacaaabacbbbcccaaabbbcccbbbabbbcbbbaaabcccaaabbbaaacaaabaaacccabcccbbbaaabcbbbabcccabbbaaacaaabaaacccbcccacbaaabbbcccaaacccbcccacccbbbabbbcbaaacbbbcccbaaacccbcabaaacaaabbbaaacccbbbaaabbbcbbbabbbcccacccbcaaabbbcbbbabbbcccbbbaaabbbcbacaaabaaacccbabbbcccbbbaaacbbbcccacbab';
+const AA2F25379 = 'bccaabbbcbbbabccaabacaabbbaccbcccaaacbbbacccaaabaaacaaabbcabbbaaaccbbbcccbaccbbaaabcaaacccbccaabbbccacbaacccbcccacccbbbcccaaaccbbbcccbbabbcbbbaaaccbabbcccacccbcabaaccbbbcabbbaaacabcacccbbbcaaabbbcccbbabbcbbbaaabbbccaaabbcccbbbcaabbbaaacaaabacccbaaabcbabccacccbabcbbbaacccbaaacaabbbcbbbabbbcccbaacccabbcccbbbccabbcccacccbcccaaabcaabbcccbaccbbbabbcaabaaaccbcaabbbaaacaaabaaaccbcaaabaaccbbbcccabacabbcccbbbccabbcccacccbcccaaabcbbaacaabacbcccacbbbccaaabbbcbabbbccabbcccacccbcaaabcbbacccbbbcabbbaacccaaabaacaabbbcbbbabbbcccaabbcbbbaaabbcacbcaabaaacaabbbaaacccbabbcccacccbcaaacccbbbabbbcbbbaaacccbcaabbbaaacbccabbcccacccbcccaaabacbbaaacaabcccaccbbabbbcccaaabaaacaaabbbaacbbaaacaaabaaacccbbaaabcaabbbcbbbabbbcccacbbaacccaaabaaacaaabbbaaccbcccaaaccbaaabbccacccbbaaabbbaccbbbcccbbaccbbbabbbcbbbaaabbbcccbbbabbcbbaaacccbabbcaabaaacccaabcccbbbaaacccbcccacccbbabbbcaabacbcccaabccaaabbcaabbbcbabbbcccbaaabbbccabbcccaabccaaabbbaacaabaaacccaaabbcccaccbaaacaabbbaacccbbbcccaccbbaaacaabccacccbbaaabbbcbbbabbbccacccbccabaacccbcccacccbbbabbcccaccbccaaabbbcbbbabbbcccbbaccbbbabbbcbbbaaacbaacccbbaaabcccaaaccbbacbbbcccbbacbaacccbcccacccbbbabbbcbbbaaaccbbbcccacbaaabbbcccaabbbaaacaaabaaacccbcaabbcccbbbccacccbaaabbcccbaccbbbabcbbbaaacaabbbcbbbabbbcccaaabbbcbacccaaabaccbbaaabcbbbabccaaabbbaaacaaabaaaccbaacccbabcbbbaacccbaaabbcbaacccaaacbaacccbcccacbaacccbbbcaaaccbcccabbcbbbacaaabbbacccbaacccaaacbaaccbbaacbaaabbbaaccbbacbbbcccacbcaaabcbbbaaabcaabbccaaacbcccacccbbaccbbbcccbbacccaabbcbbbaacccaaacbcccacccbbaaacccaabccaaabaaacabccaabbccacccbccabbbaaabbcaaacccaabbbaaacccaaabaaacaaabbbaacbbaaaccbbbabbcccaccbbaaacaabbbaccbcaabaaacaabccacccbccaabaaacbbbccabbcccacccbcccaaabbccacccbbbccabbbaaabccacbabbbccacccbbaacccaaabaaacabbcccaabcbbbaaacaabbbcbbbabcaabbcccbbbcacccbcaaacccbbaacabbbcbbacaaabacbbaacccabccaaabaacaabbbaaabbccaaaccbcabbbaacbbbcccbbaaacccbbbcabaaacccbbaacaaabaacccaaaccbabbcccbaaacccbcccacccbbaccbcccaaabbbaacaaabaacccbccaccbbaaabbbaccbbbcccaccbbaaacccbcccacccbbbccabbcccaaaccbbbabbbcbbbaaaccbcccabaaacccabcbbacccabaaacaaabbcbaaacaabbcccbbbcabbcccacccbcccaaacccbbbcaabacbcccacccbbbabcbbbaaacbccaccbbbabbbcbbbaaabcaabbbccaaaccbcaabbcccbbbcacccbcaabbbaaaccbaacccabbbcccaccbaacccbcccacccbbbcccaabbbaccbbbcccbbaccbbbabbbcbbbaaaccbbbcccaccbaacccbcccacccbbbabcaabbbccacccbbaaacaabbbcbbbabcacccbbbabbbcbbbaaabbcaccbbbabbccaccbcabbbaaacaaabaaacccbcccacbbbabbcccacccbcccaaacccbbaccbbbabcbbbaaacbccaaaccbbacbcccacccbbaccbbbaaacccaaabaaacaaabbcaabbbacbbbcccaaacccbcabaaacccabbbcccaaacccbcccacccbbaccbbbabbbcbbbaaaccbabbccacccbaacaaabcbbbaaabbbcccbbbabbbcbbbaacbbabbbcccaabaccbcccaccbbbabbbcbbbaacccaaabbcaabbbccabbcccacccbcccaaacccbbaaacaaabacbbaaccbbbabbcbbaaabbbaacccbbaaacaaabaaaccbbbaacccaaabaccbbabbbcbbaaabcacccbbaacccaaabacaaabbbcccbbacccaaaccbbbcccacccbcccaabccaaacccbbacbbbaaacccabaaacaaabbbacbbaaaccbbbcabbccaccbcccaaacbaaabbcacccbcaaaccbbbabbbcbbbaacccbcccacccbbbccaaabbbaacccbcccacbbaaabccaaacbbaaabbbcbbbabccaaacccbbbaacbbaaabbbcbbbabbbcccaaabaaacaaabbcaabbbaaacaaabaaacccbaccbbbaaabcaaacccbcacccbbbccabbbaaacbabbccaabaaacccbcaabbbaaabbcaabbbcbbbabcaaacccbbbabbccacccbbabccaaacccaabaaacbbbabbccabaaacccbcaabbbcccacccbcccaaabaccbbbcccbaacaaabbcccbbbaaabbbcbbbabbbcccbbaccbbbaaabbbcbbabbccabaacaabbbaaabbccabaaacccbbbcccacbabbbcbbbaaabbcccbaaabbbaccbbbcccacbcccaaaccbbbcaaabaacccabcbbbabbbccaaabbcaabbbaaaccbacccaabaaacaabbcabaaacccbcccacccbbbabbcaabacccbbaacaaabaacbbabbbcbbaccbcccaccbbabbcbbbaaabcccbbbaacbbaaacccbcccacccbbaccbbbcabbbaaacaaabaaacccbbaccbbbcccacccbcccaaacccbbbcccacbbbabbcccacccbcccaaaccbbbcaaabbccacccbbbabcaabbbcbbbabbbcccbbaaabbcbacaaabaaacccbcccacbbabbbccaaabbbacbbbcccbbaaabbbcccbbbabbbcbbbaacbaaabbbcbbbabbbcccaabccaaacccbcccacccbbbccabacabbcccbbbabbbcbbbaacbbaaacccbbbccaaabbbaaacaaabaaacccbcaabbcccbacccaaaccbacccbbbabccaaabbbcbbbabbbccabbcccacccbcccaaaccbbabbbcccbbbaacccbcabbbaacabbccaaacbaaabbbcbbbabbbcccbacaabbbcbacaaabbcacccbcccaaabbbaaacaaabaaaccbabbcbbaaaccbaacccbcccacbaaccbbbccacbaaabbbcbaccbbaacccaaaccbbaaabbbaccbcaabbbaaacaaabaaaccbacaaabbbaaaccbbbaacccbbbabcbbbaaabbcacbcaabbbaaacaaabaaaccbccacccbbabbcbbbaaacccaaabaccbbbaaabbbcbbbabbbcccbbacabaaaccbccacccbbbacccaabbcabaaacabcbbbabcccbbaacccaaaccbbaaabbbacaaabaaaccbbaaabbbcbbaaacccaabbcbbbaaabbbcccbbbabcccaccbbabccaaacbaaabbbaccbbbcaabbbaaabbcaabbbcbbbabbbcccacbbabbbcbbacaabaacccaabbccacbbbabbccacccbccaaabbbccabbcccbbbaaabbbcbbbabcaccbbbccaaabbbaaacaaabacccaaaccbbabcccaccbbabbcbbbaaacabbccaaacbaacccbcccacccbbbaacbbaaacccaaabacccbbaaabbbcbabcccaaabaaacaaabbbaaacccbcaabbbaaabbcbbbabbcccbaaabbbaacbaaaccbcccabaaacaaabbbcccaaacbabbbcbaccbbaacccbccaaacccaabbbcccbbbabbbcbbbaaabbcacbcaabaaacaabcccaccbbbabbbcbbbaaabbbccabbcccbbbabbbcbacaaabacbabbbcccacccbcaabaaacccbcccacccbbbcccaaabcccbbbacbbaaacccaabccaaabaaacabbbcccbbacaaabbbcbbbabcccbbbaacbcccaaacbbaaabccaaacccabcccbbbaccbcaaaccbbbabbcccbbbccaabcaaacccbcccacccbbbcccaaaccbaaabbbacccaaabbbaaacaaabaaaccbaacccaaabbbccacccbbaacaaabaaccbbbaacbbaaabbbcbbbabcaccbbbaaacccaaabaaacaaabbbaaacccaabbbaaabbcaabbbcbbbabbbcccbbaacbccaaaccbbaaabbbacbccaaabbbaaacaaabaaaccbacbbbaaaccbcccaccbbabccaaabacaaabbbacbbaaccbbbcabbbaacbbaaacccabbcccbbbcabbccaaabcbbaccbbbabbbcbbbaaabbcaabbbccaaabaaacaaabbccacccbbbcabaaacaaabbcbbbaaabbcaccbbbabbcacccbcccaaacbaaabbccaccbcabbbaacbbaaacabaaacccaaabbccacccbccaaaccbbabbbcccbbacccaabaaacaabbbcbbbabbbcccacbbaaaccbcccaabbbcccbbacccaaabaaacaaabbcaabbbaaabbcaaaccbaaabbcbbabbbcccbbacaaabbbacbbaacaaabaacbbbacccbbaaacccaaabaaacaaabbcaabaaacccbbaaabbcbbbaaccbbbcccbbacaabbbaacccbcccacccbbaaaccbaacccaaabaaacaaabbbaaccbbbacabaaacccaabbcccaccbbbabcacccbcccaaaccbaacccbbaaacaaabaaacccbbbcccacbacaaabbcccbbbaaabbbcbabbbccabcccbbaacbaaacccbcccacccbbaccbbbcccacccbcccaabbbaaabccaaacccbcccacccbbaaabcccaccbbbcabbccaabbbacbbaacaaabcbbaccbbbabbbcbbbaaabcccbbbacbcccacccbbbabcbaaabccaaacccbcccacccbbbccaabbcbbbaaabcccaabbbaaacaaabaaacccbbbaaabbbcbbbabbbcccacccbcccaabcaaabbcbbabbbcccaabaaacccbccaaabbbcccacccbcccaaaccbaacccbbaaacaabccacccbbbabccaaabbcaabbbcbbabbcccaaabbbccabcccaaabaaacaaabbcaabbbacbcccaaabbcaabbbaaaccbbabbbcbbaccbcccaabbcbaacabcbbbabcabaaacabcbbbaaacbcccacbbaaacaabccacccbccabaacbbbcacccbcabaacaabbbaaaccbbabbbcbbacccbccaaabbcbaaccbccacccbbbcaabbbaccbbbcccbbaccbbbabbbcbbbaaacabcbbbabbbcccbbaccbbbaaacccbccaabbcbbbaaabcccaaaccbaaabbcccaabbbcbbacaaabbbaacbbbcccaaabbbcccbbbabbbcbbbaacbbaaabbbaacbbbcccaaabbbaaacaabbccacccbbbabcaabbcbbbabbcaaabaacccaaabbcaabbbaaacaaabaaacccaaabbbaacccaaaccbcccaccbbaaacbccabbcbbbabbccaabbcabbbaaacaaabaaaccbcaaabaaccbbbcccbbaccbbbabbbcbbbaaabbcacbcaaabaacbbbcccabaacbbabbbccabcccbbbaaccbacccaaabbbaacbbaaacaaabacccaaaccbbbcccaaacccbcaabaaacaabcbbaaacccbbabbbcccacccbcccaabccaaacccbcccacccbbbcccaaabcccbbbcabbbaaacbabbbcbacccaaabccacccbabbccaabaaacccaabbbaaabbcaabbbcbbbabcccbbaacbcccaaacccbbbaaabbcaabbbcbbbabcccaabbcccbbbccacccbccaaabbbccaabbcbbbaccbcccaabbcabaaacabccaabbccacccbccabbcbbbaacbcccaaacccbbbcccacccbcccaaaccbaacccbcccacccbbbabbccaaabbbacaaabaaacccabbcccbacccaaabbbaaacaaabaaaccbaacccaaaccbaaabbcccacccbcccaaabbbcbbaaacaaabacccbccaaabaaacaaabbbaacbccaaacbbaaabbbccabbcccbacccaabccaaabacaaabbbacbbaacccabcccbbabbbcbbaacbabbbcccaaabbbacaaabaaaccbaacccbcabaaacaaabbbccabbcccbbbaacccbcccacccbbbccaaabbcbbbabbccaccbcaabbbaaacbcccaaacccbbaccbbbcccacccbcccaaaccbbbaaacccaabccaaabaaacabbbcbbacabaaaccbacccaabbcccbbbccacccbccaaacccaabbcccbaccbbbabbbcbbbaaabcccabbbaaacabcacccbcabaacccbbbabbccaaabbbaaacaaabaaacccaaabbcaabbbaccbcabaaaccbaacccbcacccbbbabbbcbbbaaabcaaaccbbbccacbbabbbccaaabbbcbbbabbbccabbcccbbbaacbcccacccbbaaabbbcbbbabbbcccaaabbccaabaaacccabbcccbacaabbcbabbccacccbccabbcbbbabbccabcccaaabbbcbaacccbbbcccacccbcccaaabcaabbcccbacccaabcccbbbcabbbaacccbbbabcaaacccbacaaabaaaccbbbabbcccaaacccbcabbcccacccbcccaaabaccbbaaabbcbbabbbccacccbaaabbcccbbbabbbcbbbaaacccbbbcaabbbaaabbccaaabaacccbbbabcaabbcbbbabbcccacbcccaaabbcabbbcccbaaabbbcbbbabbbccabbcccbbbccabbbaacabcccbbbaccbcccaccbaacaaabbbcccbbbabcaabbccacccbbbcaaabbcccbbbabbbcbbbaaabbccaabaaacccbbbabcaabbcbbbaccbcccaabcaccbbbaaacaabbcccaaacccbcccacccbbbacccaabacaabbbcbabcccaabbbcbbbabbbccaaabaacbbabbbcccaabbccacccbccaaacccaabbbaaacaaabaaaccbacccaaaccbaaabbbcccabaacccbccaccbbbabbbcbbbaaabcaaacccabbcccbaacccaaacbaaabbcaaacccbbabbbccacccbbbccaaacccbcccacccbbaccbbbcabbbaaaccbbbcccbaaacccbcccacccbbaccbcccaaabaacaabbcbbbaaacaaabaaacccaaabbbcccacccbcccaabccaaacccbbaaabcacccbbbccaabbbaaabcaabbbccaaacccabccaaabaaacaaabbbacbccaaabbcaabbbcbbbabcaaacccaabcaaabbccabaaacccbccaabbcccbbbabbbcbbbaacccbbaaabbcbbbabbccaaabbbaaacaaabaaacccaabcbbaacaaabcbbbabbbcccbbaaacaabbcccbaacccaaabaaacaaabbcccbbbabbccaaacccaabbbccaaacccbcccacccbbaaacccaabaaacaabbbcaccbbaaacccaaabaaacaaabbbaaacccbaaabbbaacbbbccaccbcccaaacccbbaaabbbcaccbbabbcbbbaacaabaaaccbaacccbbbaaabbbcbabcccaabbbcccbbbabbbcbbbaaabbbcccaaabaccbbbabbbcbbbaaabbbcccaaabbbaaacaaabaaacccbaaabbbcccbbbabbbcbbbaaacaabbbcccbacccaabaccbbaaabbbaacbbbccabcaabbbcbbbabbbcccbbbaaacaabbcccbbbccabbcccacccbcaaaccbbabbbcaabaaacbcccaaacbaaabbbcccbabbbcbbbaacbabbcccaaabaacbbabbbccaaabbbaaacaaabacccaaaccbbaaacaabbbaaacccbcccacccbbbaaacaaabaaaccbbbabbbcbacccaaabacbbbccaabbbaccbbbcccbacccaabcccbbbacaaabacbbbccaabbbaccbbbcccbaccbbbabbbcbbbaaabbcaccbbbabbcaabaaaccbabbcccbaaabbbcbbbabcccbbbccaabaaaccbbbccacccbccaabbbcabccaabbbaaacaabbccacccbbbccaaabbcccacccbcccaaabbbaaacaaabacccaaabbbaaccbbbcccacbbaaccbbbaaabbbcbbbabccaaabbbaaacabacccaaacbabbbccabbcccaccbccaaacccaabbbaaacaaabaaaccbacccbbbabcbbbaaabbcaccbbbaaabccaaacccbacbbaaaccbbabbbcccacccbcccaabccaaacccbcccacccbbacbbbcccaaaccbcccabbcbbbabbcccaaabbcabbbaaacaabccaaabbcccbbbabcabaaaccbbacbcccacccbbaaacccaaabaaacabbbacccbbaacaaabbbaaccbabbbcccaaabbcaabbbcbbbabbbcccbbbaaacbbbcccbbaacccaaaccbaaabbbaacccbbabbbcbbaacaaabbbcccbaacccaaaccbbaaacaabbbcccbaacccabcccbbbabbbcbacaabbcccbaacccaaabbcccbbbccacccbccaabbcccbaccbbbabbbcbbbaaabbcccbbbabbcacccbbbcccaaacccbcaaabaaccbcccaaaccbbbcccaccbbabbbcccbbaaacbbbcccacccbcccaabccaaacccbcccacccbbabcacccbcccaabaaacaabcccbbbaacaaabbbcbabbbcccabaaccbccacccbbabcaaaccbaacccbcccacccbbbccaaacccabbcccbbbabcaabbbcbbbabbbcccacbbaaabbbaccbbbcaabaaacaabbcaccbbbccaaacccaabaacaaabbcccaaaccbcccaccbbbacccaaabcbabbbccacbbaaaccbaacccaaabbcacccbbbcccaaacccbcccacccbbbccabbcccaabbcbbbabbcccaaacbaacccbbbccacccbbaacccaaaccbaaabbbccabaacccbcccacbbabccaaacccaabccaaabaaacaaabbbcbaacaaabcccbbacaaabbbcbbaaacaabbbcccbbacccaabbcccbacaaabaaaccbaacccaaaccbbacbcccacbbaaccbbbcabbbaaabccacbabbbcbacbcccaabccaaabaacaabbbcbbbabbbccacbabbbcbbbaacabaacccabcbbbabbbccabbcccbbbaacabcccbbbaacccaaaccbaacccbcccacccbbbccaaacccabccaaabaaacabbbaaccbabbbcccaccbbbaaacbaacccabcccbbbccabaacbbabbbcbbacaabbbaacccabcbbbabccacccbbbaaacccabaaacaaabbcaabbbccaabaacabccaabbcccbaacccaaabaacccbcabbbcccbacccaaaccbbbcccaaacccbcccacccbbaccbcccaaabbcccbbabbbcbbaacccbcabbbaaabbccaabcaaacccaabcabbcccbaacccaaaccbaacccbcccacccbbbccaaacccabbcccbbbabccaabbcccbaacccaaaccbaacccbcccacccbbbaaacccabaaacaaabbbaacbbaaaccbcabbccaaacccabaaacaaabbbaacccaaabaaacaaabbcaabbbaaabbcaaaccbbbabbbcbaaabbcccaaaccbaaabbbcccaaabbbaaacaaabaaaccbacaabbbaacccbcacccbbbccaabbcabaaacccabbbcbbacaaabbbcbbbabbbcccaabcacccbbbccaaabaaacaaabbbaacbbaaaccbbabbbcbbaacccaaabbbaaacaaabaaaccbaacaaabbbcbaacccaaaccbbbaaabbcbbabbbccabbcccacbcaaacccabbbaacbbaaacaaabaaacccabbbccaaacccbcccacccbbabbbcccacbbaaacccaabaacaaabbbacbccaaabbcaabbbcbbbabbbcccabcaabbbcbacaaabbbaacbbbcacbcaaacbbbaaacaaabaaaccbaacccaaaccbbbaacbaaabbbcbbaacccabccaabbcccbbbabbbcbbbaacccbbaaabbbcbbaaacaaabaaacccbbbaaabccacccbabbbcbbbaaabbcccbbbabbbcbbbaacbaaabbbcbbaacccaaacbbaaabbbaacbbaaacaaabaaacccaaabbbaaacaabaacccbbbcaabbbaaabcaabbbcbbbabbbcccbbaaabbbacbbbcccbacccaaabacbccabbbaaacabbcbbbabbcccbbaaabbbaacaabaaacccbaaabbbccabbcccacbcccaaacbbbaacaabaaaccbacccaabbbccaaabbbaaacabaaaccbbbaaabbbcbbbabbbcccbaacaaabbcaabbbcbbaccbcccaabcaaaccbbbaaabcaabbbcbbbabcccaccbbbaaabcaabbbcbbbabbbcccbaaabbbaccbbbcccaccbbabbbcaaabaacccbbacbcccacccbbacbbbaaacccaaabacaaabbbacbbbccabcaaacccabcccbbbabbbcbbbaacbaaabbbcccbbbabbcaabaaaccbcaabbbaaacaaabaaacccaaabbcaccbbbaaaccbaacccabcccbbbccaabbbcaaabbccaaaccbcaaabbbccaabbcbbbabbcccbbbccaabbbcbbaaacaabbcccaaabaaacaaabbbcbbbabbbccaaacbbaaabbbaacbbaaacaaabaaacccaabbcaccbbbccaaabbbaaacaaabaccbbbaaabbbcbbbabbbcccbacccaaaccbbabbbcaabaaacccabbbaaacaaabaaaccbaacccbacbbbaacaaabbccaaaccbccacccbbaccbbbaaacbccaabbbcccbbbabbbcbaaabccaaacbabbcccbbaaacccaaabaaacaaabbbaacbcacbbabbbcbbaaabbbcccaabaaacaabcccaccbbaaabcbbbabbbccabbcccbbbccaaabbbaacccbcccacccbbbccabbbaaccbbbcabaaacccbcabbbaacccbcccacccbbaaaccbaacccaaabaaacaaabbcaabbbaaabbcaaacccaabbcbbbaaabcaabbcbbbabbcccbbbccaaacbabbbcbbbaaacaaabaaaccbaacccaaabbbcabcccaaabbbcbbacccbccaabbbcbbbabbbccaabaacaaabbbcccbbbabbbcbbbaacbbaaabbbaacbbbccaaabbbaacbcccaaabaaacaaabbbcbaacccabcccbbbccaaabaaacaaabbbcbbbabcccaaacbbaaabbbcbbbabbbccabcccbbbccabbbaaccbbbcabbcccacbcccaaacccbbabcaabbcccbbbabbbcbbbaacbbaaabcaaacccabcaaabbbcbbaacccabbcccbaacccaaabaaacaaabbcabaaacccbbaaabcaabbbcbacaabbcccbbbccaccbcccaabbcbacaaabbcaccbbabcacccbbaccbbbabbbcbbbaaacccbbbabcbaaacaabcbabcccbaacccabcccbbbabbcacccbbbacaaabbbacbbaaccbacaaabaaaccbcccaccbbbcccaaacccbcccacccbbaccbbbabcbaacccaaabaacccbbacbcccacccbbaaacccaaabaaacaaabbcaabaaacccbccaccbbbacbbaaacccaabbbcacbcccaaacccbbbabbbcbbbaacccbbaaabbbcbbacaaabbbaaacccaaabaaacaaabbbaacbbaaacccaabcbbabbcccacccbcaaacccaabbcbacaaabbcaabbbcbbabbcccacbacaaabbcacccbbbaacccabbcccbbbabbbcbbbaacbbaaacabcbbabbcccbbaaacccbacbbaaacccaabccaaabbbaaacaabaaccbbabbcbbbaacccaaaccbbbabbbcbaaccbbbccacccbbaacccaaabaaacabbcccacccbcccaaacccbbaccbbbaaaccbaacccbbbcccacbcccaabbcbbbaaacaaabaaaccbcccaaaccbbbaaacccaaabacbcccaaacccbbbcccacccbcccaabccaaacccbcccacccbbbacaabbcccaccbbbabbbcbaaacccabbcccbacccaaaccbaaabbcccbbbabccaaacbaaabbcbbbabbcacbcaabacbbbcccaccbaacaaabbcabcccaaabaaacaaabbbaacbbaaaccbbbabbbcbbbaaacccaaabaccbbbabcaccbbaaacccbcacccbbabbcbbbaaabbcccabcaaabbcaabbbcbbbabbbcccbaaabbcbbbaccbcccabaaacccabcccbbbaccbcccaccbaacaaabaaccbabbbcccbaccbbaaabbbcbbaaccbacaaabaaaccbbbaaabbcaabbbcbbbabbbcccaccbaaabbbcbaccbbaacaaabaacbbbccaabaccbcccaabccaaabcbbbabbbcccaccbbbabbbcbbbaaabbcaabbbcccbbaaaccbacccbbabbcbbbaaabbcccbbbccacccbccaabbcccbbbcabbbaacabbccaaacbaacccbcccacccbbbacccaaabbbaacaaabaacbcacccbbbcaaabbcbbbabbcacbcaaabbbaaccbcccaaaccbabbccacccbccabbcbbbabbccaaacccbbbcabbbaaabbcccbbbabbbcbbbaaacaaabaaaccbcaabbbcbbbabcccbbbaaabbccaaacccaabaacaaabbbacccaaabccacccbccabacaaabbbacccbbbaaabbbcbbbabbbccacbaaacccabbbccacccbccabaaacccbaaabbccaabcbbbabbbccaaaccbcaabaaacaabcccaccbbaaacccbcabbbaacbbaaacaaabaaacccbbaacaaabbbcbaccbbabbbcbbaaabcaabbbcccaaabbcabaaacaaabbcccaccbbbabbccaaacccaabbccabcccbbbccaabbbcbbaaabbbccaabaaaccbcaaabbbcbbaccbbbabbbcbbbaaabcaccbbbcaabbbaaacaaabaaaccbcccaccbbabbbccaaacbaaccbbbaaabbbcbbbabbbccabaacccabcbbbabbbcccacccbcccaabccacccbbbcccaabaacaaabbbcaaaccbbacbcccacccbbaccbbbabbbcbbbaaabbbccaaabaaacabccaaabbbcbaacccaaaccbaacccbcccacccbbbaaccbcccaccbaacaaabbbaccbbbcccaaabbbaacbcccaaabbbaaacaaabaaaccbcccaaabaaacabbbaaaccbbbcccbaacccaaabbcccaccbbbabbbcbaccbbaaabcaaacccabcccbbbccaaabbcccaaacccbccaccbbaaacccaaabaaacabbbaaaccbbacbbbcccacbbaaaccbaacccaaaccbbbcccbbaccbbbabbbcbaaabbcccbabbcbbaaabbbaaccbabbcaabaaacccaaabbcaabbbcbbacaabccacccbbabbcbbbaaabbcaccbbbaaaccbaacccbcccacccbbbabbbcbbbaacbacccbbbabbbcbacaabaacccaabbcabbbcccaabccaaacccbcccacccbbbcccaaabbcbbabcacccbcccaaacccbbaaaccbbbaaacaaabaaaccbbbabbcaccbbaaacabacccbbbabccacccbbbcabbbaacbbbcccaaabbcccbbbccaccbcccaaaccbabbcaabaaacaabcbabbbccacbbaaacccaabcccbbbccaaacccbbbcccacccbcccaaacbbbaacccbccaabaaacccaabbcbbabbbccaaacccabaaacaaabbccaaacccaabccaaabbbccaccbcccaabbbccabbcbbbaaabbbcccaaabaaccbcccabbbaaacaaabaaaccbaacccaaaccbaaabbcccbabbcbbaacbaaabbccaaacccabaaacaaabbbaacbbaaaccbbbabbcbbaaabbcccaaacbabbbcbaacccbccabbcbbbabbccaaabbbaaacaabaacccaaabbbcccaaaccbcccabbbcbbaacccbccaaacbbbaaacabccaaabaaacaaabbbaacbcccaaabbcccbaacccaaaccbaaabbcaaaccbccacbbabbbcaaabbcccbbbccacccbccaabbcccbbbabcabaaacccbccaaabbbcbbaccbbbabbbcbaaabbbccaaacbaaabbbcbbaaccbcccaaabaaacabcccbbaaabbbaacbbbcccbbacbbbaacccaaabacbabbbccabaacccbcccacbbbccaaacccaabccaaabaaacaaabbbcaccbbbccaaabaaacaaabbbaaccbbbcaabbbaaabbcaabbbcbbbabbbcccaaabbbaccbbbcccacbaaccbbaaabcaabbcbbbabbcaabacccbbacbbbaacbbaaacabaaacccaaabbccacbabbcaaabbbacbbbcccbacbbaacccabbcccbbbabbbcbbbaacbbabbbcccbaaabbbcbacaaabacccbbbcabbbaacccbbaccbbbcccacccbcccaaabacaaabbcaabbbcbbaccbcaaabbcaabbbcbbbabbbcccbbaaacbbbcccbacccaaabacbbaaccbbbcabbbaacbbaaacccaaabaaacabbccacccbaaacaabbbaaabbcccbabbbcbbbaaabbcccacccbcccaabaaacccbcacccbbbaaacbcccaaacbaaabbbcabaaaccbbacbcccacccbbaaacccaaabaaacaaabbcaabaaacccbabbcbbaaacaabbbcbabbbccaccbcccaaabbcabaaacccaabbbcbbaaabcaabbbcbbbabbbcccbbbaaabbbcbaaccbcccaccbbbcccaaabacaaabbbcbbabbcccabbbaaabcccaaabaaacaaabbbacbbbccaaacccaabcccbbbaaaccbbbcccacccbcccaaabcaabbbacccaabaaacaabbbcbbbabbbcccbacccaaaccbbbabbccacccbccabbcbbbabbccacccbbaaabccaaacccbcccacccbbaccbbbaaacccbccaaabaaacaaabbbcccaaacccbcabcbbbaaabcccaabbbaaabbcbbbabbcccbbbaaacbbbcccaccbccaaacccaabbcbbbaaabccaaacccaabccaaabaaacaaabbbaaacccbaaabbbaacbbbacccaaabccacccbbbabbbcbbbaaabcaabbbcbbbabbbcccbbbaaacbbbcccbbacccaaaccbabbcaccbabbbcbbbaaabbcaccbaacaaabaacbcacbbaaabbbcbbbabbbcccbbbaaccbcabaaacabbbcccabaacccbcacccbbbcccaabbbcaaacccabbcccbbbaaabbbcbbbabbbccabbcccbbbabbbcbbbaaacccabaaacaaabbcbaaacccbcccacbabbbcccbbbaaabbbcbbbabbbccabbcccabaaacabcbbbaaacaaabaaaccbaacccaaabbbcccaaaccbaacccbcccacccbbbacccaaabbbaacbcccacccbbbabbcccacccbcccaaacccbbbccabbbaaaccbcaaabaaccbbbaaabcbbbabbbccabbcccaccbabbcaabaccbcccaccbbbcccaabbbcbbbabcccbbbccaabbbaaabcbbbabbbcccbbbaaccbcccaccbaacabbcbacccaabaaacaabbbaaaccbbbacccbccabaacaabbbcbbbabbbcccacccbcccaaabbccabcccbbbaaabbcaabbbcbbbabbbcccbbaccbbbaacbccaccbbbaaabbbcbaacaaabbbaacccbbbaaabbbcbbbabbbccabbcccaabcbbaaacaaabaaacccabcccbbaaccbabbbcbacccaaabcaabbbcbbbabcaabbbcccbbacccaabaccbbbcccacccbcccaabccaaacccbbbabccaaacbaaabbbaacbbbccaabcbabbbcccbbbaacccbccaaaccbbaaabbbaccbbbcccbbaccbbbabbbcbbbaaabbbcccbbaaacaaabacbbbccaabbbaccbbbcccbbaacccabcbbaaabbccaaacccabccaaabaaacaaabbbcbbaacccaaacbaaabbbcbabbbccabbcbaaabbcccabccaaabaaacabbbacccbabbbcbacaaabbbcbbbabbbccabbcccbbbccabbbaaccbbbcabaaaccbcccaccbbacbbbcccbbaaabbbcbbbabbbccacccbaaacaabbbccaaacbaaabbbaaccbabbbcccaabcaaaccbcccaccbabcbaacccaaaccbaaabbbaacccaaabaaacaaabbcaabbbacbbbccacccbaacaaabbcccbbbabbbcbbbaacbaaabbbcbbaaccbacccaaabaaacaaabbbaaaccbcaabbbaaabbcaabbbcbbbabcaaaccbbabbbcccbbacccaaabcacccbcccaabaccbbbcccbbabbbcbbaacaaabbbcbbbabbbcccaaabbbcabcccaaacbaaabbbccabcbbbabbbccaaabbbaaacaaabaaaccbacaabbbcccbabbbcbbbaaacbaaccbcaccbbbaacccaaabaaacaaabbcccaabbbaacaaabaaccbbbaaabbbcbabbbcccbbacccaabbbacaaabaaaccbbbcaabbbaaabbcaabbbcbbbabbbcccbbacaabbcbbbabbcaabaaaccbbbaacccbaccbbbaaabbbcbbbabbbccabbcccbbbabbbcbbbaacccaabaccbcccaabbbcbbacccbccaaaccbbbacccbccaaabaaacabbbaccbcccaaacccbbbabbbcbbbaacbabbbcccaaabbccaabaaacaabbbaaabbccacbbabbbcbbacccbccaabcbbbabcaaaccbaaabbbcccbbbabbbcbbbaacbbaaabbbaacbbbccaabbbaaacaaabaaaccbacaaabbbcaccbbbabbccaaabbbaaacaabaaccbacccaabbbacccbccaaacccaabbbaacaaabaaccbacaaabbbcccbbbabbbcbbbaaabbbcccacccbcccaaabacabbcbacccbbbcabbbaaabbcaccbbaaabccaaacccabccaaabaaacaaabbbaacccaaacbaaabbbcccbbbabbccaaabbcaabbbaaabbcccbbbabbbcbbbaacbabbbcccaaacbbbabbcccbbbccaabcbbaccbcccaaaccbabbbcccaabbbcaaabaaccbacccaaaccbbbccaccbcccaaaccbaaabcbbbabbbccaccbcccaabcacccbbbabbbcbbbaacbbabbbcccabbbacaaabaaacccbccaaabaaacaaabbcccbabbcaaabbbacbbbcccbaacccaaaccbaacccbcccacccbbbacccabaaccbbabbbcccacccbcabbbaacccaaaccbbaaabbcbbbabbccaaacccabcccbbbaacaaabaacccaabbbaaacaaabaaaccbaacccbbabcaaacccbcccacccbbbcabbbaaccbcccaaacbabbbcccaabaaacaabcbbbaaabbbcccbbbabbbcbaaabbbcccaaaccbccacccbbaccbbbaacbcccaaaccbbbaaabbbcbbbabccaaabaaacaaabbbaaaccbaacccaaabaaacaaabbbaaaccbbbccacbbbaaacaaabaaacccaaabbcccacccbcabbcccaaabbccaabaacabbcccbbbccaabcbbbaaabcaabbcccaabaaacaabcccaccbbbaacccbcccacbbbcccbbaaabccacccbbbcccaaabaaacaaabbcccbbbabbbcbaaabbcccbbbcaabaaacbcccacbbbacccaaabaaacaaabbcaabbbacbccabaaacccbcccacccbbbcabbbaaabcccaaaccbbbaaabbcaabbbcbbbabbbcccaccbbbaaabbbcbbaaccbacaaabaaaccbbbaacbbaaabbbcbbbabbbcccbbbaaabbbcbaacaaabaacccbbbaacbbaaacaaabaaacccaaabbbccacbccaaacbaaabbbccaabbcbbbabbcccbbbccaaabaaccbcccaaabaaacaaabbbacccbbabbbccaaabaacccaaaccbbbcccacccbcccaabacaabbbcccbacccaaabaaacabbbaacccbabbcbbaaabcacccbbaccbbbabbbcbbbaaabbbcccabbbaaabccaaacccaabcbbaaacaaabacbbbaaabcccbbbabbcaaabccacccbccaabcaaacccaabcbbaaabcccaaabaaacaaabbbaaacccbcaabbbaaabbcbbbabbccaaabbcaabbbaaacaaabaaacccbccaccbbacbccaaabaacbbbaaabcccbbaccbbbabbbcbbbaaabbccaaacbbaaabbbaacbbaaacaaabaaacccaabbbcbbbabbbccaaabaacccbcabaaacaaabbbaacbbaaacccaaabaaacaaabbcacccbcccaaaccbbaaacbbbcccbacaaabaaaccbbbcaabbbaaacaaabaaaccbaacaaabbbcccbbacaaabbbcbbabbcccbacccaabbccabcbbbaaabcaaaccbacbbaaacaaabaaacccabcccbbaacccbccaaacccaabcbbbaaabbbccacccbbbabcaabbbcbbbabbbcccbbaaabbbaacbbaaacccabbbcccbbaaacccaaabaaacaaabbcabbbaaacaaabaaacccbbbccacccbccabaacccbbbabbcaaabaacccbbaaacccaaabaaacaaabbbcbbbabbbccabbcccaabacbbbcccacccbcccaabccacccbbbcaaacbccaabbbcbbaaabbbccaaaccbcaabaaacaabccacccbccaabcaaaccbbbaaacaabccaaabaaacaaabbbaaacccbbbcaabbbaaabbcccaaacccbcacbbbaacbbaaacabaaacccaaabbccacccbbbcccaaacbaaccbbbabbbcbbbaacccabcccbbbaacccaaabbbaaacaaabacccbaaabbbaacbbbacccaaabbcaccbbbabbbcbbbaaabbccacbbaaabbbaacbbaaacaaabaaacccbbacbbbaaacaabccacccbbbcccaabbcabbbaaacaaabaaacccaabbbccaaacccbccabaaacccaaabbbaaacaaabaaacccaabccaaabaaacaaabbbcccacbbaaabbbaaccbabbbcccacbbaaabcccaaaccbbaaabbbaacaaabaacccaaabbbcaaacccbcacccbbbcccaaacccbcaaabaacbccaaaccbbbcabaaaccbbbabbbcbbbaaabbccaccbcccaaaccbbaaabcaabbbcbbacaaabbbaaacccaabccaaabaaacaaabbbaaacccaaabacccbccaaabaaacabbbacccaaabbccacccbbbccaabbcabbbaaabbcaaacccbacaaabaaaccbacaaabbbcabbcccaabccaaacccbcccacccbbaccbbbcccbbacccaaabbcbacccbbbcabbbaaacabaccbbbacbaacccbcccacccbbbacccabaaacaaabbcabbbaacaaabbcccbbbccaaacccabaaacaaabbcaabbbacccaaabaacaabbbcbbbabbbcccaabaaacbcccaaacccbbabcbbaaacbaaccbbbcccbbabbbccaabbbcbbaaabbbaacccbaaacaabcbabbbcccbbbaaacccbacbbbaaabcaaaccbaacccbcccacccbbbacaaabbbacccbabbbcbbbaacabcccbbaacccabaaacaaabbbaaccbbbabbcaaabaacccbbbaaacaaabaaacccabccaabbbcacbcccaaaccbbacaaabacccaaaccbbabbcbbbaaabbcccaabccaaacccbcccacbbbcccaaabcccbbbabcbbbaacbaaacccbbaaabbcbacaaabaaacccaabccaaabbcccaccbccaaabbbcbaacccbbbcccacccbcccaaacccbbaaabccacccbbbcccaaacbbaaabcaaaccbccacbbabbbcbbacccbccaabbcccaaabcaabbbcbbbabbbcccbbaccbbbaaccbcccaaaccbabbcbbaaacaabaaccbcccaabbbcccacccbcccaaaccbabcbaacccaaabaacaabbcbaacabbcccacbabbbcbbbaaabcaccbbbaacbbaaacabaaacccaaabbcbaaccbcccabbcbaacccaaabaaacabbbcbbaacccbbbccabbbaacabbcccbbbabbbcbbbaaabbccaaabcccabbcbbbabbcaccbbbccaaaccbcccaccbbbcabbccaaabacaaabbbaaaccbaacccbbbabbbcbaacccbcccacccbbbcccaabaaacccbcabbcccaabbbaaacccaaabaaacaaabbbaaacccbbabbbccaccbcccaabaacaaabbbcccbaccbbbaaabbbcbbabbcccbbbaacccbccaaabbbccabbcccbbbaaccbcccaccbbbccaaabaaccbcccaaaccbbbcccacccbcccaaaccbaacccbbaacaaabaacccaabbbcccbbacccaabbbaacabbcbbbabbccacbbbaaacccbcccacbbabbbccaccbcaabaaacaabbbaaacccbccabbcccacccbcccaaaccbaacccbbbaaacccabaaacaaabbcaabbbcacbcaaabaacbcacccbbacbccaaacbabbbcbbbaacbbaaabcaaacccbaacaaabbbacbbbccaccbcccaaabbcccbbbabbbcbbbaaacabbcccaaacccbcccacccbbbcccaabbcbbbacaabbccacccbaacaaabaaccbacaaabbbcabbcccacccbcccaaaccbaacccbcccacccbbbaaacaaabaaaccbaacccaaabaaacaaabbbcabbccabcccaaabbcbacaaabaaacccbcccacccbbaccbcaaabbbaccbbbcccbacccaabaacaaabbcbbbaaacaaabaaaccbaacccaaabaaacaaabbcccbabbcbbaacccabcccbbbccabbbcaabbbaaabcaccbaaabbbcbaacccbbbcccacccbcccaabccaaacccaabbbaaabcaabbcbbbaccbcaaabbcbacccaabcccbbbabbbcbbbaacbbabcccaabacaabbcbbbabbcaabaaacaabcbbaacccaabaacabcbbbabccacccbabbccaabaaacccbccaaabaaacaaabbbaacbbaaaccbabbccaccbcaabaaacaabbbaaacccbbaaabbbcbabbbcccbbaaaccbaacccbbbcccacbcccaaaccbaaabcbabbbccacccbaaaccbbbaaacaaabaaaccbaacccaaabbbcaaacccbcccacccbbaccbcccaaabbbaacaaabaacbcccacccbbbcccaabbcabbbaaabbcaccbccaabbcccaaabaaacaaabbcaabbbaaacaaabaaacccaaabbbaaacabbcccaaacbcccacbabbbccacbbbaaacaaabaaacccaaabbbaacccaaacbcccacccbbaacaaabaacccaaaccbbbcccacccbcccaaaccbaacccbbaaabcbbabbccaaacccbcccacbbbabbccabcbbbaaacaaabaaaccbaacccaaaccbbacbccaaabbcaabbbcccbaaaccbbbcccacccbcccaaacbaacccbbbccacccbaacaaabbcccbbabbbccaabbbaaacaaabaccbbbabbbcbbbaaabbbcccaaaccbaacccbbbabbbcbaacccbbbccacccbbaaacccaaabaacbbbccabbbaaacaaabaaaccbaacccaaabbcabaaacccbbbcccacbaacccbcccacccbbbabbcbbaacccabccaaabaaacabbbcaaaccbaacccbccaccbbbcccaaabbbcbbaaacaaabaaacccabccaaabaaacaaabbbaacccaaabaccbbbabbbcbaaabbbccaaabaaacaaabbbaacccbcacccbbbabbcbbaacaaabbcccbabbcaabbbcbbbabbbcccbacccaabbcbbbaaacabbcccbacccaaaccbbaacaaabaacccaaaccbbbaacbbaaabbbaacbbbcccaaabbbcbbbabbbcccbbacccabacaaabbbaacccbbbcabbbaacbbaaacabaaacccaabbcccbbbcabaaccbbbcccacccbcccaabccaaabbbcbacccaabccaaabaaacabbbaacccbbacbbbcccaccbaacaaabbbcbaacccbbbabbbcbbbaacbaaabbcbbbaacccbaaacaabbbcccacbcccaaabaaacaaabbcabaaacccbcaabbbaaabbcbbbabbccaaacbbaaabbbaacbbaaacaaabaaacccaaabbcaabbbaaaccbacccaaaccbaaabbcaaacccbccabbbcbbaaabbbaaccbacaaabaaaccbaacccaaabbcccacccbcccaaaccbbbaaacaaabacbccaaaccbbbaaabbbcbbbabbbccabaaacccbbbccacccbaacaaabaacbbbcccaabbcbbbaaacbcccacccbbbcccaaacccbcccacbbbaaacaaabaaacccaabccaaabaaacaaabbbacbbaacccaaacbcccacccbbbacbaacccabbcbaaacaabcbabbbccabcccbbaacbcccaaabaaacaaabbcbabbcccaaabaccbbabbbcbbaaabbbaacccaaabbbaaacaaabaaacccaabccaaabaaacaaabbbcacccbcccaaacbaaccbbbabcbaacaaabcccaabbcccbbbcaabbbaaaccbabbcccabacaaabbcbacaaabaaacccabccaabbbcccaabccaaacccbcccacccbbaccbbbacaabbccacccbccabbbaacbbaaacaaabacccbccaabbbaaacaabbbcbbbabbbcccaabbccacccbaacaaabbcccbbbccacccbccaabbcccbbbabbbcbbbaacabbccacccbccabbbaacaaabbccacbbbacaabbccacccbbbabbbcbbbaaabbbcccabbbaaacaabaacccbaaabbbccabaaccbccacccbbbaaacaaabaaacccaabccaaabaaacaaabbbaaaccbaacccbabbcaabbbcbabbbcccbbbaacccbcccacbaaabbcccbbbccaabbbaaabcbbbabbbccaabbbaaacaaabacbccaaacbaaabbcbbbaaccbbbcccbbacccaabccaaabacaaabbbaaacccaabcccbbbabcaabbcccacccbcccaabbbccabbcccbbbaacbaaacccbbbaacbca';
+const sig = s => s.replace(/[abcd]/g, x => 'bcda'['abcd'.indexOf(x)]);
+const G = { a: G85A }; G.b = sig(G.a); G.c = sig(G.b); G.d = sig(G.c);
+const iter = n => { let w = 'a'; for (let k = 0; k < n; k++) { const parts = []; for (const x of w) parts.push(G[x]); w = parts.join(''); } return w; };
+const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const LCOL = x => css({ a: '--la', b: '--lb', c: '--lc', d: '--ld' }[x]);
+
+// walks -----------------------------------------------------------------
+const DIR4 = { a: [1, 0], b: [0, 1], c: [-1, 0], d: [0, -1] }, HGT = { a: 1, b: -1, c: 1, d: -1 };
+function walk4(w) {
+  const n = w.length, X = new Int32Array(n + 1), Y = new Int32Array(n + 1), H = new Int32Array(n + 1);
+  for (let i = 0; i < n; i++) { const d = DIR4[w[i]]; X[i + 1] = X[i] + d[0]; Y[i + 1] = Y[i] + d[1]; H[i + 1] = H[i] + HGT[w[i]]; }
+  return { X, Y, H, n };
+}
+const S3 = Math.sqrt(3) / 2, DIR3 = { a: [1, 0], b: [-0.5, S3], c: [-0.5, -S3] };
+function walk3(w) {
+  const n = w.length, X = new Float64Array(n + 1), Y = new Float64Array(n + 1);
+  for (let i = 0; i < n; i++) { const d = DIR3[w[i]]; X[i + 1] = X[i] + d[0]; Y[i + 1] = Y[i] + d[1]; }
+  return { X, Y, n };
+}
+
+// colour ramps (time and height): perceptually ordered, readable in both themes
+const isDark = () => { const t = document.documentElement.dataset.theme; return t ? t === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches; };
+function ramp(t) {   // t in [0,1] -> hue from blue through magenta to amber
+  return `hsl(${220 - 190 * t},70%,${isDark() ? 62 : 46}%)`;
+}
+function divergent(t) { // t in [-1,1]
+  const dark = isDark();
+  if (t >= 0) return `hsl(18,${40 + 45 * t}%,${dark ? 70 - 15 * t : 60 - 20 * t}%)`;
+  return `hsl(205,${40 - 45 * t}%,${dark ? 70 + 15 * t : 60 + 20 * t}%)`;
+}
+
+// canvas helper ----------------------------------------------------------
+function setupCanvas(cv, aspect) {
+  const dpr = Math.max(1, window.devicePixelRatio || 1), w = cv.clientWidth || cv.parentElement.clientWidth;
+  const h = Math.round(w * aspect);
+  cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr); cv.style.height = h + 'px';
+  const ctx = cv.getContext('2d'); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.fillStyle = css('--fig'); ctx.fillRect(0, 0, w, h);
+  return { ctx, w, h };
+}
+function fitter(X, Y, from, to, w, h, pad = 18) {
+  let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
+  for (let i = from; i <= to; i++) { if (X[i] < x0) x0 = X[i]; if (X[i] > x1) x1 = X[i]; if (Y[i] < y0) y0 = Y[i]; if (Y[i] > y1) y1 = Y[i]; }
+  const s = Math.min((w - 2 * pad) / Math.max(1, x1 - x0), (h - 2 * pad) / Math.max(1, y1 - y0));
+  const ox = (w - s * (x1 + x0)) / 2, oy = (h + s * (y1 + y0)) / 2;
+  return { s, px: x => ox + s * x, py: y => oy - s * y };
+}
+function strokeRamp(ctx, X, Y, f, from, to, colorOf, width) {
+  const buckets = 96, n = to - from;
+  ctx.lineWidth = width; ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+  for (let b = 0; b < buckets; b++) {
+    const s = from + Math.floor(n * b / buckets), e = from + Math.floor(n * (b + 1) / buckets);
+    if (e <= s) continue;
+    ctx.strokeStyle = colorOf(s, e); ctx.beginPath(); ctx.moveTo(f.px(X[s]), f.py(Y[s]));
+    for (let i = s + 1; i <= e; i++) ctx.lineTo(f.px(X[i]), f.py(Y[i]));
+    ctx.stroke();
+  }
+}
+
+// Figure 1: five bendings of g85(a) (SVG) -------------------------------
+function svgEl(svg, tag, attrs) { const e = document.createElementNS('http://www.w3.org/2000/svg', tag); for (const k in attrs) e.setAttribute(k, attrs[k]); svg.appendChild(e); return e; }
+function fig1() {
+  const w = G85A, n = w.length;
+  const ink = css('--ink-faint'), rule = css('--rule');
+  for (const id of ['figB', 'figC', 'figD']) document.getElementById(id).innerHTML = '';
+  figA();
+  // (B) rays and (C) circles
+  const cnt = { a: 0, b: 0, c: 0, d: 0 }, occ = [...w].map(x => ++cnt[x]);
+  const maxc = Math.max(...Object.values(cnt));
+  { const svg = document.getElementById('figB'), ang = { a: 0, b: Math.PI / 2, c: Math.PI, d: 3 * Math.PI / 2 }, cx = 200, cy = 150, R = 136;
+    for (const x of 'abcd') { svgEl(svg, 'line', { x1: cx, y1: cy, x2: cx + R * Math.cos(ang[x]), y2: cy - R * Math.sin(ang[x]), stroke: rule }); svgEl(svg, 'text', { x: cx + (R + 8) * Math.cos(ang[x]) - 4, y: cy - (R + 8) * Math.sin(ang[x]) + 4, 'font-size': 11, fill: LCOL(x), 'font-family': 'monospace' }).textContent = x; }
+    const pts = [...w].map((x, i) => [cx + R * occ[i] / maxc * Math.cos(ang[x]), cy - R * occ[i] / maxc * Math.sin(ang[x])]);
+    svgEl(svg, 'polyline', { points: pts.map(p => p.join(',')).join(' '), fill: 'none', stroke: ink, 'stroke-width': 0.5, 'stroke-opacity': 0.8 });
+    pts.forEach((p, i) => svgEl(svg, 'circle', { cx: p[0], cy: p[1], r: 2.2, fill: LCOL(w[i]) })); }
+  { const svg = document.getElementById('figC'), rad = { a: 40, b: 72, c: 104, d: 136 }, cx = 200, cy = 150;
+    for (const x of 'abcd') svgEl(svg, 'circle', { cx, cy, r: rad[x], fill: 'none', stroke: rule });
+    for (const x of 'abcd') svgEl(svg, 'text', { x: cx + rad[x] - 4, y: cy - 4, 'font-size': 11, fill: LCOL(x), 'font-family': 'monospace' }).textContent = x;
+    const pts = [...w].map((x, i) => { const th = Math.PI / 2 - 2 * Math.PI * occ[i] / (maxc + 1); return [cx + rad[x] * Math.cos(th), cy - rad[x] * Math.sin(th)]; });
+    svgEl(svg, 'polyline', { points: pts.map(p => p.join(',')).join(' '), fill: 'none', stroke: ink, 'stroke-width': 0.5, 'stroke-opacity': 0.8 });
+    pts.forEach((p, i) => svgEl(svg, 'circle', { cx: p[0], cy: p[1], r: 2.2, fill: LCOL(w[i]) }));
+    const ink0 = css('--ink'), s0 = pts[0], e0 = pts[n - 1];
+    svgEl(svg, 'circle', { cx: s0[0], cy: s0[1], r: 5, fill: 'none', stroke: ink0, 'stroke-width': 1.5 });
+    svgEl(svg, 'circle', { cx: e0[0], cy: e0[1], r: 4.5, fill: ink0 });
+    svgEl(svg, 'text', { x: s0[0] + 7, y: s0[1] - 6, 'font-size': 11, fill: ink0, 'font-family': 'monospace' }).textContent = 'start';
+    svgEl(svg, 'text', { x: e0[0] + 7, y: e0[1] + 12, 'font-size': 11, fill: ink0, 'font-family': 'monospace' }).textContent = 'end'; }
+  figBs();
+  figCs();
+  figD();
+  figE();
+}
+// (B) in space: the four rays point from the centre of a regular tetrahedron to its vertices,
+// so every pair of rays makes the same angle (arccos(-1/3) ≈ 109.47°) and no letter is singled out.
+// The k-th occurrence of a letter sits at distance k on its ray, as in the plane picture.
+const TET = { yaw: -20, tilt: 16,
+  dir: { a: [0, 1, 0], ...Object.fromEntries(['b', 'c', 'd'].map((x, j) => { const t = (90 + 120 * j) * Math.PI / 180, s = Math.sqrt(8) / 3; return [x, [s * Math.cos(t), -1 / 3, s * Math.sin(t)]]; })) } };
+function figBs() {
+  const tetra = document.querySelector('#bMode [data-v="tetra"]').getAttribute('aria-pressed') === 'true';
+  document.getElementById('figB').style.display = tetra ? 'none' : 'block';
+  const cv = document.getElementById('figBs'); cv.style.display = tetra ? 'block' : 'none';
+  if (!tetra) return;
+  const w = G85A, n = w.length, { ctx, w: W, h: H } = setupCanvas(cv, 0.75);
+  const cnt = { a: 0, b: 0, c: 0, d: 0 }, occ = [...w].map(x => ++cnt[x]), maxc = Math.max(...Object.values(cnt));
+  const R = Math.min(W, H) * 0.44, cx = W / 2, cy = H / 2 + R * 0.12, rad = Math.PI / 180;
+  const yaw = TET.yaw * rad, tilt = TET.tilt * rad;
+  const proj = ([X, Y, Z], s = 1) => {
+    X *= s; Y *= s; Z *= s;
+    const X1 = X * Math.cos(yaw) + Z * Math.sin(yaw), Z1 = -X * Math.sin(yaw) + Z * Math.cos(yaw);
+    const Y2 = Y * Math.cos(tilt) - Z1 * Math.sin(tilt), Z2 = Y * Math.sin(tilt) + Z1 * Math.cos(tilt);
+    return [cx + R * X1, cy - R * Y2, Z2];
+  };
+  const seg = (p, q, col, lw, alpha) => { ctx.globalAlpha = alpha; ctx.strokeStyle = col; ctx.lineWidth = lw; ctx.beginPath(); ctx.moveTo(p[0], p[1]); ctx.lineTo(q[0], q[1]); ctx.stroke(); };
+  const items = [], O = proj([0, 0, 0]), ink = css('--ink-faint');
+  
+  // tetrahedron edges and the four rays (split into pieces so that depth sorting works)
+  const pieces = (A, B, col, lw, k = 12) => { for (let j = 0; j < k; j++) {
+    const p = proj(A.map((v, i) => v + (B[i] - v) * j / k)), q = proj(A.map((v, i) => v + (B[i] - v) * (j + 1) / k));
+    items.push({ z: (p[2] + q[2]) / 2, draw: () => seg(p, q, col, lw, p[2] + q[2] > 0 ? 0.9 : 0.45) }); } };
+  for (const [x, y] of ['ab', 'ac', 'ad', 'bc', 'bd', 'cd']) pieces(TET.dir[x], TET.dir[y], ink, 0.9);
+  for (const x of 'abcd') pieces([0, 0, 0], TET.dir[x], LCOL(x), 1.4);
+  const P = [...w].map((x, i) => proj(TET.dir[x], occ[i] / maxc));
+  for (let i = 0; i + 1 < n; i++) { const p = P[i], q = P[i + 1], z = (p[2] + q[2]) / 2;
+    items.push({ z, draw: () => seg(p, q, ink, 0.7, 0.25 + 0.3 * (z + 1) / 2) }); }
+  P.forEach((p, i) => items.push({ z: p[2] + 1e-3, draw: () => { ctx.globalAlpha = p[2] > 0 ? 1 : 0.6; ctx.fillStyle = LCOL(w[i]); ctx.beginPath(); ctx.arc(p[0], p[1], 2 + 1.2 * (p[2] + 1) / 2, 0, 2 * Math.PI); ctx.fill(); } }));
+  items.sort((s, t) => s.z - t.z).forEach(it => it.draw());
+  ctx.globalAlpha = 1; ctx.fillStyle = css('--ink'); ctx.beginPath(); ctx.arc(O[0], O[1], 2.5, 0, 2 * Math.PI); ctx.fill();
+  for (const x of 'abcd') { const p = proj(TET.dir[x], 1.1); ctx.fillStyle = LCOL(x); ctx.font = 'bold 12px monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(x, p[0], p[1]); }
+}
+// (C) on a sphere: letter x on its own circle of latitude (a near the north pole, d near the south
+// pole, as a, d are the inner and outer circles of the plane picture, which is the view from above).
+// The k-th occurrence sits at the same longitude as in the plane. Consecutive letters are joined by
+// straight chords, which run through the inside of the sphere.
+const SPH = { yaw: 20, tilt: 28, lat: { a: 62, b: 22, c: -22, d: -62 } };
+function figCs() {
+  const sphere = document.querySelector('#cMode [data-v="sphere"]').getAttribute('aria-pressed') === 'true';
+  document.getElementById('figC').style.display = sphere ? 'none' : 'block';
+  const cv = document.getElementById('figCs'); cv.style.display = sphere ? 'block' : 'none';
+  if (!sphere) return;
+  const w = G85A, n = w.length, { ctx, w: W, h: H } = setupCanvas(cv, 0.75);
+  const cnt = { a: 0, b: 0, c: 0, d: 0 }, occ = [...w].map(x => ++cnt[x]), maxc = Math.max(...Object.values(cnt));
+  const R = Math.min(W, H) * 0.42, cx = W / 2, cy = H / 2, rad = Math.PI / 180;
+  const yaw = SPH.yaw * rad, tilt = SPH.tilt * rad;
+  const proj = (latD, th) => {                                   // -> [x, y, depth in -1..1]
+    const f = latD * rad, X = Math.cos(f) * Math.cos(th), Y = Math.sin(f), Z = -Math.cos(f) * Math.sin(th);
+    const X1 = X * Math.cos(yaw) + Z * Math.sin(yaw), Z1 = -X * Math.sin(yaw) + Z * Math.cos(yaw);
+    const Y2 = Y * Math.cos(tilt) - Z1 * Math.sin(tilt), Z2 = Y * Math.sin(tilt) + Z1 * Math.cos(tilt);
+    return [cx + R * X1, cy - R * Y2, Z2];
+  };
+  const lonOf = i => Math.PI / 2 - 2 * Math.PI * occ[i] / (maxc + 1);
+  const P = [...w].map((x, i) => proj(SPH.lat[x], lonOf(i)));
+  const items = [];                                              // depth-sorted drawing list
+  for (const x of 'abcd') for (let k = 0; k < 72; k++) {
+    const p = proj(SPH.lat[x], 2 * Math.PI * k / 72), q = proj(SPH.lat[x], 2 * Math.PI * (k + 1) / 72);
+    items.push({ z: (p[2] + q[2]) / 2, draw: () => { ctx.globalAlpha = p[2] + q[2] > 0 ? 0.9 : 0.35; ctx.strokeStyle = LCOL(x); ctx.lineWidth = 1.2; ctx.beginPath(); ctx.moveTo(p[0], p[1]); ctx.lineTo(q[0], q[1]); ctx.stroke(); } });
+  }
+  const ink = css('--ink-faint');
+  for (let i = 0; i + 1 < n; i++) { const p = P[i], q = P[i + 1], z = (p[2] + q[2]) / 2;
+    items.push({ z, draw: () => { ctx.globalAlpha = 0.3 + 0.35 * (z + 1) / 2; ctx.strokeStyle = ink; ctx.lineWidth = 0.9; ctx.beginPath(); ctx.moveTo(p[0], p[1]); ctx.lineTo(q[0], q[1]); ctx.stroke(); } }); }
+  P.forEach((p, i) => items.push({ z: p[2] + 1e-3, draw: () => { ctx.globalAlpha = p[2] > 0 ? 1 : 0.55; ctx.fillStyle = LCOL(w[i]); ctx.beginPath(); ctx.arc(p[0], p[1], 2.2 + 1.2 * (p[2] + 1) / 2, 0, 2 * Math.PI); ctx.fill(); } }));
+  // the glass surface: a translucent disc between the back half and the front half
+  items.push({ z: 0, draw: () => { ctx.globalAlpha = 0.28; ctx.fillStyle = css('--panel'); ctx.beginPath(); ctx.arc(cx, cy, R, 0, 2 * Math.PI); ctx.fill(); } });
+  items.sort((s, t) => s.z - t.z).forEach(it => it.draw());
+  ctx.globalAlpha = 1; ctx.strokeStyle = css('--ink-faint'); ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(cx, cy, R, 0, 2 * Math.PI); ctx.stroke();
+  { const ink0 = css('--ink'), s0 = P[0], e0 = P[n - 1];                  // start (ring) and end (filled), fainter when behind
+    ctx.globalAlpha = s0[2] > 0 ? 1 : 0.5; ctx.strokeStyle = ink0; ctx.lineWidth = 1.6; ctx.beginPath(); ctx.arc(s0[0], s0[1], 5.5, 0, 2 * Math.PI); ctx.stroke();
+    ctx.font = '11px monospace'; ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.fillStyle = ink0; ctx.fillText('start', s0[0] + 8, s0[1] - 8);
+    ctx.globalAlpha = e0[2] > 0 ? 1 : 0.5; ctx.beginPath(); ctx.arc(e0[0], e0[1], 5, 0, 2 * Math.PI); ctx.fill(); ctx.fillText('end', e0[0] + 8, e0[1] + 9);
+    ctx.globalAlpha = 1; }
+  for (const x of 'abcd') {                                     // label at the rightmost point of each circle
+    let best = null; for (let k = 0; k < 72; k++) { const p = proj(SPH.lat[x], 2 * Math.PI * k / 72); if (!best || p[0] > best[0]) best = p; }
+    ctx.fillStyle = LCOL(x); ctx.font = 'bold 12px monospace'; ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.fillText(x, best[0] + 6, best[1]);
+  }
+}
+// (A) square prism: letter x on the long edge at angle 45° + 90°·x around the axis, so that
+// sigma (a -> b -> c -> d -> a) is a quarter turn. Factor 21..46 of g85(a), turned a quarter
+// and shifted by 39, is the suffix 60..85.
+const PR = { half: 3, F: [20, 45], E: [59, 84] };
+function figA() {
+  const w = G85A, n = w.length, cv = document.getElementById('figA');
+  const { ctx, w: W, h: H } = setupCanvas(cv, cv.clientWidth < 500 ? 0.6 : 0.34);
+  const deg = id => +document.getElementById(id).value * Math.PI / 180;
+  const yaw = deg('aYaw'), tilt = deg('aTilt'), spin = deg('aSpin'), t = +document.getElementById('aMove').value / 1000;
+  const all = document.getElementById('aAll').checked;
+  const r = PR.half * Math.SQRT2, mid = (n - 1) / 2, D = 260;
+  const ang = x => Math.PI / 4 + 'abcd'.indexOf(x) * Math.PI / 2;
+  // world point: position along the axis s, angle th around it (radius rr) -> screen [x, y, depth]
+  const proj = (s, th, rr = r) => {
+    const X = s - mid, Y = rr * Math.cos(th + spin), Z = rr * Math.sin(th + spin);
+    const X1 = X * Math.cos(yaw) + Z * Math.sin(yaw), Z1 = -X * Math.sin(yaw) + Z * Math.cos(yaw);
+    const Y2 = Y * Math.cos(tilt) - Z1 * Math.sin(tilt), Z2 = Y * Math.sin(tilt) + Z1 * Math.cos(tilt);
+    const f = D / (D - Z2);
+    return [fit.ox + fit.s * X1 * f, fit.oy - fit.s * Y2 * f, Z2];
+  };
+  // fit the prism's bounding box into the canvas for the current view
+  const fit = { s: 1, ox: 0, oy: 0 }; let bx0 = Infinity, bx1 = -Infinity, by0 = Infinity, by1 = -Infinity;
+  for (const s of [-0.5, n - 0.5]) for (let k = 0; k < 4; k++) { const p = proj(s, Math.PI / 4 + k * Math.PI / 2); bx0 = Math.min(bx0, p[0]); bx1 = Math.max(bx1, p[0]); by0 = Math.min(by0, p[1]); by1 = Math.max(by1, p[1]); }
+  fit.s = Math.min((W - 70) / (bx1 - bx0), (H - 60) / (by1 - by0));
+  fit.ox = W / 2 - fit.s * (bx0 + bx1) / 2; fit.oy = H / 2 - fit.s * (by0 + by1) / 2 + 6;
+  const line = (p, q, col, lw, alpha = 1, dash = null) => { ctx.globalAlpha = alpha; ctx.strokeStyle = col; ctx.lineWidth = lw; ctx.setLineDash(dash || []); ctx.beginPath(); ctx.moveTo(p[0], p[1]); ctx.lineTo(q[0], q[1]); ctx.stroke(); ctx.setLineDash([]); ctx.globalAlpha = 1; };
+  const rule = css('--rule'), faint = css('--ink-faint'), U = css('--u'), V = css('--v');
+  // frame: cross-section squares every 5 letters and at both ends, then the four long edges
+  for (let s = -0.5; s <= n - 0.5 + 1e-9; s += 5) {
+    const end = s < 0 || s > n - 1;
+    for (let k = 0; k < 4; k++) line(proj(s, Math.PI / 4 + k * Math.PI / 2), proj(s, Math.PI / 4 + (k + 1) * Math.PI / 2), end ? faint : rule, end ? 1.2 : 0.8);
+  }
+  for (const x of 'abcd') {
+    const p = proj(-0.5, ang(x)), q = proj(n - 0.5, ang(x));
+    line(p, q, LCOL(x), 1.6, 0.55);
+    const lp = proj(-2.6, ang(x), r * 1.15);
+    ctx.fillStyle = LCOL(x); ctx.font = 'bold 13px monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(x, lp[0], lp[1]);
+  }
+  const P = [...w].map((x, i) => proj(i, ang(x)));
+  // path of the word through the prism
+  if (all) for (let i = 0; i + 1 < n; i++) line(P[i], P[i + 1], faint, 0.8, 0.6);
+  const seg = ([a, b], col) => { for (let i = a; i < b; i++) line(P[i], P[i + 1], col, 2.6); };
+  seg(PR.F, U); seg(PR.E, V);
+  // dots, back to front
+  const order = [...P.keys()].sort((i, j) => P[i][2] - P[j][2]);
+  for (const i of order) {
+    const inF = i >= PR.F[0] && i <= PR.F[1], inE = i >= PR.E[0] && i <= PR.E[1];
+    if (!all && !inF && !inE) continue;
+    ctx.fillStyle = LCOL(w[i]); ctx.beginPath(); ctx.arc(P[i][0], P[i][1], inF || inE ? 3.6 : 2.6, 0, 2 * Math.PI); ctx.fill();
+  }
+  // the moving copy of 21..46: turned by t quarter turns about the axis and shifted by 39 t
+  if (t > 0) {
+    const shift = (PR.E[0] - PR.F[0]) * t, G = [];
+    for (let i = PR.F[0]; i <= PR.F[1]; i++) G.push(proj(i + shift, ang(w[i]) + t * Math.PI / 2));
+    for (let j = 0; j + 1 < G.length; j++) line(G[j], G[j + 1], U, 2.2, 0.9, [5, 4]);
+    for (const g of G) { ctx.strokeStyle = U; ctx.lineWidth = 1.6; ctx.beginPath(); ctx.arc(g[0], g[1], 5, 0, 2 * Math.PI); ctx.stroke(); }
+  }
+  // position labels
+  const tag = ([a, b], s, col) => {
+    let top = Infinity, xs = 0; for (const th of [0, 1, 2, 3]) { const p = proj(a, Math.PI / 4 + th * Math.PI / 2), q = proj(b, Math.PI / 4 + th * Math.PI / 2); top = Math.min(top, p[1], q[1]); xs += p[0] + q[0]; }
+    ctx.fillStyle = col; ctx.font = 'bold 12px monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom'; ctx.fillText(s, xs / 8, top - 6);
+  };
+  tag(PR.F, 'positions 21–46', U); tag(PR.E, 'positions 60–85', V);
+  const f = w.slice(PR.F[0], PR.F[1] + 1), e = w.slice(PR.E[0], PR.E[1] + 1);
+  document.getElementById('aRead').innerHTML =
+    `<span style="color:var(--u)">positions 21–46: ${f}</span><br><span style="color:var(--v)">positions 60–85: ${e}</span><br>` +
+    `turn ${Math.round(90 * t)}°, shift ${(39 * t).toFixed(1)} letters` + (t === 1 ? ' — the turned copy lies exactly on 60–85: σ(21–46) = 60–85' : '');
+}
+
+// (E) the walk with tetrahedral steps (the directions of (B)): the point after a prefix
+// determines its Parikh vector, so abelian squares are exactly the midpoint triples.
+const TW = { yaw: 30, tilt: 18 };
+function figE() {
+  const w = G85A, n = w.length, k = +document.getElementById('eStep').value, cv = document.getElementById('figE');
+  const { ctx, w: W, h: H } = setupCanvas(cv, 0.75), rad = Math.PI / 180;
+  const Q = [[0, 0, 0]]; for (const x of w) Q.push(Q[Q.length - 1].map((v, i) => v + TET.dir[x][i]));
+  const c0 = [0, 1, 2].map(i => Q.reduce((s, q) => s + q[i], 0) / Q.length);
+  const span = Math.max(...Q.map(q => Math.hypot(q[0] - c0[0], q[1] - c0[1], q[2] - c0[2])));
+  const yaw = TW.yaw * rad, tilt = TW.tilt * rad;
+  let R = 1, cx = 0, cy = 0;
+  const proj = q => {
+    const X = q[0] - c0[0], Y = q[1] - c0[1], Z = q[2] - c0[2];
+    const X1 = X * Math.cos(yaw) + Z * Math.sin(yaw), Z1 = -X * Math.sin(yaw) + Z * Math.cos(yaw);
+    const Y2 = Y * Math.cos(tilt) - Z1 * Math.sin(tilt), Z2 = Y * Math.sin(tilt) + Z1 * Math.cos(tilt);
+    return [cx + R * X1, cy - R * Y2, Z2 / span];
+  };
+  // fit the projected walk into the canvas for the current view
+  let P = Q.map(proj); const xs = P.map(p => p[0]), ys = P.map(p => p[1]);
+  const bx0 = Math.min(...xs), bx1 = Math.max(...xs), by0 = Math.min(...ys), by1 = Math.max(...ys);
+  R = Math.min((W - 60) / (bx1 - bx0), (H - 40) / (by1 - by0)); cx = W / 2 - R * (bx0 + bx1) / 2; cy = H / 2 - R * (by0 + by1) / 2;
+  P = Q.map(proj); const grey = css('--faint-curve'), items = [];
+  for (let i = 0; i < n; i++) { const p = P[i], q = P[i + 1], z = (p[2] + q[2]) / 2, done = i < k;
+    items.push({ z, draw: () => {
+      ctx.globalAlpha = (done ? 0.55 : 0.45) + 0.45 * (z + 1) / 2; ctx.strokeStyle = done ? LCOL(w[i]) : grey; ctx.lineWidth = i === k - 1 ? 3.4 : done ? 2.2 : 1.6;
+      ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(p[0], p[1]); ctx.lineTo(q[0], q[1]); ctx.stroke();
+      if (done) { const dx = q[0] - p[0], dy = q[1] - p[1], L = Math.hypot(dx, dy) || 1, ux = dx / L, uy = dy / L, hx = q[0] - ux * 6, hy = q[1] - uy * 6;   // arrowhead
+        ctx.fillStyle = LCOL(w[i]); ctx.beginPath(); ctx.moveTo(q[0], q[1]); ctx.lineTo(hx - uy * 3.2, hy + ux * 3.2); ctx.lineTo(hx + uy * 3.2, hy - ux * 3.2); ctx.fill(); } } }); }
+  items.sort((s, t) => s.z - t.z).forEach(it => it.draw());
+  ctx.globalAlpha = 1;
+  const lab = (p, t, dx, dy) => { ctx.fillStyle = css('--ink'); ctx.font = '11px monospace'; ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.fillText(t, p[0] + dx, p[1] + dy); };
+  ctx.strokeStyle = css('--ink'); ctx.lineWidth = 1.6; ctx.beginPath(); ctx.arc(P[0][0], P[0][1], 5.5, 0, 2 * Math.PI); ctx.stroke(); lab(P[0], 'start', 8, 10);
+  ctx.fillStyle = css('--ink'); ctx.beginPath(); ctx.arc(P[n][0], P[n][1], 5, 0, 2 * Math.PI); ctx.fill(); lab(P[n], 'end', 8, -10);
+  if (k > 0 && k < n) { ctx.fillStyle = css('--accent'); ctx.beginPath(); ctx.arc(P[k][0], P[k][1], 4.5, 0, 2 * Math.PI); ctx.fill(); }
+  const pre = w.slice(0, k), cnt = 'abcd'.split('').map(x => [...pre].filter(y => y === x).length);
+  document.getElementById('eRead').innerHTML = `step ${k}: (#a,#b,#c,#d) = (${cnt.join(',')})` + (k ? `<br>${pre.length > 40 ? '…' + pre.slice(-40) : pre}` : '<br>(nothing read yet)');
+}
+
+// (D) directions, drawn up to step k of the slider
+function figD() {
+  const w = G85A, n = w.length, k = +document.getElementById('dStep').value;
+  const svg = document.getElementById('figD'), W = walk4(w); svg.innerHTML = '';
+  let x0 = 0, x1 = 0, y0 = 0, y1 = 0; for (let i = 0; i <= n; i++) { x0 = Math.min(x0, W.X[i]); x1 = Math.max(x1, W.X[i]); y0 = Math.min(y0, W.Y[i]); y1 = Math.max(y1, W.Y[i]); }
+  const s = Math.min(340 / (x1 - x0), 240 / (y1 - y0)), ox = 200 - s * (x0 + x1) / 2, oy = 150 + s * (y0 + y1) / 2;
+  const Q = (x, y) => [ox + s * x, oy - s * y], P = i => Q(W.X[i], W.Y[i]);
+  for (let x = x0; x <= x1; x++) for (let y = y0; y <= y1; y++) { const q = Q(x, y); svgEl(svg, 'circle', { cx: q[0], cy: q[1], r: 1.3, fill: css('--rule') }); }
+  const grey = css('--faint-curve'), off = 3;
+  for (let i = 0; i < n; i++) {
+    const a = P(i), b = P(i + 1), dx = (b[0] - a[0]) / s, dy = (b[1] - a[1]) / s;   // unit step on screen
+    const px = -dy * off, py = dx * off;                                           // offset to the right of travel
+    const A = [a[0] + px + dx * 4, a[1] + py + dy * 4], B = [b[0] + px - dx * 4, b[1] + py - dy * 4];
+    const col = i < k ? LCOL(w[i]) : grey, op = i < k ? 1 : 0.7;
+    svgEl(svg, 'line', { x1: A[0], y1: A[1], x2: B[0], y2: B[1], stroke: col, 'stroke-width': i === k - 1 ? 3 : 2, 'stroke-linecap': 'round', 'stroke-opacity': op });
+    const h = [B[0] - dx * 6, B[1] - dy * 6];                                       // arrowhead
+    svgEl(svg, 'polygon', { points: [B, [h[0] - dy * 3.5, h[1] + dx * 3.5], [h[0] + dy * 3.5, h[1] - dx * 3.5]].map(p => p.join(',')).join(' '), fill: col, 'fill-opacity': op });
+  }
+  const lab = (p, t, dx, dy) => svgEl(svg, 'text', { x: p[0] + dx, y: p[1] + dy, 'font-size': 11, fill: css('--ink'), 'font-family': 'monospace' }).textContent = t;
+  const z0 = P(0), e = P(n);
+  svgEl(svg, 'circle', { cx: z0[0], cy: z0[1], r: 5.5, fill: 'none', stroke: css('--ink'), 'stroke-width': 1.6 });
+  lab(z0, 'start 0', 8, 16);
+  svgEl(svg, 'circle', { cx: e[0], cy: e[1], r: 5, fill: css('--ink') });
+  lab(e, 'end −8+3i', -30, -10);
+  if (k > 0 && k < n) { const c = P(k); svgEl(svg, 'circle', { cx: c[0], cy: c[1], r: 4.5, fill: css('--accent') }); }
+  const zs = (x, y) => (x || !y ? String(x) : '') + (y ? (y > 0 ? (x ? '+' : '') : '−') + (Math.abs(y) === 1 ? '' : Math.abs(y)) + 'i' : '');
+  const pre = w.slice(0, k);
+  document.getElementById('dRead').innerHTML = `step ${k}: z<sub>${k}</sub> = ${zs(W.X[k], W.Y[k]).replace('-', '−')}` +
+    (k ? `, last letter ${w[k - 1]}<br>${pre.length > 40 ? '…' + pre.slice(-40) : pre}` : '<br>(nothing read yet)');
+}
+
+// Figure 2: the g85 curve ------------------------------------------------
+const WORDS = {}; const WALKS = {};
+function getLevel(n) { if (!WALKS[n]) { WORDS[n] = iter(n); WALKS[n] = walk4(WORDS[n]); } return WALKS[n]; }
+let lvl = 2, colMode = 't';
+function fig2() {
+  const cv = document.getElementById('curve'), { ctx, w, h } = setupCanvas(cv, 0.72);
+  const W = getLevel(lvl), f = fitter(W.X, W.Y, 0, W.n, w, h);
+  let hmax = 1; for (let i = 0; i <= W.n; i++) hmax = Math.max(hmax, Math.abs(W.H[i]));
+  const colorOf = colMode === 't' ? (s, e) => ramp(((s + e) / 2) / W.n) : (s, e) => divergent(W.H[(s + e) >> 1] / hmax);
+  strokeRamp(ctx, W.X, W.Y, f, 0, W.n, colorOf, lvl === 3 ? 0.5 : lvl === 2 ? 0.9 : 2.2);
+  if (document.getElementById('ovl').checked && lvl > 1) {
+    const Pv = getLevel(lvl - 1); ctx.fillStyle = css('--ink');
+    const r = lvl === 2 ? 2.6 : 1.6;
+    for (let k = 0; k <= Pv.n; k++) { const zx = -8 * Pv.X[k] - 3 * Pv.Y[k], zy = 3 * Pv.X[k] - 8 * Pv.Y[k];
+      ctx.beginPath(); ctx.arc(f.px(zx), f.py(zy), r, 0, 2 * Math.PI); ctx.fill(); }
+  }
+  // origin marker
+  ctx.strokeStyle = css('--ink'); ctx.lineWidth = 1.2; ctx.beginPath(); ctx.arc(f.px(0), f.py(0), 5, 0, 2 * Math.PI); ctx.stroke();
+  const zEnd = [W.X[W.n], W.Y[W.n]];
+  let rmax = 0; for (let i = 0; i <= W.n; i++) rmax = Math.max(rmax, Math.hypot(W.X[i], W.Y[i]));
+  document.getElementById('curveRead').textContent =
+    `g85${lvl > 1 ? '^' + lvl : ''}(a): ${W.n} steps; end point z = ${zEnd[0]}${zEnd[1] >= 0 ? '+' : ''}${zEnd[1]}i = (−8+3i)^${lvl}; height h = ${W.H[W.n]} = 7^${lvl}; max |z| = ${rmax.toFixed(1)}`;
+}
+
+// Figure 3: the 771 near miss --------------------------------------------
+function fig3() {
+  const cv = document.getElementById('miss'), { ctx, w, h } = setupCanvas(cv, 0.62);
+  const W = getLevel(2), s = 3948, p = 771, xi = s + p, ve = s + 2 * p + 1;
+  // frame the pattern with some context
+  const f = fitter(W.X, W.Y, Math.max(0, s - 400), Math.min(W.n, ve + 400), w, h, 30);
+  ctx.save(); ctx.beginPath(); ctx.rect(0, 0, w, h); ctx.clip();
+  strokeRamp(ctx, W.X, W.Y, f, 0, W.n, () => css('--faint-curve'), 0.8);
+  strokeRamp(ctx, W.X, W.Y, f, s, xi, () => css('--u'), 1.8);
+  strokeRamp(ctx, W.X, W.Y, f, xi + 1, ve, () => css('--v'), 1.8);
+  ctx.strokeStyle = css('--x'); ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(f.px(W.X[xi]), f.py(W.Y[xi])); ctx.lineTo(f.px(W.X[xi + 1]), f.py(W.Y[xi + 1])); ctx.stroke();
+  const arrow = (i, j, col) => {
+    const ax = f.px(W.X[i]), ay = f.py(W.Y[i]), bx = f.px(W.X[j]), by = f.py(W.Y[j]);
+    ctx.strokeStyle = col; ctx.fillStyle = col; ctx.lineWidth = 2.4; ctx.setLineDash([7, 5]);
+    ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.stroke(); ctx.setLineDash([]);
+    const t = Math.atan2(by - ay, bx - ax); ctx.beginPath(); ctx.moveTo(bx, by);
+    ctx.lineTo(bx - 13 * Math.cos(t - 0.35), by - 13 * Math.sin(t - 0.35)); ctx.lineTo(bx - 13 * Math.cos(t + 0.35), by - 13 * Math.sin(t + 0.35)); ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.arc(ax, ay, 4.5, 0, 2 * Math.PI); ctx.fill();
+  };
+  arrow(s, xi, css('--u')); arrow(xi + 1, ve, css('--v'));
+  ctx.restore();
+  const du = [W.X[xi] - W.X[s], W.Y[xi] - W.Y[s], W.H[xi] - W.H[s]], dv = [W.X[ve] - W.X[xi + 1], W.Y[ve] - W.Y[xi + 1], W.H[ve] - W.H[xi + 1]];
+  const fmt = d => `${d[0]}${d[1] >= 0 ? '+' : ''}${d[1]}i`;
+  document.getElementById('missRead').textContent =
+    `chord z(u) = ${fmt(du)},  chord z(v) = ${fmt(dv)},  height gains ${du[2]} and ${dv[2]}  →  Ψ(u) = Ψ(v)`;
+}
+
+// Figure 4: ternary Eisenstein walk --------------------------------------
+let tw = 'r';
+function fig4() {
+  const cv = document.getElementById('tern'), { ctx, w, h } = setupCanvas(cv, 0.72);
+  const word = tw === 'r' ? AA2FR3268 : AA2F25379, W = walk3(word), f = fitter(W.X, W.Y, 0, W.n, w, h);
+  strokeRamp(ctx, W.X, W.Y, f, 0, W.n, (s, e) => ramp(((s + e) / 2) / W.n), tw === 'r' ? 1.1 : 0.6);
+  let r2 = 0, r3 = 0;
+  if (document.getElementById('runs').checked) {
+    ctx.lineCap = 'round';
+    let i = 0;
+    while (i < word.length) { let j = i; while (j < word.length && word[j] === word[i]) j++; const len = j - i;
+      if (len >= 2) { len === 3 ? r3++ : r2++; ctx.strokeStyle = len === 3 ? css('--ink') : css('--u'); ctx.lineWidth = tw === 'r' ? 1.6 : 1.0; ctx.globalAlpha = 0.75;
+        ctx.beginPath(); ctx.moveTo(f.px(W.X[i]), f.py(W.Y[i])); ctx.lineTo(f.px(W.X[j]), f.py(W.Y[j])); ctx.stroke(); }
+      i = j; }
+    ctx.globalAlpha = 1;
+  }
+  ctx.strokeStyle = css('--ink'); ctx.lineWidth = 1.2; ctx.beginPath(); ctx.arc(f.px(0), f.py(0), 5, 0, 2 * Math.PI); ctx.stroke();
+  let rmax = 0; for (let i = 0; i <= W.n; i++) rmax = Math.max(rmax, Math.hypot(W.X[i], W.Y[i]));
+  document.getElementById('ternRead').textContent = `${tw === 'r' ? 'aa2fr3268' : 'aa2f25379'}: ${W.n} steps, max |z| = ${rmax.toFixed(1)}` +
+    (document.getElementById('runs').checked ? `; runs of length 2: ${r2} (pink), length 3: ${r3} (dark)` : '');
+}
+
+// controls ---------------------------------------------------------------
+function segment(id, onPick) {
+  const el = document.getElementById(id);
+  el.addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return;
+    el.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', String(x === b))); onPick(b.dataset.v); });
+}
+segment('lvl', v => { lvl = +v; fig2(); });
+segment('col', v => { colMode = v; fig2(); });
+segment('tw', v => { tw = v; fig4(); });
+document.getElementById('ovl').addEventListener('change', fig2);
+document.getElementById('runs').addEventListener('change', fig4);
+{ for (const id of ['aYaw', 'aTilt', 'aSpin', 'aAll']) document.getElementById(id).addEventListener('input', figA);
+  const cv = document.getElementById('figA'), mv = document.getElementById('aMove'), pb = document.getElementById('aPlay');
+  let drag = null, anim = null;
+  cv.addEventListener('pointerdown', e => { drag = [e.clientX, e.clientY]; cv.setPointerCapture(e.pointerId); cv.style.cursor = 'grabbing'; });
+  cv.addEventListener('pointerup', () => { drag = null; cv.style.cursor = 'grab'; });
+  cv.addEventListener('pointermove', e => {
+    if (!drag) return;
+    const y = document.getElementById('aYaw'), tl = document.getElementById('aTilt');
+    let v = +y.value + (e.clientX - drag[0]) * 0.5; v = ((v + 180) % 360 + 360) % 360 - 180; y.value = v;
+    tl.value = Math.max(-90, Math.min(90, +tl.value + (e.clientY - drag[1]) * 0.5));
+    drag = [e.clientX, e.clientY]; figA();
+  });
+  mv.addEventListener('input', () => { cancelAnimationFrame(anim); anim = null; figA(); });
+  pb.addEventListener('click', () => {
+    cancelAnimationFrame(anim); const t0 = performance.now();
+    const step = now => { const u = Math.min(1, (now - t0) / 2600); mv.value = Math.round(1000 * (1 - Math.cos(Math.PI * u)) / 2); figA(); if (u < 1) anim = requestAnimationFrame(step); };
+    anim = requestAnimationFrame(step);
+  }); }
+// plane/3D toggle, drag-to-rotate and slow spin for the 3D views of (B), (C) and (E)
+function orbit(cvId, modeId, spinId, st, draw) {
+  const cv = document.getElementById(cvId), spin = document.getElementById(spinId);
+  let drag = null, visible = false, last = 0;
+  if (modeId) document.querySelectorAll(`#${modeId} button`).forEach(b => b.addEventListener('click', () => {
+    document.querySelectorAll(`#${modeId} button`).forEach(o => o.setAttribute('aria-pressed', o === b)); draw(); }));
+  cv.addEventListener('pointerdown', e => { drag = [e.clientX, e.clientY]; cv.setPointerCapture(e.pointerId); cv.style.cursor = 'grabbing'; });
+  cv.addEventListener('pointerup', () => { drag = null; cv.style.cursor = 'grab'; });
+  cv.addEventListener('pointermove', e => {
+    if (!drag) return;
+    st.yaw += (e.clientX - drag[0]) * 0.6; st.tilt = Math.max(-90, Math.min(90, st.tilt + (e.clientY - drag[1]) * 0.6));
+    drag = [e.clientX, e.clientY]; draw();
+  });
+  new IntersectionObserver(es => { visible = es[0].isIntersecting; }).observe(cv);
+  const tick = now => {
+    if (visible && spin.checked && !drag && cv.style.display !== 'none' && now - last > 33) { st.yaw += 0.4; last = now; draw(); }
+    requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+}
+orbit('figCs', 'cMode', 'cSpin', SPH, figCs);
+orbit('figBs', 'bMode', 'bSpin', TET, figBs);
+orbit('figE', null, 'eSpin', TW, figE);
+{ const st = document.getElementById('eStep'), pb = document.getElementById('ePlay'); let timer = null;
+  const stop = () => { clearInterval(timer); timer = null; pb.textContent = '▶ play'; };
+  st.addEventListener('input', () => { stop(); figE(); });
+  pb.addEventListener('click', () => {
+    if (timer) return stop();
+    if (+st.value >= +st.max) st.value = 0;
+    pb.textContent = '❚❚ pause'; figE();
+    timer = setInterval(() => { st.value = +st.value + 1; figE(); if (+st.value >= +st.max) stop(); }, 350);
+  }); }
+{ const st = document.getElementById('dStep'), pb = document.getElementById('dPlay'); let timer = null;
+  const stop = () => { clearInterval(timer); timer = null; pb.textContent = '▶ play'; };
+  st.addEventListener('input', () => { stop(); figD(); });
+  pb.addEventListener('click', () => {
+    if (timer) return stop();
+    if (+st.value >= +st.max) st.value = 0;
+    pb.textContent = '❚❚ pause'; figD();
+    timer = setInterval(() => { st.value = +st.value + 1; figD(); if (+st.value >= +st.max) stop(); }, 350);
+  }); }
+const drawAll = () => { fig1(); fig2(); fig3(); fig4(); };
+let rt; window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { figA(); figBs(); figCs(); figE(); fig2(); fig3(); fig4(); }, 150); });
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change', drawAll);
+drawAll();
+</script>
+</body>
+</html>

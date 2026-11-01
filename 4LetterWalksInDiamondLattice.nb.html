@@ -1,0 +1,593 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0071)https://algebra.fi/keranen/JavaApplet/4LetterWalksInDiamondLattice.html -->
+<html xmlns="http://www.w3.org/1999/xhtml" class="Notebook"><head><meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+<title>
+  4LetterWalksInDiamondLattice.nb
+</title>
+
+<link href="./4LetterWalksInDiamondLattice.nb_files/4LetterWalksInDiamondLattice.css" rel="stylesheet" type="text/css">
+<style>.f1l1o3bf{font-family:Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif, Arial;font-style:normal;font-weight:400}.f1l1o3bf button, .f1l1o3bf input, .f1l1o3bf textarea{font-family:inherit}.f1i95ii3{border-top:0.5px solid var(--origin-color-border-base-subdued)}.f1a8rywe{min-width:0}.f1mpvv25{min-width:100%;width:0}.f1h70aqx{background-color:var(--origin-color-background-base-default);border:1px solid var(--origin-color-border-base-subdued);border-radius:20px;box-shadow:var(--origin-elevation-base-low);overflow:hidden;width:200px}.f1aduwlq button{cursor:default}.ff58zp8{background-color:var(--origin-color-border-base-subdued);flex-shrink:0;height:0.5px;margin-block:6px;margin-inline:8px}.f1rm63xq{contain:inline-size}@keyframes f1gwuh0p{from{opacity:0}to{opacity:1}}.fvrf9c6{animation:f1gwuh0p 0.2s cubic-bezier(0.1, 0.65, 0.2, 1) forwards;max-width:-moz-fit-content;max-width:fit-content;opacity:0}</style></head>
+
+<body bgcolor="#ffffff" data-new-gr-c-s-check-loaded="14.1341.0" data-gr-ext-installed="" data-gr-aaa-loaded="14.1341.0" data-gr-aaa-notch-connection-id="1793567038002-0.17944970894783918" data-gr-agent-presence-bridge-connection-id="1793567038002-0.5475721603387742">
+
+<basefont size="4">
+
+<p class="Title">
+ 4 Letter Walks in Diamond Lattice<br><span style="font-size: 18px;">
+Based on Context Independent L–Systems<br>
+</span>25 Feb 2004
+</p>
+
+
+
+<p class="Subtitle">
+ Erik Jensen<br>
+University of California, Santa Cruz<br>
+<!-- Bayer Diagnostics, NAD<br />erik.jensen.b@bayer.com<br /> -->
+
+<br>Veikko Keränen<br>Rovaniemi Polytechnic, School of Technology<br>
+http://south.rotol.ramk.fi<br>http://south.rotol.ramk.fi/IMS_IAS_Events.html<br>
+<span class="AuthorEmailInline">veikko.keranen@ramk.fi</span>
+</p>
+
+
+
+<p class="Text">
+ <br><span><img src="./4LetterWalksInDiamondLattice.nb_files/4LetterWalksInDiamondLattice_1.gif" border="0" alt="©" width="22" height="31" align="absmiddle"></span> 2003 Vectorgram concept by Erik Jensen<br><span><img src="./4LetterWalksInDiamondLattice.nb_files/4LetterWalksInDiamondLattice_2.gif" border="0" alt="©" width="22" height="31" align="absmiddle"></span> 2004 Tetrahedron concept by Veikko Keränen<br>The support of <span>&nbsp;<a href="http://plab.ramk.fi/"><span class="HyperlinkInline"> pLAB </span></a></span>&nbsp; at Rovaniemi Polytechnic is gratefully acknowledged.
+</p>
+
+
+
+<p class="Text">
+ You may interactively rotate and zoom the following <span style="color: #0000FF;">LiveGraphics3D </span>representations. <br>Just use CTRL, SHIFT, and MOUSE.&nbsp;&nbsp;Try to see loops (in case of equally many <span style="font-style: italic;">a</span>, <span style="font-style: italic;">b</span>, <span style="font-style: italic;">c</span>, <span style="font-style: italic;">d&nbsp;&nbsp;</span>letters), <br>
+ symmetrices, semipalindromes, three letter projections, or even 2D walks. <br>
+ The rest of the page is <span style="font-style: italic;">Mathematica</span> code and still graphics. Enjoy!
+</p>
+
+<p class="Text">
+ <span style="color: #0000FF;">LiveGraphics3D </span>representations follow:<br>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+
+<span><a title="tetrahedron.html" href="https://algebra.fi/keranen/JavaApplet/tetrahedron.html">
+<span class="HyperlinkInline"> tetrahedron </span></a>
+</span>&nbsp;&nbsp;&nbsp;
+<span><a title="zeroSum.html" href="https://algebra.fi/keranen/JavaApplet/zeroSum.html">
+<span class="HyperlinkInline"> zeroSum </span></a></span> 
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+
+<span><a title="g85aPath.html" href="https://algebra.fi/keranen/JavaApplet/g85aPath.html">
+<span class="HyperlinkInline"> g85aPath </span></a>
+</span>&nbsp;&nbsp;&nbsp;
+
+<span><a title="g85aStart34.html" href="https://algebra.fi/keranen/JavaApplet/g85aStart34.html">
+<span class="HyperlinkInline"> g85aStart34 </span></a>
+</span>&nbsp;&nbsp;&nbsp;
+
+<span><a title="g85aStart34.html" href="https://algebra.fi/keranen/JavaApplet/reducedg85aPath.html">
+<span class="HyperlinkInline"> reducedg85aPath </span></a>
+
+</span>&nbsp;&nbsp;&nbsp;<span><a title="g85to2ofa.html" href="https://algebra.fi/keranen/JavaApplet/g85to2ofa.html">
+<span class="HyperlinkInline"> g85to2ofa </span></a>
+</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<br>&nbsp;&nbsp;&nbsp;&nbsp;
+
+<span><a title="g98aPath.html" href="https://algebra.fi/keranen/JavaApplet/g98aPath.html">
+<span class="HyperlinkInline"> g98aPath </span></a>
+</span>&nbsp;&nbsp;&nbsp;
+
+<span><a title="g98to2ofa.html" href="https://algebra.fi/keranen/JavaApplet/g98to2ofa.html">
+<span class="HyperlinkInline"> g98to2ofa </span></a></span>
+</p><p>
+&nbsp;&nbsp;&nbsp;&nbsp;
+<span><a title="abacWalkWithForbiddenPoints.html" href="https://algebra.fi/keranen/JavaApplet/abacWalkWithForbiddenPoints.html">
+<span class="HyperlinkInline"> abacWalkWithForbiddenPoints </span></a></span>
+</p><p>
+&nbsp;&nbsp;&nbsp;&nbsp;
+<span><a title="abacabaWalkWithForbiddenPoints.html" href="https://algebra.fi/keranen/JavaApplet/abacabaWalkWithForbiddenPoints.html">
+<span class="HyperlinkInline"> abacabaWalkWithForbiddenPoints </span></a></span>
+
+</p>
+
+<p class="Text">
+From here you may download the full <i>Mathematica</i> notebook as a zip file: 
+</p>
+<p class="Text">
+<a href="https://algebra.fi/keranen/JavaApplet/4LetterWalksInDiamondLattice.zip">
+4LetterWalksInDiamondLattice.zip</a> (zip: 1010 kB, nb: 7212 kB)
+</p>
+
+
+<a href="https://algebra.fi/keranen/JavaApplet/HTMLLinks/4LetterWalksInDiamondLattice_1.html"><p class="Subsection">
+
+</p>
+
+
+
+</a><a href="https://algebra.fi/keranen/JavaApplet/HTMLLinks/4LetterWalksInDiamondLattice_3.html"><p class="Subsection">
+ L-system basics
+</p>
+
+
+
+</a><a href="https://algebra.fi/keranen/JavaApplet/HTMLLinks/4LetterWalksInDiamondLattice_4.html"><p class="Section">
+ 2D&nbsp;&nbsp;Walks
+</p>
+
+
+
+</a><p class="Section">
+ 3D&nbsp;&nbsp;Walks
+</p>
+
+
+
+<p class="Subsection">
+ Starting algorithms for 3D walks
+</p>
+
+
+
+<p class="Input" style="font-size: 8px;">
+ <img src="./4LetterWalksInDiamondLattice.nb_files/4LetterWalksInDiamondLattice_97.gif" border="0" alt="verticesOfTetrahedronDisplacementsForabcd = &#62371; {{0, 0, 1}, {0, (2 2^(1/2))/3, -1/3}, {-2/3^(1/2), -2^(1/2)/3, -1/3}, {2/3^(1/2), -2^(1/2)/3, -1/3}} ;" width="690" height="78" align="absmiddle">
+</p>
+
+<p class="Input" style="font-size: 9px;">
+ <img src="./4LetterWalksInDiamondLattice.nb_files/4LetterWalksInDiamondLattice_98.gif" border="0" alt="{aD, bD, cD, dD} = (verticesOfTetrahedronDisplacementsForabcd[[#1]] &amp;)/@{1, 2, 3, 4}" width="771" height="51" align="absmiddle">
+</p>
+
+<p class="Output">
+ <img src="./4LetterWalksInDiamondLattice.nb_files/4LetterWalksInDiamondLattice_99.gif" border="0" alt="{{0, 0, 1}, {0, (2 2^(1/2))/3, -1/3}, {-2/3^(1/2), -2^(1/2)/3, -1/3}, {2/3^(1/2), -2^(1/2)/3, -1/3}}" width="557" height="144" align="absmiddle">
+</p>
+
+<a href="https://algebra.fi/keranen/JavaApplet/HTMLLinks/4LetterWalksInDiamondLattice_10.html"><p class="Text">
+ &nbsp;&nbsp;Old graphics
+</p>
+
+
+
+</a><p class="Text">
+ &nbsp;&nbsp;New graphics (see code below)
+</p>
+
+
+
+<p class="Graphics">
+ <img src="./4LetterWalksInDiamondLattice.nb_files/4LetterWalksInDiamondLattice_104.gif" border="0" alt="[Graphics:HTMLFiles/4LetterWalksInDiamondLattice_104.gif]" width="576" height="564" align="absmiddle">
+</p>
+
+<p class="Text">
+
+</p>
+
+
+
+<p class="Section" style="font-size: 14px;font-family: Arial;font-weight: bold;color: #000000;background-color: #FFFFFF;">
+ &nbsp;&nbsp;Code
+</p>
+
+
+
+<a href="https://algebra.fi/keranen/JavaApplet/HTMLLinks/4LetterWalksInDiamondLattice_11.html"><p class="Subsection" style="font-size: 14px;">
+ &nbsp;&nbsp;Matrices for coordinate rotations about a coordinate axis<br>&nbsp;&nbsp;(here the coordinate system is being rotated)
+</p>
+
+
+
+</a><a href="https://algebra.fi/keranen/JavaApplet/HTMLLinks/4LetterWalksInDiamondLattice_12.html"><p class="Subsection" style="font-size: 14px;">
+ &nbsp;&nbsp;Combined rotations of a point about any axis<br>&nbsp;&nbsp;(component rotations are about a coordinate axis)
+</p>
+
+
+
+</a><a href="https://algebra.fi/keranen/JavaApplet/HTMLLinks/4LetterWalksInDiamondLattice_13.html"><p class="Subsection">
+ &nbsp;&nbsp;Designing of the heads for arrows
+</p>
+
+
+
+</a><a href="https://algebra.fi/keranen/JavaApplet/HTMLLinks/4LetterWalksInDiamondLattice_15.html"><p class="Subsection">
+ &nbsp;&nbsp;Arrows, our3DdisplacementForm, our3DShow, and newShow
+</p>
+
+
+
+</a><a href="https://algebra.fi/keranen/JavaApplet/HTMLLinks/4LetterWalksInDiamondLattice_18.html"><p class="Subsection">
+ &nbsp;&nbsp;Code for RealTime3D (newRTShow)
+</p>
+
+
+
+</a><a href="https://algebra.fi/keranen/JavaApplet/HTMLLinks/4LetterWalksInDiamondLattice_19.html"><p class="Subsection">
+ &nbsp;&nbsp;Code for reduced RealTime3D (reducedRTShow)
+</p>
+
+
+
+</a><a href="https://algebra.fi/keranen/JavaApplet/HTMLLinks/4LetterWalksInDiamondLattice_20.html"><p class="Subsection">
+ &nbsp;&nbsp;Code for producing LiveGraphics3D Java 1.1 applet&nbsp;&nbsp;
+</p>
+
+
+
+</a><p class="Text">
+
+</p>
+
+
+
+<p class="Subsection">
+ <br><span style="color: #0000FF;">&nbsp;&nbsp;3D Walks from a-2-free strings over four letters </span>
+</p>
+
+
+
+<a href="https://algebra.fi/keranen/JavaApplet/HTMLLinks/4LetterWalksInDiamondLattice_21.html"><p class="Text">
+ &nbsp;&nbsp;visualShuffleAndCodingToFourLetters
+</p>
+
+
+
+</a><p class="Input" style="font-size: 10px;">
+ <img src="./4LetterWalksInDiamondLattice.nb_files/4LetterWalksInDiamondLattice_187.gif" border="0" alt="cyclicPermutation = {&quot;a&quot;&#62754;&quot;b&quot;, &quot;b&quot;&#62754;&quot;c&quot;, &amp; ... ; g85c = StringReplace[g85b, cyclicPermutation] ; g85d = StringReplace[g85c, cyclicPermutation] ; " width="844" height="201" align="absmiddle">
+</p>
+
+<p class="Input" style="font-size: 10px;">
+ <img src="./4LetterWalksInDiamondLattice.nb_files/4LetterWalksInDiamondLattice_188.gif" border="0" alt="ga = &quot;abcacdcbcdcadbdcbdbabcbdcacbabdbabcabdadcdadbdcbdbabdbcbacbcdbabdcdbdcacdbcbacbcdca ... ion] ; gd = StringReplace[gc, cyclicPermutation] ; {g98a = ga, g98b = gd, g98c = gc, g98d = gb} ; " width="844" height="201" align="absmiddle">
+</p>
+
+<p class="Input" style="font-size: 10px;">
+ <img src="./4LetterWalksInDiamondLattice.nb_files/4LetterWalksInDiamondLattice_189.gif" border="0" alt="productions85 = {&quot;a&quot;&#62754;g85a, &quot;b&quot;&#62754;g85b, &quot;c&quot;&#62754;g8 ... 8[x_] := StringReplace[x, productions98] g98iter[n_] := Characters[Nest[g98, &quot;a&quot;, n]] ; " width="718" height="230" align="absmiddle">
+</p>
+
+<p class="Input">
+ <img src="./4LetterWalksInDiamondLattice.nb_files/4LetterWalksInDiamondLattice_190.gif" border="0" alt="g85[&quot;a&quot;]" width="116" height="31" align="absmiddle">
+</p>
+
+<p class="Output">
+ <img src="./4LetterWalksInDiamondLattice.nb_files/4LetterWalksInDiamondLattice_191.gif" border="0" alt="abcacdcbcdcadcdbdabacabadbabcbdbcbacbcdcacbabdabacadcbcdcacdbcbacbcdcacdcbdcdadbdcbca" width="872" height="65" align="absmiddle">
+</p>
+
+<p class="Input">
+ <img src="./4LetterWalksInDiamondLattice.nb_files/4LetterWalksInDiamondLattice_192.gif" border="0" alt="&lt;&lt;Default3D`&nbsp;&nbsp;(* Turns ordinary graphics on *)" width="640" height="31" align="absmiddle">
+</p>
+
+<p class="Input">
+ <img src="./4LetterWalksInDiamondLattice.nb_files/4LetterWalksInDiamondLattice_193.gif" border="0" alt="RowBox[{zeroSum, =, RowBox[{newShow, [, RowBox[{&quot;abcd&quot;, ,, .005, ,, RowBox[{{, RowBox[{RowBox[{-, 1.9}], ,, -2, ,,  , 1}], }}]}], ]}]}]" width="622" height="31" align="absmiddle">
+</p>
+
+<p class="Graphics">
+ <img src="./4LetterWalksInDiamondLattice.nb_files/4LetterWalksInDiamondLattice_194.gif" border="0" alt="[Graphics:HTMLFiles/4LetterWalksInDiamondLattice_194.gif]" width="576" height="576" align="absmiddle">
+</p>
+
+<p class="Output">
+ <img src="./4LetterWalksInDiamondLattice.nb_files/4LetterWalksInDiamondLattice_195.gif" border="0" alt="&#8259;Graphics3D&#8259;" width="184" height="31" align="absmiddle">
+</p>
+
+<p class="Input">
+ <img src="./4LetterWalksInDiamondLattice.nb_files/4LetterWalksInDiamondLattice_196.gif" border="0" alt="SetDirectory[&quot;C:\_IMS2004\JavaApplet&quot;] ; (* Change this *)" width="557" height="65" align="absmiddle">
+</p>
+
+<p class="Input">
+ <img src="./4LetterWalksInDiamondLattice.nb_files/4LetterWalksInDiamondLattice_197.gif" border="0" alt="WriteLiveForm[&quot;zeroSum.m&quot;, zeroSum]" width="501" height="31" align="absmiddle">
+</p>
+
+<p class="Input">
+ <img src="./4LetterWalksInDiamondLattice.nb_files/4LetterWalksInDiamondLattice_198.gif" border="0" alt="&lt;&lt;RealTime3D` (* Use mouse and CTRL to rotate and zoom *)" width="803" height="31" align="absmiddle">
+</p>
+
+<p class="Input">
+ <img src="./4LetterWalksInDiamondLattice.nb_files/4LetterWalksInDiamondLattice_199.gif" border="0" alt="RowBox[{newRTShow, [, RowBox[{&quot;abcd&quot;, ,, .005, ,, RowBox[{{, RowBox[{RowBox[{-, 1.9}], ,, -2, ,,  , 1}], }}]}], ]}]" width="523" height="31" align="absmiddle">
+</p>
+
+<p class="Graphics">
+ <img src="./4LetterWalksInDiamondLattice.nb_files/4LetterWalksInDiamondLattice_200.gif" border="0" alt="-Graphics3D-" width="576" height="576" align="absmiddle">
+</p>
+
+<p class="Output">
+ <img src="./4LetterWalksInDiamondLattice.nb_files/4LetterWalksInDiamondLattice_201.gif" border="0" alt="&#8259;Graphics3D&#8259;" width="184" height="31" align="absmiddle">
+</p>
+
+<p class="Input">
+ <img src="./4LetterWalksInDiamondLattice.nb_files/4LetterWalksInDiamondLattice_202.gif" border="0" alt="&lt;&lt;Default3D`&nbsp;&nbsp;(* Turns ordinary graphics on *)" width="640" height="31" align="absmiddle">
+</p>
+
+<p class="Input">
+ <img src="./4LetterWalksInDiamondLattice.nb_files/4LetterWalksInDiamondLattice_203.gif" border="0" alt="g85aPath = newShow[g85[&quot;a&quot;], .005, {-1, -2, 0}]" width="635" height="31" align="absmiddle">
+</p>
+
+<p class="Graphics">
+ <img src="./4LetterWalksInDiamondLattice.nb_files/4LetterWalksInDiamondLattice_204.gif" border="0" alt="[Graphics:HTMLFiles/4LetterWalksInDiamondLattice_204.gif]" width="694" height="694" align="absmiddle">
+</p>
+
+<p class="Output">
+ <img src="./4LetterWalksInDiamondLattice.nb_files/4LetterWalksInDiamondLattice_205.gif" border="0" alt="&#8259;Graphics3D&#8259;" width="184" height="31" align="absmiddle">
+</p>
+
+<p class="Input">
+ <img src="./4LetterWalksInDiamondLattice.nb_files/4LetterWalksInDiamondLattice_206.gif" border="0" alt="WriteLiveForm[&quot;g85aPath.m&quot;, g85aPath]" width="527" height="31" align="absmiddle">
+</p>
+
+<p class="Input">
+ <img src="./4LetterWalksInDiamondLattice.nb_files/4LetterWalksInDiamondLattice_207.gif" border="0" alt="&lt;&lt;RealTime3D` (* Use mouse and CTRL to rotate and zoom *)" width="803" height="31" align="absmiddle">
+</p>
+
+<p class="Input">
+ <img src="./4LetterWalksInDiamondLattice.nb_files/4LetterWalksInDiamondLattice_208.gif" border="0" alt="newRTShow[g85[&quot;a&quot;], .005, {-1, -2, 0}]" width="523" height="31" align="absmiddle">
+</p>
+
+<p class="Graphics">
+ <img src="./4LetterWalksInDiamondLattice.nb_files/4LetterWalksInDiamondLattice_209.gif" border="0" alt="-Graphics3D-" width="576" height="576" align="absmiddle">
+</p>
+
+<p class="Output">
+ <img src="./4LetterWalksInDiamondLattice.nb_files/4LetterWalksInDiamondLattice_210.gif" border="0" alt="&#8259;Graphics3D&#8259;" width="184" height="31" align="absmiddle">
+</p>
+
+<p class="Input">
+ <img src="./4LetterWalksInDiamondLattice.nb_files/4LetterWalksInDiamondLattice_211.gif" border="0" alt="g85 (a) = abc acdcbcdcadcdbdabacabadbabcbd  bcbacbc dcacbabd abac adcb cdc acdb cbacbcdcacdcbdcd adbdcbca " width="499" height="99" align="absmiddle">
+</p>
+
+<p class="Input">
+ <img src="./4LetterWalksInDiamondLattice.nb_files/4LetterWalksInDiamondLattice_212.gif" border="0" alt="&lt;&lt;Default3D`&nbsp;&nbsp;(* Turns ordinary graphics on *)" width="640" height="31" align="absmiddle">
+</p>
+
+<p class="Input">
+ <img src="./4LetterWalksInDiamondLattice.nb_files/4LetterWalksInDiamondLattice_213.gif" border="0" alt="RowBox[{newShow, [, RowBox[{&quot;abc&quot;&lt;&gt;&quot;acdcbcdcadcdbdabacabadbabcbd&quot;&lt;&gt;&quot;bcb&quot;, ,, .005, ,, RowBox[{{, RowBox[{RowBox[{-, 2.7}], ,, -3, ,, 1.7}], }}]}], ]}]" width="769" height="65" align="absmiddle">
+</p>
+
+<p class="Graphics">
+ <img src="./4LetterWalksInDiamondLattice.nb_files/4LetterWalksInDiamondLattice_214.gif" border="0" alt="[Graphics:HTMLFiles/4LetterWalksInDiamondLattice_214.gif]" width="703" height="703" align="absmiddle">
+</p>
+
+<p class="Output">
+ <img src="./4LetterWalksInDiamondLattice.nb_files/4LetterWalksInDiamondLattice_215.gif" border="0" alt="&#8259;Graphics3D&#8259;" width="184" height="31" align="absmiddle">
+</p>
+
+<p class="Input">
+ <img src="./4LetterWalksInDiamondLattice.nb_files/4LetterWalksInDiamondLattice_216.gif" border="0" alt="&lt;&lt;RealTime3D` (* Use mouse and CTRL to rotate and zoom *)" width="803" height="31" align="absmiddle">
+</p>
+
+<p class="Input">
+ <img src="./4LetterWalksInDiamondLattice.nb_files/4LetterWalksInDiamondLattice_217.gif" border="0" alt="RowBox[{g85aStart34, =, RowBox[{newRTShow, [, RowBox[{&quot;abc&quot;&lt;&gt;&quot;acdcbcdcadc ... gt;&quot;bcb&quot;, ,, .005, ,, RowBox[{{, RowBox[{RowBox[{-, 2.7}], ,, -3, ,, 1.7}], }}]}], ]}]}]" width="811" height="99" align="absmiddle">
+</p>
+
+<p class="Graphics">
+ <img src="./4LetterWalksInDiamondLattice.nb_files/4LetterWalksInDiamondLattice_218.gif" border="0" alt="[Graphics:HTMLFiles/4LetterWalksInDiamondLattice_218.gif]" width="576" height="576" align="absmiddle">
+</p>
+
+<p class="Output">
+ <img src="./4LetterWalksInDiamondLattice.nb_files/4LetterWalksInDiamondLattice_219.gif" border="0" alt="&#8259;Graphics3D&#8259;" width="184" height="31" align="absmiddle">
+</p>
+
+<p class="Input">
+ <img src="./4LetterWalksInDiamondLattice.nb_files/4LetterWalksInDiamondLattice_220.gif" border="0" alt="WriteLiveForm[&quot;g85aStart34.m&quot;, g85aStart34]" width="611" height="31" align="absmiddle">
+</p>
+
+<p class="Text">
+
+</p>
+
+
+
+<p class="Input">
+ <img src="./4LetterWalksInDiamondLattice.nb_files/4LetterWalksInDiamondLattice_221.gif" border="0" alt="g98a = &quot;abc acdcbcdca db dcbdbabcbdc acbabdbabca bda &lt;br /&gt;dcdadbdcbdbabdbcbacbcdbabdc d bdcacdbcbacbcdcacdcbdcdadbd cbca&quot; " width="816" height="99" align="absmiddle">
+</p>
+
+<p class="Input">
+ <img src="./4LetterWalksInDiamondLattice.nb_files/4LetterWalksInDiamondLattice_222.gif" border="0" alt="&lt;&lt;Default3D`&nbsp;&nbsp;(* Turns ordinary graphics on *)" width="640" height="31" align="absmiddle">
+</p>
+
+<p class="Input" style="font-size: 10px;">
+ <img src="./4LetterWalksInDiamondLattice.nb_files/4LetterWalksInDiamondLattice_223.gif" border="0" alt="RowBox[{newShow, [, RowBox[{&quot;dcdadbdcbdbabdbcbacbcdbabdcdbdcacdbcbacbcdcacdcbdcdadbd&quot;, ,, 0.005, ,, 3dD}], ]}]" width="796" height="56" align="absmiddle">
+</p>
+
+<p class="Graphics">
+ <img src="./4LetterWalksInDiamondLattice.nb_files/4LetterWalksInDiamondLattice_224.gif" border="0" alt="[Graphics:HTMLFiles/4LetterWalksInDiamondLattice_224.gif]" width="576" height="576" align="absmiddle">
+</p>
+
+<p class="Output">
+ <img src="./4LetterWalksInDiamondLattice.nb_files/4LetterWalksInDiamondLattice_225.gif" border="0" alt="&#8259;Graphics3D&#8259;" width="184" height="31" align="absmiddle">
+</p>
+
+<p class="Input">
+ <img src="./4LetterWalksInDiamondLattice.nb_files/4LetterWalksInDiamondLattice_226.gif" border="0" alt="&lt;&lt;RealTime3D` (* Use mouse and CTRL to rotate and zoom *)" width="803" height="31" align="absmiddle">
+</p>
+
+<p class="Input" style="font-size: 10px;">
+ <img src="./4LetterWalksInDiamondLattice.nb_files/4LetterWalksInDiamondLattice_227.gif" border="0" alt="RowBox[{newRTShow, [, RowBox[{&quot;dcdadbdcbdbabdbcbacbcdbabdcdbdcacdbcbacbcdcacdcbdcdadbd&quot;, ,, 0.005, ,, {2, 0, 0}}], ]}]" width="820" height="56" align="absmiddle">
+</p>
+
+<p class="Graphics">
+ <img src="./4LetterWalksInDiamondLattice.nb_files/4LetterWalksInDiamondLattice_228.gif" border="0" alt="-Graphics3D-" width="576" height="576" align="absmiddle">
+</p>
+
+<p class="Output">
+ <img src="./4LetterWalksInDiamondLattice.nb_files/4LetterWalksInDiamondLattice_229.gif" border="0" alt="&#8259;Graphics3D&#8259;" width="184" height="31" align="absmiddle">
+</p>
+
+<p class="Input">
+ <img src="./4LetterWalksInDiamondLattice.nb_files/4LetterWalksInDiamondLattice_230.gif" border="0" alt="&lt;&lt;Default3D`&nbsp;&nbsp;(* Turns ordinary graphics on *)" width="640" height="31" align="absmiddle">
+</p>
+
+<p class="Text">
+ The cycles in the 3D graphics below come from the grey areas <br>(in which letters&nbsp;&nbsp;<span style="font-style: italic;">a</span>, <span style="font-style: italic;">b</span>, <span style="font-style: italic;">c</span>, <span style="font-style: italic;">d</span>&nbsp;&nbsp;occur equally often) of&nbsp;&nbsp;<br><br><span style="font-size: 10px;font-family: Courier New;font-weight: bold;">g85(a) = abc </span><span style="font-size: 10px;font-family: Courier New;font-weight: bold;color: #808080;">acdcbcdcadcdbdabacabadbabcbd</span><span style="font-size: 10px;font-family: Courier New;font-weight: bold;color: #00FF00;"> <br></span><span style="font-size: 10px;font-family: Courier New;font-weight: bold;">bcbacbc</span><span style="font-size: 10px;font-family: Courier New;font-weight: bold;color: #00FF00;"> </span><span style="font-size: 10px;font-family: Courier New;font-weight: bold;color: #808080;">dcacbabd</span><span style="font-size: 10px;font-family: Courier New;font-weight: bold;"> abac </span><span style="font-size: 10px;font-family: Courier New;font-weight: bold;color: #808080;">adcb</span><span style="font-size: 10px;font-family: Courier New;font-weight: bold;"> cdc </span><span style="font-size: 10px;font-family: Courier New;font-weight: bold;color: #808080;">acdb</span><span style="font-size: 10px;font-family: Courier New;font-weight: bold;"><br>cbacbcdcacdcbdcd</span><span style="font-size: 10px;font-family: Courier New;font-weight: bold;color: #FF0000;"> </span><span style="font-size: 10px;font-family: Courier New;font-weight: bold;color: #808080;">adbdcbca</span><span style="font-size: 10px;font-family: Courier New;"><br></span><br><span style="font-size: 10px;font-family: Courier New;font-weight: bold;">g85(a) = abc </span><span style="font-size: 10px;font-family: Courier New;font-weight: bold;color: #808080;">acdcbcdcadcdbdabacabadbabcbd</span><span style="font-size: 10px;font-family: Courier New;font-weight: bold;color: #00FF00;"> <br></span><span style="font-size: 10px;font-family: Courier New;font-weight: bold;">bcbacbcdcacba</span><span style="font-size: 10px;font-family: Courier New;font-weight: bold;color: #808080;"> bdabacadcbcd</span><span style="font-size: 10px;font-family: Courier New;font-weight: bold;"> c </span><span style="font-size: 10px;font-family: Courier New;font-weight: bold;color: #808080;">acdb</span><span style="font-size: 10px;font-family: Courier New;font-weight: bold;"><br>cbacbcdcacdcbdcd</span><span style="font-size: 10px;font-family: Courier New;font-weight: bold;color: #FF0000;"> </span><span style="font-size: 10px;font-family: Courier New;font-weight: bold;color: #808080;">adbdcbca</span>
+</p>
+
+
+
+<p class="Input">
+ <img src="./4LetterWalksInDiamondLattice.nb_files/4LetterWalksInDiamondLattice_231.gif" border="0" alt="&lt;&lt;RealTime3D` (* Use mouse and CTRL to rotate and zoom *)" width="803" height="31" align="absmiddle">
+</p>
+
+<p class="Input">
+ <img src="./4LetterWalksInDiamondLattice.nb_files/4LetterWalksInDiamondLattice_232.gif" border="0" alt="RowBox[{RowBox[{newRTShow, [, RowBox[{g85[&quot;a&quot;], ,, 0.005, ,, {0, 0, 1}}], ]}], ;}] R ... 371;, RowBox[{newShow, [, RowBox[{g85[&quot;d&quot;], ,, 0.005, ,, {0, 0, 1}}], ]}], ;}],  , *)}] " width="514" height="133" align="absmiddle">
+</p>
+
+<p class="Graphics">
+ <img src="./4LetterWalksInDiamondLattice.nb_files/4LetterWalksInDiamondLattice_233.gif" border="0" alt="-Graphics3D-" width="576" height="576" align="absmiddle">
+</p>
+
+<p class="Input">
+ <img src="./4LetterWalksInDiamondLattice.nb_files/4LetterWalksInDiamondLattice_234.gif" border="0" alt="RowBox[{RowBox[{RowBox[{RowBox[{newRTShow, [, RowBox[{g98[&quot;a&quot;], ,, 0.005, ,, {0, 0,  ... RowBox[{newShow, [, RowBox[{g98[&quot;d&quot;], ,, 0.005, ,, {0, 0, 1}}], ]}], ;}],  , *)}]}],  }]" width="514" height="133" align="absmiddle">
+</p>
+
+<p class="Graphics">
+ <img src="./4LetterWalksInDiamondLattice.nb_files/4LetterWalksInDiamondLattice_235.gif" border="0" alt="-Graphics3D-" width="576" height="576" align="absmiddle">
+</p>
+
+<p class="Input">
+ <img src="./4LetterWalksInDiamondLattice.nb_files/4LetterWalksInDiamondLattice_236.gif" border="0" alt="&lt;&lt;Default3D`&nbsp;&nbsp;(* Turns ordinary graphics on *)" width="640" height="31" align="absmiddle">
+</p>
+
+<p class="Input">
+ <img src="./4LetterWalksInDiamondLattice.nb_files/4LetterWalksInDiamondLattice_237.gif" border="0" alt="RowBox[{RowBox[{RowBox[{RowBox[{g98aPath, =, RowBox[{newShow, [, RowBox[{g98[&quot;a&quot;], , ... RowBox[{newShow, [, RowBox[{g98[&quot;d&quot;], ,, 0.005, ,, {0, 0, 1}}], ]}], ;}],  , *)}]}],  }]" width="691" height="133" align="absmiddle">
+</p>
+
+<p class="Graphics">
+ <img src="./4LetterWalksInDiamondLattice.nb_files/4LetterWalksInDiamondLattice_238.gif" border="0" alt="[Graphics:HTMLFiles/4LetterWalksInDiamondLattice_238.gif]" width="626" height="626" align="absmiddle">
+</p>
+
+<p class="Input">
+ <img src="./4LetterWalksInDiamondLattice.nb_files/4LetterWalksInDiamondLattice_239.gif" border="0" alt="WriteLiveForm[&quot;g98aPath.m&quot;, g98aPath]" width="527" height="31" align="absmiddle">
+</p>
+
+<p class="Input">
+ <img src="./4LetterWalksInDiamondLattice.nb_files/4LetterWalksInDiamondLattice_240.gif" border="0" alt="&lt;&lt;RealTime3D` (* Use mouse and CTRL to rotate and zoom *)" width="803" height="31" align="absmiddle">
+</p>
+
+<p class="Input">
+ <img src="./4LetterWalksInDiamondLattice.nb_files/4LetterWalksInDiamondLattice_241.gif" border="0" alt="reducedg85aPath = reducedRTShow[g85[&quot;a&quot;]]//N" width="620" height="31" align="absmiddle">
+</p>
+
+<p class="Graphics">
+ <img src="./4LetterWalksInDiamondLattice.nb_files/4LetterWalksInDiamondLattice_242.gif" border="0" alt="-Graphics3D-" width="576" height="576" align="absmiddle">
+</p>
+
+<p class="Output">
+ <img src="./4LetterWalksInDiamondLattice.nb_files/4LetterWalksInDiamondLattice_243.gif" border="0" alt="&#8259;Graphics3D&#8259;" width="184" height="31" align="absmiddle">
+</p>
+
+<p class="Input">
+ <img src="./4LetterWalksInDiamondLattice.nb_files/4LetterWalksInDiamondLattice_244.gif" border="0" alt="SetDirectory[&quot;C:\_IMS2004\JavaApplet&quot;] ; (* Change this *)" width="557" height="65" align="absmiddle">
+</p>
+
+<p class="Input">
+ <img src="./4LetterWalksInDiamondLattice.nb_files/4LetterWalksInDiamondLattice_245.gif" border="0" alt="reducedg85aPath&gt;&gt;&quot;reducedg85aPath.m&quot;" width="524" height="31" align="absmiddle">
+</p>
+
+<p class="Text">
+
+</p>
+
+
+
+<p class="Input">
+ <img src="./4LetterWalksInDiamondLattice.nb_files/4LetterWalksInDiamondLattice_246.gif" border="0" alt="RowBox[{g85to2ofa, =, RowBox[{RowBox[{reducedRTShow, [, RowBox[{g85iter[2], ,, RowBox[{ViewPoi ... {RowBox[{-, 0.223}], ,,  , RowBox[{-, 3.376}], ,,  , RowBox[{-, 0.026}]}], }}]}]}], ]}], //, N}]}]" width="625" height="99" align="absmiddle">
+</p>
+
+<p class="Graphics">
+ <img src="./4LetterWalksInDiamondLattice.nb_files/4LetterWalksInDiamondLattice_247.gif" border="0" alt="-Graphics3D-" width="576" height="576" align="absmiddle">
+</p>
+
+<p class="Output">
+ <img src="./4LetterWalksInDiamondLattice.nb_files/4LetterWalksInDiamondLattice_248.gif" border="0" alt="&#8259;Graphics3D&#8259;" width="184" height="31" align="absmiddle">
+</p>
+
+<p class="Input">
+ <img src="./4LetterWalksInDiamondLattice.nb_files/4LetterWalksInDiamondLattice_249.gif" border="0" alt="g85to2ofa&gt;&gt;&quot;g85to2ofa.m&quot;" width="356" height="31" align="absmiddle">
+</p>
+
+<p class="Text">
+ Please edit the last lines of "g85to2ofa.m":&nbsp;&nbsp;Change PlotLabel -&gt;,&nbsp;&nbsp;to&nbsp;&nbsp;PlotLabel -&gt;"",&nbsp;&nbsp;&nbsp;&nbsp;.<br>Sorry, I had no time to check why this went wrong in the first place.
+</p>
+
+
+
+<p class="Input">
+ <img src="./4LetterWalksInDiamondLattice.nb_files/4LetterWalksInDiamondLattice_250.gif" border="0" alt="RowBox[{g98to2ofa, =, RowBox[{RowBox[{reducedRTShow, [, RowBox[{g98iter[2], ,, RowBox[{ViewPoi ... {RowBox[{-, 0.223}], ,,  , RowBox[{-, 3.376}], ,,  , RowBox[{-, 0.026}]}], }}]}]}], ]}], //, N}]}]" width="625" height="99" align="absmiddle">
+</p>
+
+<p class="Graphics">
+ <img src="./4LetterWalksInDiamondLattice.nb_files/4LetterWalksInDiamondLattice_251.gif" border="0" alt="-Graphics3D-" width="576" height="576" align="absmiddle">
+</p>
+
+<p class="Output">
+ <img src="./4LetterWalksInDiamondLattice.nb_files/4LetterWalksInDiamondLattice_252.gif" border="0" alt="&#8259;Graphics3D&#8259;" width="184" height="31" align="absmiddle">
+</p>
+
+<p class="Input">
+ <img src="./4LetterWalksInDiamondLattice.nb_files/4LetterWalksInDiamondLattice_253.gif" border="0" alt="g98to2ofa&gt;&gt;&quot;g98to2ofa.m&quot;" width="356" height="31" align="absmiddle">
+</p>
+
+<p class="Text">
+ Once again: Change PlotLabel -&gt;,&nbsp;&nbsp;to&nbsp;&nbsp;PlotLabel -&gt;"",&nbsp;&nbsp;&nbsp;&nbsp;.
+</p>
+
+
+
+<p class="Text">
+
+</p>
+
+
+
+<p class="Input">
+ <img src="./4LetterWalksInDiamondLattice.nb_files/4LetterWalksInDiamondLattice_254.gif" border="0" alt="&lt;&lt;Default3D`&nbsp;&nbsp;(* Turns ordinary graphics on *)" width="640" height="31" align="absmiddle">
+</p>
+
+<p class="Text">
+
+</p>
+
+
+
+<a href="https://algebra.fi/keranen/JavaApplet/HTMLLinks/4LetterWalksInDiamondLattice_23.html"><p class="Subsection" style="font-size: 12px;">
+ Computing the final 2D point reached by extremely long walks for g85 and g98
+</p>
+
+
+
+</a><a href="https://algebra.fi/keranen/JavaApplet/HTMLLinks/4LetterWalksInDiamondLattice_24.html"><p class="Subsection" style="font-size: 8px;">
+ <span style="font-size: 12px;">DNA sequences</span><span style="font-size: 14px;"> </span>
+</p>
+
+
+
+</a><a href="https://algebra.fi/keranen/JavaApplet/HTMLLinks/4LetterWalksInDiamondLattice_27.html"><p class="Subsection">
+ <span style="font-size: 12px;">Acknowledgements</span>
+</p>
+
+
+
+</a>
+<hr>
+<p style="font-family: Helvetica; font-size: 8pt">Created by
+<a href="http://www.wolfram.com/"><span style="font-style: italic">Mathematica</span></a>
+&nbsp;(February 18, 2004) </p>
+
+
+
+
+</body><grammarly-desktop-integration data-grammarly-shadow-root="true" style="visibility: visible !important;"><template shadowrootmode="open"><style>
+      div.grammarly-desktop-integration {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+        -moz-user-select: none;
+        -webkit-user-select: none;
+        -ms-user-select:none;
+        user-select:none;
+      }
+
+      div.grammarly-desktop-integration:before {
+        content: attr(data-content);
+      }
+    </style><div aria-label="grammarly-integration" role="group" tabindex="-1" class="grammarly-desktop-integration" data-content="{&quot;mode&quot;:&quot;full&quot;,&quot;isActive&quot;:true,&quot;isUserDisabled&quot;:false}"></div></template></grammarly-desktop-integration><grammarly-assistant-notch-view role="presentation" data-grammarly-ignore-keyboard-events="true" data-grammarly-notch-instance-id="check:1cb84294-d907-49a4-8918-51e1c86c1cb7" data-grammarly-shadow-root="true" class="dnXmp" style="visibility: visible !important; --rem: 16;"><template shadowrootmode="open"><style>.ymqHP{visibility:hidden;position:fixed;}.ymqHP:after{content:'';position:absolute;visibility:visible;height:3px;bottom:0;border-radius:10px;background:#488cc8;animation:JQguZ 1.3s ease forwards}.ymqHP.ExcM8:after{animation:JQguZ .2s ease forwards}@keyframes JQguZ{0%{width:0%}100%{width:100%}}
+</style><div aria-label="grammarly-global-assistant-notch" role="group" tabindex="-1"></div><div data-gds-theme="light"><div data-origin-theme="grammarly" data-origin-mode="light"><link rel="stylesheet" type="text/css" href="chrome-extension://kbfnbcaeplbcioakkpcpgfkobkghlhen/src/css/designSystem.styles.css"><link rel="stylesheet" type="text/css" href="chrome-extension://kbfnbcaeplbcioakkpcpgfkobkghlhen/src/css/assistantUiKit.styles.css"><link rel="stylesheet" type="text/css" href="chrome-extension://kbfnbcaeplbcioakkpcpgfkobkghlhen/src/css/AAA-initAssistant.styles.css"><div class="_notchContainer_z-aOt_notchContainer _rightEdge_ocbqT_rightEdge" data-testid="assistant-notch-container" style="top: 808.5px;"><div data-testid="assistant-notch" class="_notch_GaFTz_notch _hidden_1qXJC_hidden  _rightEdge_ocbqT_rightEdge" style="--hidden-percent: 100%; top: 808.5px;"><button class="_notchButton_B02fl_notchButton" data-testid="assistant-notch-button" aria-label="Start a chat with Grammarly AI"><div class="_iconWrapper_oN45l_iconWrapper"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 32 32" aria-hidden="true" data-icon="LogoLogomarkColorDefault" stroke="transparent" focusable="false" role="img" stroke-width="1px" class="gds-icon _notchGrammarlyIcon_p2C-5_notchGrammarlyIcon " data-testid="grammarly-icon"><path fill="var(--green-60)" d="M0 16C0 7.163 7.162 0 16.001 0s16 7.163 16 16c0 7.732-5.482 14.183-12.773 15.676-1.042.213-2.121.324-3.222.324H0z"></path><path fill="var(--white)" d="m19.876 14.484-1.788 2.94h6.02c-.93 5.116-6.62 8.599-12.304 5.653a6.7 6.7 0 0 1-2.861-2.834c-3.27-6.226 1.197-12.49 7.093-12.49a8.19 8.19 0 0 1 6.2 2.839l1.58-2.6a11.08 11.08 0 0 0-8.566-3.148c-5.562.384-10.071 4.994-10.342 10.56-.309 6.393 4.8 11.688 11.124 11.688s11.14-4.999 11.14-11.14c0-.5-.038-.989-.1-1.468z"></path></svg></div><input aria-hidden="true" tabindex="-1" style="position: absolute; inset: 0px; opacity: 0; cursor: inherit;"></button></div></div></div></div><div data-origin-mode="light" data-origin-theme="grammarly" data-gds-theme="light" style="position: fixed; top: 0px; left: 0px; width: 0px; height: 0px; z-index: 2147483647;"></div></template></grammarly-assistant-notch-view></html>
