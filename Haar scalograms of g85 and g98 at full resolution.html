@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Full Haar Scalograms</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=STIX+Two+Text:ital,wght@0,400;0,600;0,700;1,400;1,600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+  :root{
+    --bg:#FBFBF8; --ink:#1D2230; --ink-soft:#505769; --ink-faint:#80869A; --rule:#D9DBD2;
+    --accent:#2F4F8A; --panel:#F1F2EC; --claim-bg:#EEF1F8; --claim-edge:#2F4F8A; --fig:#FFFFFF;
+    --u:#D6336C; --zero:#111111; --out:#E4E5DE;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#15171E; --ink:#E7E8E2; --ink-soft:#B0B5C4; --ink-faint:#7C8296; --rule:#33374A;
+      --accent:#8FAAE6; --panel:#1E212B; --claim-bg:#1B2233; --claim-edge:#8FAAE6; --fig:#1A1D26;
+      --u:#FF6B9A; --zero:#FFFFFF; --out:#262A35;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#15171E; --ink:#E7E8E2; --ink-soft:#B0B5C4; --ink-faint:#7C8296; --rule:#33374A;
+    --accent:#8FAAE6; --panel:#1E212B; --claim-bg:#1B2233; --claim-edge:#8FAAE6; --fig:#1A1D26;
+    --u:#FF6B9A; --zero:#FFFFFF; --out:#262A35;
+  }
+  *{box-sizing:border-box;}
+  html{ -webkit-text-size-adjust:100%; }
+  body{ margin:0; background:var(--bg); color:var(--ink); font-family:"STIX Two Text","Cambria","Times New Roman",Georgia,serif;
+        font-size:19px; line-height:1.62; -webkit-font-smoothing:antialiased; }
+  .page{ max-width:1100px; margin:0 auto; padding:64px 24px 110px; }
+  header{ margin-bottom:34px; }
+  h1{ font-weight:600; font-size:clamp(1.65rem,4vw,2.2rem); line-height:1.14; margin:0 0 20px; text-wrap:balance; }
+  h1 .sub{ display:block; font-weight:400; font-style:italic; color:var(--ink-soft); font-size:0.72em; margin-top:8px; }
+  .byline{ font-family:"JetBrains Mono",ui-monospace,Consolas,monospace; font-size:13px; color:var(--ink-soft);
+           display:flex; gap:14px; flex-wrap:wrap; padding-top:16px; border-top:1px solid var(--rule); }
+  .byline b{ color:var(--ink); }
+  h2{ font-size:0.82rem; font-family:"JetBrains Mono",ui-monospace,Consolas,monospace; font-weight:600; letter-spacing:0.1em;
+      text-transform:uppercase; color:var(--accent); margin:48px 0 14px; }
+  p{ margin:0 0 1.05em; max-width:78ch; text-wrap:pretty; }
+  ul{ margin:0 0 1.05em; padding-left:1.4em; } li{ margin-bottom:0.35em; max-width:76ch; }
+  a{ color:var(--accent); }
+  sub,sup{ line-height:0; } sub{ font-size:0.72em; vertical-align:-0.28em; } sup{ font-size:0.72em; vertical-align:0.42em; }
+  .claim{ padding:16px 22px 4px; margin:22px 0 26px; border-radius:0 4px 4px 0; background:var(--claim-bg); border-left:3px solid var(--claim-edge); }
+  .claim p{ max-width:none; }
+  .frame{ background:var(--fig); border:1px solid var(--rule); border-radius:6px; padding:12px; margin:18px 0; }
+  canvas{ display:block; border-radius:3px; }
+  #ov{ width:100%; height:auto; cursor:crosshair; touch-action:none; }
+  .scroller{ overflow:auto; max-height:72vh; border:1px solid var(--rule); border-radius:4px; background:var(--out); }
+  #det{ image-rendering:pixelated; cursor:crosshair; }
+  .controls{ display:flex; flex-wrap:wrap; gap:8px 18px; align-items:center; margin:0 0 10px;
+             font-family:"JetBrains Mono",ui-monospace,Consolas,monospace; font-size:12.5px; color:var(--ink-soft); }
+  .seg{ display:inline-flex; border:1px solid var(--rule); border-radius:5px; overflow:hidden; }
+  .seg button{ font:inherit; background:transparent; color:var(--ink-soft); border:0; padding:5px 10px; cursor:pointer; }
+  .seg button + button{ border-left:1px solid var(--rule); }
+  .seg button[aria-pressed="true"]{ background:var(--accent); color:var(--bg); }
+  .btn{ font:inherit; color:var(--ink-soft); background:transparent; border:1px solid var(--rule); border-radius:5px; padding:3px 10px; cursor:pointer; }
+  .controls label{ display:inline-flex; gap:6px; align-items:center; }
+  .controls input{ font:inherit; color:var(--ink); background:var(--fig); border:1px solid var(--rule); border-radius:4px; padding:2px 6px; }
+  .readout{ font-family:"JetBrains Mono",ui-monospace,Consolas,monospace; font-size:12.5px; color:var(--ink-soft); margin-top:8px; line-height:1.6; min-height:1.6em; }
+  .legend{ display:flex; flex-wrap:wrap; gap:4px 16px; font-family:"JetBrains Mono",ui-monospace,Consolas,monospace; font-size:12px; color:var(--ink-soft); margin-top:8px; }
+  .legend i{ display:inline-block; width:12px; height:12px; border-radius:2px; vertical-align:-1px; margin-right:5px; border:1px solid var(--rule); }
+  textarea{ width:100%; font-family:"JetBrains Mono",ui-monospace,Consolas,monospace; font-size:12px; line-height:1.5; color:var(--ink); background:var(--panel); border:1px solid var(--rule); border-radius:4px; padding:8px 10px; white-space:pre; overflow:auto; resize:vertical; }
+  .tbl{ border-collapse:collapse; font-family:"JetBrains Mono",ui-monospace,Consolas,monospace; font-size:12.5px; margin:6px 0 10px; display:block; overflow-x:auto; }
+  .tbl th, .tbl td{ padding:5px 12px; border-bottom:1px solid var(--rule); text-align:right; white-space:nowrap; }
+  .tbl th:first-child, .tbl td:first-child{ text-align:left; }
+  .tbl th{ color:var(--ink-soft); font-weight:600; }
+  .note{ font-size:0.88rem; color:var(--ink-soft); }
+  code{ font-family:"JetBrains Mono",ui-monospace,Consolas,monospace; font-size:0.82em; background:var(--panel); padding:1px 5px; border-radius:3px; }
+  footer{ margin-top:60px; padding-top:18px; border-top:1px solid var(--rule); font-family:"JetBrains Mono",ui-monospace,Consolas,monospace;
+          font-size:12px; color:var(--ink-faint); line-height:1.6; }
+  @media (max-width:640px){ body{ font-size:17.5px; } .page{ padding:40px 16px 80px; } }
+</style>
+</head>
+<body>
+<div class="page">
+
+<header>
+  <h1>Haar scalograms of g85 and g98 at full resolution
+    <span class="sub">A window of 4000 positions and 2000 scales, one pixel per coefficient, sliding along the whole word</span></h1>
+  <div class="byline"><b>V. Keränen</b><span>Working notes, 3 November 2026</span><span>A companion to <a href="Waves,%20wavelets%20and%20shadows%20-%20brainstorming%20methods%20for%20avoiding%20abelian%20repetitions.html">Waves, wavelets and shadows</a></span></div>
+</header>
+
+<p>The scalogram on the main page shows a window of 1200 positions and 150 scales. This page shows 4000 positions and 2000 scales, 8 million coefficients, without any averaging. As there, the coefficient at position <i>i</i> and scale <i>p</i> compares the two halves of a window of length 2<i>p</i>:</p>
+<div class="claim"><p><i>H</i><sub><i>p</i></sub>(<i>i</i>) = Ψ(<i>u</i>) − Ψ(<i>v</i>), &nbsp; <i>u</i> = <i>w</i>[<i>i</i> .. <i>i</i>+<i>p</i>−1], &nbsp; <i>v</i> = <i>w</i>[<i>i</i>+<i>p</i> .. <i>i</i>+2<i>p</i>−1].</p>
+<p>A zero is an abelian square <i>uv</i>; ‖<i>H</i>‖<sub>1</sub> = 2 is a one-letter near miss. The word is a2f exactly when there is no zero.</p></div>
+<p>The picture is a window of positions <i>i</i> = <i>i</i><sub>0</sub>, …, <i>i</i><sub>0</sub> + 3999 and scales <i>p</i> = 1, …, 2000. Move it with “picture from i”; it also moves by itself when you inspect a coefficient outside it. Cells with <i>i</i> + 2<i>p</i> − 1 beyond the end of the word are drawn flat. <b>The counts and the list below cover the whole word</b>, every <i>i</i> and every <i>p</i> up to half its length, whatever the picture shows. For example, the one-letter near miss with the largest scale in g85²(a) is at <i>i</i> = 4132, <i>p</i> = 1153, and in g98²(a) at <i>i</i> = 3875, <i>p</i> = 2017, above the top of the picture.</p>
+<p>The choice “g85³(a), first part” uses the first 7999 letters of g85³(a), which begins with g85²(a). Its counts and list cover those 7999 letters.</p>
+<p><b>Why the stripes lean, and the centred view.</b> With <i>i</i> on the horizontal axis the colours run in stripes leaning backward at 45°. Write <i>P</i>(<i>t</i>) for the Parikh vector of the prefix of length <i>t</i> and <i>c</i> = <i>i</i> + <i>p</i> for the cut between <i>u</i> and <i>v</i>. Then</p>
+<p style="text-align:center;max-width:none"><i>H</i><sub><i>p</i></sub>(<i>i</i>) = 2<i>P</i>(<i>c</i> − 1) − <i>P</i>(<i>c</i> − <i>p</i> − 1) − <i>P</i>(<i>c</i> + <i>p</i> − 1).</p>
+<p>The average drift of the walk cancels, and what is left are its fluctuations at three points. The centre has <em>twice</em> the weight of each end, so the colour depends mostly on how far the walk strays at the cut. A line of constant <i>c</i> is <i>i</i> = <i>c</i> − <i>p</i>: in the <i>i</i>-picture it leans backward at exactly 45°, because a pixel is one unit of <i>i</i> and one of <i>p</i>. Choose “c = i + p, centre” to put <i>c</i> on the horizontal axis: the stripes then stand vertical, and the two end terms show up as a fainter criss-cross at ±45°. Measured over about 50 000 coefficients with 50 ≤ <i>p</i> &lt; 1500, the colour value ‖<i>H</i>‖<sub>1</sub>/√(2<i>p</i>) changes on average by 0.031 per step of <i>p</i> when <i>c</i> is held fixed, against 0.059 when the left end <i>i</i> or the right end <i>i</i> + 2<i>p</i> is held fixed (g85²(a); 0.030 against 0.058 for g98²(a)). In the centred view the empty corners lie on both sides: on the left <i>u</i> would start before the word, on the right <i>v</i> would end after it.</p>
+
+<h2>The scalogram</h2>
+<div class="frame">
+  <div class="controls">
+    <span>word</span><span class="seg" id="sw"><button aria-pressed="true" data-v="g85">g85²(a)</button><button aria-pressed="false" data-v="g98">g98²(a)</button><button aria-pressed="false" data-v="g85c">g85³(a), first 7999</button><button aria-pressed="false" data-v="r4">random, 4 letters</button></span>
+    <span>horizontal axis</span><span class="seg" id="ax"><button aria-pressed="true" data-v="i">i, start of u</button><button aria-pressed="false" data-v="c">c = i + p, centre</button></span>
+    <label>picture from <span id="i0lab">i</span> = <input id="i0" type="number" min="1" step="1000" value="1" style="width:80px"></label>
+  </div>
+  <canvas id="ov" width="1000" height="520"></canvas>
+  <div class="readout" id="ovRead"></div>
+  <div class="legend"><span><i style="background:var(--zero)"></i>zero: abelian square</span><span><i style="background:var(--u)"></i>‖H‖₁ = 2: one-letter near miss</span><span><i style="background:linear-gradient(90deg,hsl(220,70%,55%),hsl(30,70%,55%))"></i>‖H‖₁ / √(2p), small → large</span><span><i style="background:var(--out)"></i>outside the word</span></div>
+  <p class="note" style="margin-top:10px">The overview above has fewer pixels than coefficients, so each of its pixels shows the <em>most dangerous</em> coefficient in its block: black if the block contains a zero, pink if it contains a near miss, otherwise the colour of its smallest ‖H‖₁ / √(2p). Nothing is averaged away. Click the overview to move the detailed view below there.</p>
+</div>
+
+<div class="frame">
+  <div class="controls">
+    <b style="color:var(--ink)">Detail, one coefficient per pixel</b>
+    <span>zoom</span><span class="seg" id="zm"><button aria-pressed="true" data-v="1">1×</button><button aria-pressed="false" data-v="2">2×</button><button aria-pressed="false" data-v="4">4×</button><button aria-pressed="false" data-v="8">8×</button></span>
+    <span>scroll to explore; hover to read, click to inspect</span>
+  </div>
+  <div class="scroller" id="scr"><canvas id="det" width="4000" height="2000"></canvas></div>
+  <div class="readout" id="detRead">&nbsp;</div>
+</div>
+
+<h2>Counts by scale, whole word</h2>
+<table class="tbl" id="cnt"></table>
+
+<h2>Inspect and copy</h2>
+<div class="frame">
+  <div class="controls"><b style="color:var(--ink)">One coefficient</b>
+    <label>i <input id="qi" type="number" min="1" value="1" style="width:80px"></label>
+    <label>p <input id="qp" type="number" min="1" value="1" style="width:72px"></label>
+    <button id="qCopy" class="btn">copy</button></div>
+  <textarea id="qOut" readonly rows="7" spellcheck="false"></textarea>
+  <div class="controls" style="margin:14px 0 6px"><b style="color:var(--ink)">All zeros and one-letter near misses in the whole word</b>
+    <label>with p &ge; <input id="lp" type="number" min="1" value="200" style="width:72px"></label>
+    <button id="lCopy" class="btn">copy</button><span id="lCount"></span></div>
+  <textarea id="lOut" readonly rows="12" spellcheck="false"></textarea>
+  <p class="note" style="margin-top:10px">Positions are 1-based. The list is shown with aligned columns; its <b>copy</b> button gives it tab-separated (kind, i, p, Ψ(u), Ψ(v), H, u, v), ready for a spreadsheet or Mathematica. At most 2000 rows are listed, largest <i>p</i> first. Typing an <i>i</i> and a <i>p</i> from the list into “One coefficient” moves the picture there.</p>
+</div>
+
+<footer>
+  Computed in the page from g85(a) and its cyclic shifts, the four images of g98 (from <code>research_4to3/lib.js</code>) and a seeded random word. Built from <code>research_4to3/brainstorm/fullscale_template.html</code> by <code>research_4to3/brainstorm/build.js</code>.
+</footer>
+
+</div>
+<script>
+'use strict';
+const G85A = 'abcacdcbcdcadcdbdabacabadbabcbdbcbacbcdcacbabdabacadcbcdcacdbcbacbcdcacdcbdcdadbdcbca';
+const sig = s => s.replace(/[abcd]/g, x => 'bcda'['abcd'.indexOf(x)]);
+const G = { a: G85A }; G.b = sig(G.a); G.c = sig(G.b); G.d = sig(G.c);
+const G85SQ = [...G85A].map(x => G[x]).join('');
+const G85CU = [...G85SQ.slice(0, 95)].map(x => G[x]).join('').slice(0, 7999);   // prefix of g85³(a)
+const G98 = {"a":"abcacdcbcdcadbdcbdbabcbdcacbabdbabcabdadcdadbdcbdbabdbcbacbcdbabdcdbdcacdbcbacbcdcacdcbdcdadbdcbca","b":"dabdbcbabcbdcacbacadabacbdbadacadabdacdcbcdcacbacadacabadbabcadacbcacbdbcabadbabcbdbcbacbcdcacbabd","c":"cdacabadabacbdbadbdcdadbacadcdbdcdacdbcbabcbdbadbdcdbdadcadabdcdbabdbacabdadcadabacabadbabcbdbadac","d":"bcdbdadcdadbacadcacbcdcadbdcbcacbcdbcabadabacadcacbcacdcbdcdacbcadacadbdacdcbdcdadbdadcadabacadcdb"};   // the four images of g98 (98 letters each)
+const G98SQ = [...G98.a].map(x => G98[x]).join('');
+const rnd = (n, k, seed) => { let s = seed, r = ''; for (let i = 0; i < n; i++) { s = (s * 1103515245 + 12345) % 2147483648; r += 'abcd'[Math.floor(s / 2147483648 * k)]; } return r; };
+const WORDS = { g85: ['g85²(a)', G85SQ], g98: ['g98²(a)', G98SQ], g85c: ['g85³(a), first part', G85CU], r4: ['random, 4 letters', rnd(9604, 4, 7)] };
+const N = 4000, PMAX = 2000, K = 4, OUT = 0xFFFF;
+const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const isDark = () => { const t = document.documentElement.dataset.theme; return t ? t === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches; };
+const hexToRgb = h => { const m = h.replace('#', ''); return [0, 2, 4].map(i => parseInt(m.slice(i, i + 2), 16)); };
+function hslToRgb(hh, s, l) { s /= 100; l /= 100; const k = n => (n + hh / 30) % 12, a = s * Math.min(l, 1 - l);
+  return [0, 8, 4].map(n => Math.round(255 * (l - a * Math.max(-1, Math.min(k(n) - 3, 9 - k(n), 1))))); }
+function segment(id, onPick) {
+  const el = document.getElementById(id);
+  el.addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return;
+    el.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', String(x === b))); onPick(b.dataset.v); });
+}
+
+// ---- the transform: NORM[(p-1)*N + (i-1)] = ||H_p(i)||_1, OUT outside the word
+// The picture is a window of N columns h = I0+1 .. I0+N; the counts and the list cover the whole word.
+// MODE 'i': h is the start i of u.  MODE 'c': h is the centre c = i + p, the first letter of v.
+let word = 'g85', W = '', P = null, I0 = 0, MODE = 'i', NORM = new Uint16Array(N * PMAX);
+const hOf = (i, p) => MODE === 'c' ? i + p : i, iOf = (h, p) => MODE === 'c' ? h - p : h, AX = () => MODE === 'c' ? 'c' : 'i';
+const norm = (i, p) => { let s = 0; for (let c = 0; c < K; c++) s += Math.abs(2 * P[(i + p) * K + c] - P[i * K + c] - P[(i + 2 * p) * K + c]); return s; };   // i 0-based
+const maxI0 = () => Math.max(0, W.length - (MODE === 'c' ? 0 : 1) - N);
+function prepare() {
+  W = WORDS[word][1]; const n = W.length; P = new Int32Array((n + 1) * K);
+  for (let j = 0; j < n; j++) { for (let c = 0; c < K; c++) P[(j + 1) * K + c] = P[j * K + c]; P[(j + 1) * K + W.charCodeAt(j) - 97]++; }
+}
+function compute() {
+  const n = W.length;
+  for (let p = 1; p <= PMAX; p++) { const row = (p - 1) * N;
+    for (let x = 0; x < N; x++) { const i = I0 + x - (MODE === 'c' ? p : 0); NORM[row + x] = i < 0 || i + 2 * p > n ? OUT : norm(i, p); } }
+}
+// colour level t in [0,1] of a non-zero, non-near-miss coefficient (as on the main page)
+const level = (s, p) => Math.max(0, Math.min(1, Math.log(s / Math.sqrt(2 * p)) / Math.log(6) + 0.35));
+function palette() {
+  const dark = isDark(), ramp = [];
+  for (let q = 0; q <= 255; q++) { const t = q / 255; ramp.push(hslToRgb(220 - 190 * t, 65, dark ? 22 + 30 * t : 86 - 30 * t)); }
+  return { zero: hexToRgb(css('--zero')), near: hexToRgb(css('--u')), out: hexToRgb(css('--out')), ramp };
+}
+
+// ---- detail canvas: 4000 x 2000, p = 2000 at the top
+function drawDetail(pal) {
+  const cv = document.getElementById('det'), ctx = cv.getContext('2d'), img = ctx.createImageData(N, PMAX), d = img.data;
+  for (let p = 1; p <= PMAX; p++) for (let i = 0; i < N; i++) {
+    const s = NORM[(p - 1) * N + i], o = ((PMAX - p) * N + i) * 4;
+    const col = s === OUT ? pal.out : s === 0 ? pal.zero : s === 2 ? pal.near : pal.ramp[Math.round(255 * level(s, p))];
+    d[o] = col[0]; d[o + 1] = col[1]; d[o + 2] = col[2]; d[o + 3] = 255;
+  }
+  ctx.putImageData(img, 0, 0);
+}
+let ZOOM = 1;
+function setZoom(z, keepCentre) {
+  const scr = document.getElementById('scr'), cv = document.getElementById('det');
+  const cx = (scr.scrollLeft + scr.clientWidth / 2) / ZOOM, cy = (scr.scrollTop + scr.clientHeight / 2) / ZOOM;
+  ZOOM = z; cv.style.width = N * z + 'px'; cv.style.height = PMAX * z + 'px';
+  if (keepCentre) { scr.scrollLeft = cx * z - scr.clientWidth / 2; scr.scrollTop = cy * z - scr.clientHeight / 2; }
+  drawOverview();
+}
+function centreOn(i, p) {   // 1-based cell of the word, inside the window
+  const scr = document.getElementById('scr');
+  scr.scrollLeft = (hOf(i, p) - I0 - 0.5) * ZOOM - scr.clientWidth / 2; scr.scrollTop = (PMAX - p + 0.5) * ZOOM - scr.clientHeight / 2;
+}
+
+// ---- overview: each pixel shows the most dangerous coefficient of its block
+const OV = { L: 54, T: 8, R: 10, B: 26 };
+let OVIMG = null;
+function buildOverview(pal) {
+  const cv = document.getElementById('ov'), dpr = Math.max(1, window.devicePixelRatio || 1), cw = cv.clientWidth || 900;
+  const w = Math.round((cw - OV.L - OV.R) * dpr), h = Math.round(w * PMAX / N * 1.0);
+  const best = new Float32Array(w * h).fill(Infinity);   // -2 zero, -1 near miss, else level, Infinity = only outside
+  for (let p = 1; p <= PMAX; p++) { const oy = Math.min(h - 1, Math.floor((PMAX - p) * h / PMAX)) * w, row = (p - 1) * N;
+    for (let i = 0; i < N; i++) {
+      const s = NORM[row + i]; if (s === OUT) continue;
+      const v = s === 0 ? -2 : s === 2 ? -1 : level(s, p), k = oy + Math.floor(i * w / N);
+      if (v < best[k]) best[k] = v;
+    } }
+  const img = new ImageData(w, h);
+  for (let k = 0; k < w * h; k++) { const v = best[k];
+    const col = v === Infinity ? pal.out : v === -2 ? pal.zero : v === -1 ? pal.near : pal.ramp[Math.round(255 * v)];
+    img.data[4 * k] = col[0]; img.data[4 * k + 1] = col[1]; img.data[4 * k + 2] = col[2]; img.data[4 * k + 3] = 255; }
+  const off = document.createElement('canvas'); off.width = w; off.height = h; off.getContext('2d').putImageData(img, 0, 0);
+  OVIMG = { off, w: w / dpr, h: h / dpr };
+}
+function drawOverview() {
+  if (!OVIMG) return;
+  const cv = document.getElementById('ov'), dpr = Math.max(1, window.devicePixelRatio || 1), cw = cv.clientWidth || 900;
+  const ch = Math.round(OV.T + OVIMG.h + OV.B);
+  cv.width = Math.round(cw * dpr); cv.height = Math.round(ch * dpr); cv.style.height = ch + 'px';
+  const ctx = cv.getContext('2d'); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.fillStyle = css('--fig'); ctx.fillRect(0, 0, cw, ch);
+  ctx.imageSmoothingEnabled = false; ctx.drawImage(OVIMG.off, OV.L, OV.T, OVIMG.w, OVIMG.h);
+  ctx.fillStyle = css('--ink-soft'); ctx.font = '11px monospace'; ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+  for (const p of [1, 500, 1000, 1500, 2000]) ctx.fillText('p=' + p, OV.L - 4, OV.T + (PMAX - p + 0.5) / PMAX * OVIMG.h);
+  ctx.textBaseline = 'top';
+  for (const x of [1, 1000, 2000, 3000, 4000]) { ctx.textAlign = x === 1 ? 'left' : x === N ? 'right' : 'center'; ctx.fillText(AX() + '=' + (I0 + x), OV.L + (x === 1 ? 0 : x / N) * OVIMG.w, OV.T + OVIMG.h + 6); }
+  // the part shown in the detail view
+  const scr = document.getElementById('scr'), sx = OVIMG.w / N, sy = OVIMG.h / PMAX;
+  const x0 = scr.scrollLeft / ZOOM, y0 = scr.scrollTop / ZOOM, x1 = Math.min(N, (scr.scrollLeft + scr.clientWidth) / ZOOM), y1 = Math.min(PMAX, (scr.scrollTop + scr.clientHeight) / ZOOM);
+  ctx.strokeStyle = css('--accent'); ctx.lineWidth = 1.5; ctx.strokeRect(OV.L + x0 * sx, OV.T + y0 * sy, Math.max(2, (x1 - x0) * sx), Math.max(2, (y1 - y0) * sy));
+  const sh = SEL ? hOf(SEL[0], SEL[1]) : 0;
+  if (SEL && sh > I0 && sh <= I0 + N && SEL[1] <= PMAX) { ctx.strokeStyle = css('--ink'); ctx.beginPath(); ctx.arc(OV.L + (sh - I0 - 0.5) * sx, OV.T + (PMAX - SEL[1] + 0.5) * sy, 6, 0, 2 * Math.PI); ctx.stroke(); }
+}
+
+// ---- counts by scale, over the whole word (every i and every p)
+function counts() {
+  const n = W.length, pm = Math.floor(n / 2), bands = [[1, 10], [11, 100], [101, 500], [501, 1000], [1001, 2000], [2001, pm]].filter(([a, b]) => a <= b);
+  let html = '<tr><th>p</th><th>coefficients</th><th>abelian squares</th><th>near misses</th><th>near-miss share</th><th>smallest ‖H‖₁/√(2p)</th><th>largest p with a near miss</th></tr>';
+  let tz = 0, tn = 0, tc = 0;
+  for (const [a, b] of bands) {
+    let z = 0, nm = 0, c = 0, mn = Infinity, top = null;
+    for (let p = a; p <= b; p++) { const r = Math.sqrt(2 * p);
+      for (let i = 0; i + 2 * p <= n; i++) { const s = norm(i, p); c++; if (s === 0) z++; else if (s === 2) { nm++; top = [i + 1, p]; } if (s / r < mn) mn = s / r; } }
+    tz += z; tn += nm; tc += c;
+    html += `<tr><td>${a}–${b}</td><td>${c.toLocaleString('en')}</td><td>${z.toLocaleString('en')}</td><td>${nm.toLocaleString('en')}</td><td>${(100 * nm / c).toFixed(2)} %</td><td>${mn.toFixed(3)}</td><td>${top ? `p = ${top[1]}, i = ${top[0]}` : '–'}</td></tr>`;
+  }
+  html += `<tr><th>all</th><th>${tc.toLocaleString('en')}</th><th>${tz.toLocaleString('en')}</th><th>${tn.toLocaleString('en')}</th><th>${(100 * tn / tc).toFixed(2)} %</th><th></th><th></th></tr>`;
+  document.getElementById('cnt').innerHTML = html;
+  WHOLE = `${WORDS[word][0]}, ${n} letters, whole word: ${tc.toLocaleString('en')} coefficients, ${tz.toLocaleString('en')} abelian squares, ${tn.toLocaleString('en')} one-letter near misses`;
+}
+let WHOLE = '';
+function windowRead() {
+  let z = 0, nm = 0, c = 0; for (let k = 0; k < N * PMAX; k++) { const s = NORM[k]; if (s === OUT) continue; c++; if (s === 0) z++; else if (s === 2) nm++; }
+  document.getElementById('ovRead').innerHTML = `${WHOLE}<br>picture, ${AX()} = ${I0 + 1}…${I0 + N}, p = 1…${PMAX}: ${c.toLocaleString('en')} coefficients, ${z.toLocaleString('en')} abelian squares, ${nm.toLocaleString('en')} near misses`;
+}
+
+// ---- inspection and the copyable list (1-based)
+let SEL = null, LIST_TSV = '';
+const psiOf = (a, b) => { const v = [0, 0, 0, 0]; for (let j = a; j < b; j++) v[W.charCodeAt(j) - 97]++; return v; };
+function inspect(i, p) {
+  document.getElementById('qi').value = i; document.getElementById('qp').value = p;
+  const out = document.getElementById('qOut');
+  if (i < 1 || p < 1 || i - 1 + 2 * p > W.length) { out.value = `(i, p) = (${i}, ${p}) is outside the word (length ${W.length})`; return; }
+  const a = i - 1, pu = psiOf(a, a + p), pv = psiOf(a + p, a + 2 * p), H = pu.map((x, c) => x - pv[c]), n1 = H.reduce((s, x) => s + Math.abs(x), 0);
+  const kind = n1 === 0 ? 'zero: an abelian square' : n1 === 2 ? 'one-letter near miss' : 'not an abelian square';
+  out.value = [`word ${WORDS[word][0]}, i = ${i}, p = ${p}: ${kind}`, `u = w[${i}..${i + p - 1}] = ${W.slice(a, a + p)}`, `v = w[${i + p}..${i + 2 * p - 1}] = ${W.slice(a + p, a + 2 * p)}`,
+    `Psi(u) = (#a,#b,#c,#d) = (${pu.join(',')})`, `Psi(v) = (${pv.join(',')})`, `H = Psi(u) - Psi(v) = (${H.join(',')}),  ||H||_1 = ${n1}`].join('\n');
+}
+function aligned(table) {
+  const wd = table[0].map((_, c) => Math.max(...table.map(r => String(r[c]).length)));
+  return table.map(r => r.map((x, c) => c === r.length - 1 ? x : String(x).padEnd(wd[c])).join('  ')).join('\n');
+}
+function listAll() {
+  const pmin = Math.max(1, +document.getElementById('lp').value || 1), cap = 2000, rows = [], n = W.length; let found = 0;
+  for (let p = Math.floor(n / 2); p >= pmin; p--) {
+    for (let i = 0; i + 2 * p <= n; i++) { const s = norm(i, p); if (s > 2) continue; found++; if (rows.length >= cap) continue;
+      const pu = psiOf(i, i + p), pv = psiOf(i + p, i + 2 * p);
+      rows.push([s ? 'near-miss' : 'square', i + 1, p, `(${pu.join(',')})`, `(${pv.join(',')})`, `(${pu.map((x, c) => x - pv[c]).join(',')})`, W.slice(i, i + p), W.slice(i + p, i + 2 * p)]); } }
+  const table = [['kind', 'i', 'p', 'Psi(u) (#a,#b,#c,#d)', 'Psi(v)', 'H', 'u', 'v'], ...rows];
+  LIST_TSV = table.map(r => r.join('\t')).join('\n');
+  document.getElementById('lOut').value = aligned(table);
+  document.getElementById('lCount').textContent = found > cap ? `${found.toLocaleString('en')} found, the first ${cap} listed` : `${found.toLocaleString('en')} found`;
+  return rows[0];
+}
+// move the picture so that it starts after offset i0 (rounded to a multiple of 100)
+function setWindow(i0) {
+  const v = Math.max(0, Math.min(maxI0(), Math.round(i0 / 100) * 100));
+  document.getElementById('i0').value = v + 1; document.getElementById('i0').max = maxI0() + 1;
+  if (v === I0 && OVIMG) return false;
+  I0 = v; compute(); const pal = palette(); drawDetail(pal); buildOverview(pal); windowRead(); return true;
+}
+function select(i, p, scroll) {
+  SEL = [i, p]; inspect(i, p); const h = hOf(i, p);
+  if (i >= 1 && p >= 1 && p <= PMAX && (h <= I0 || h > I0 + N)) { setWindow(h - 1 - N / 2); scroll = true; }
+  if (scroll && h > I0 && h <= I0 + N && p <= PMAX) centreOn(i, p);
+  drawOverview();
+}
+
+// ---- wiring
+function render() {
+  prepare(); counts(); I0 = -1; setWindow(0);
+  const first = listAll(); select(first ? first[1] : 1, first ? first[2] : 1, true);
+}
+segment('sw', v => { word = v; render(); });
+document.getElementById('i0').addEventListener('change', e => { setWindow(+e.target.value - 1); drawOverview(); });
+segment('ax', v => {
+  MODE = v; document.getElementById('i0lab').textContent = AX();
+  const [i, p] = SEL || [1, 1]; I0 = -1; setWindow(hOf(i, p) - 1 - N / 2); select(i, p, true);
+});
+segment('zm', v => setZoom(+v, true));
+document.getElementById('scr').addEventListener('scroll', () => requestAnimationFrame(drawOverview));
+const cellAt = e => { const r = e.currentTarget.getBoundingClientRect(); return [I0 + Math.floor((e.clientX - r.left) / ZOOM) + 1, PMAX - Math.floor((e.clientY - r.top) / ZOOM)]; };
+document.getElementById('det').addEventListener('mousemove', e => {
+  const [h, p] = cellAt(e); if (h <= I0 || h > I0 + N || p < 1 || p > PMAX) return; const s = NORM[(p - 1) * N + h - I0 - 1], i = iOf(h, p);
+  document.getElementById('detRead').textContent = `i = ${i}, p = ${p}, c = i + p = ${i + p}: ` + (s === OUT ? 'outside the word' : `||H||_1 = ${s}` + (s === 0 ? '  (abelian square)' : s === 2 ? '  (one-letter near miss)' : ''));
+});
+document.getElementById('det').addEventListener('click', e => { const [h, p] = cellAt(e); select(iOf(h, p), p, false); });
+document.getElementById('ov').addEventListener('click', e => {
+  const r = e.currentTarget.getBoundingClientRect(), x = e.clientX - r.left - OV.L, y = e.clientY - r.top - OV.T;
+  if (!OVIMG || x < 0 || y < 0 || x >= OVIMG.w || y >= OVIMG.h) return;
+  const p = PMAX - Math.floor(y / OVIMG.h * PMAX); centreOn(iOf(I0 + Math.floor(x / OVIMG.w * N) + 1, p), p); drawOverview();
+});
+for (const id of ['qi', 'qp']) document.getElementById(id).addEventListener('change', () => select(+document.getElementById('qi').value, +document.getElementById('qp').value, true));
+document.getElementById('lp').addEventListener('change', listAll);
+for (const [b, t] of [['qCopy', 'qOut'], ['lCopy', 'lOut']]) document.getElementById(b).addEventListener('click', async () => {
+  const ta = document.getElementById(t), btn = document.getElementById(b), text = t === 'lOut' ? LIST_TSV : ta.value;
+  try { await navigator.clipboard.writeText(text); } catch (_) { ta.select(); document.execCommand('copy'); }
+  btn.textContent = 'copied'; setTimeout(() => { btn.textContent = 'copy'; }, 1200);
+});
+setZoom(1, false);
+render();
+const repaint = () => { const pal = palette(); drawDetail(pal); buildOverview(pal); drawOverview(); };
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change', repaint);
+let rt; window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { buildOverview(palette()); drawOverview(); }, 150); });
+</script>
+</body>
+</html>

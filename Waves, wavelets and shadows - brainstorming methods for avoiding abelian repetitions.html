@@ -1,0 +1,627 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Waves, Wavelets and Shadows</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=STIX+Two+Text:ital,wght@0,400;0,600;0,700;1,400;1,600&family=JetBrains+Mono:wght@400;600&family=Noto+Sans+Mono:wght@400;600&display=swap">
+<style>
+  :root{
+    --bg:#FBFBF8; --ink:#1D2230; --ink-soft:#505769; --ink-faint:#80869A; --rule:#D9DBD2;
+    --accent:#2F4F8A; --panel:#F1F2EC; --claim-bg:#EEF1F8; --claim-edge:#2F4F8A; --fig:#FFFFFF;
+    --la:#C0392B; --lb:#2E7D32; --lc:#B7791F; --ld:#1F5FAD;
+    --u:#D6336C; --v:#E8890C; --x:#1D2230; --faint-curve:#C9CCD6;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#15171E; --ink:#E7E8E2; --ink-soft:#B0B5C4; --ink-faint:#7C8296; --rule:#33374A;
+      --accent:#8FAAE6; --panel:#1E212B; --claim-bg:#1B2233; --claim-edge:#8FAAE6; --fig:#1A1D26;
+      --la:#F07167; --lb:#6BCB77; --lc:#F2C14E; --ld:#6FA8FF;
+      --u:#FF6B9A; --v:#FFB347; --x:#E7E8E2; --faint-curve:#3A3F52;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#15171E; --ink:#E7E8E2; --ink-soft:#B0B5C4; --ink-faint:#7C8296; --rule:#33374A;
+    --accent:#8FAAE6; --panel:#1E212B; --claim-bg:#1B2233; --claim-edge:#8FAAE6; --fig:#1A1D26;
+    --la:#F07167; --lb:#6BCB77; --lc:#F2C14E; --ld:#6FA8FF;
+    --u:#FF6B9A; --v:#FFB347; --x:#E7E8E2; --faint-curve:#3A3F52;
+  }
+  *{box-sizing:border-box;}
+  html{ -webkit-text-size-adjust:100%; }
+  body{ margin:0; background:var(--bg); color:var(--ink); font-family:"STIX Two Text","Cambria","Times New Roman",Georgia,serif;
+        font-size:19px; line-height:1.62; -webkit-font-smoothing:antialiased; }
+  .page{ max-width:900px; margin:0 auto; padding:72px 24px 110px; }
+  header{ margin-bottom:40px; }
+  h1{ font-weight:600; font-size:clamp(1.75rem,4.4vw,2.35rem); line-height:1.14; margin:0 0 20px; text-wrap:balance; }
+  h1 .sub{ display:block; font-weight:400; font-style:italic; color:var(--ink-soft); font-size:0.72em; margin-top:8px; }
+  .byline{ font-family:"JetBrains Mono",ui-monospace,Consolas,monospace; font-size:13px; color:var(--ink-soft);
+           display:flex; gap:14px; flex-wrap:wrap; padding-top:16px; border-top:1px solid var(--rule); }
+  .byline b{ color:var(--ink); }
+  h2{ font-size:0.82rem; font-family:"JetBrains Mono",ui-monospace,Consolas,monospace; font-weight:600; letter-spacing:0.1em;
+      text-transform:uppercase; color:var(--accent); margin:56px 0 14px; }
+  h3{ font-size:1.02rem; font-weight:600; margin:28px 0 8px; }
+  p{ margin:0 0 1.05em; max-width:78ch; text-wrap:pretty; }
+  ul,ol{ margin:0 0 1.05em; padding-left:1.4em; } li{ margin-bottom:0.35em; max-width:76ch; }
+  .l{ font-style:normal; font-family:"Noto Sans Mono","JetBrains Mono",ui-monospace,Consolas,monospace; font-size:0.84em; font-weight:600; }
+  .nowrap{ white-space:nowrap; }
+  sub,sup{ line-height:0; } sub{ font-size:0.72em; vertical-align:-0.28em; } sup{ font-size:0.72em; vertical-align:0.42em; }
+  .claim, .neg{ padding:16px 22px 4px; margin:26px 0 30px; border-radius:0 4px 4px 0; }
+  .claim{ background:var(--claim-bg); border-left:3px solid var(--claim-edge); }
+  .neg{ background:var(--panel); border-left:3px solid var(--ink-faint); }
+  .claim p, .neg p{ max-width:none; }
+  .lbl{ font-weight:700; font-variant:small-caps; letter-spacing:0.04em; }
+  .proof .lbl{ font-style:italic; font-variant:normal; letter-spacing:0; }
+  .qed{ float:right; margin-left:14px; }
+  .term{ font-style:italic; }
+  dl.gloss{ margin:10px 0 20px; }
+  dl.gloss dt{ font-weight:600; margin-top:12px; }
+  dl.gloss dd{ margin:2px 0 0 0; }
+  .jfig text{ font-family:"STIX Two Text",Cambria,serif; fill:var(--ink); }
+  .gloss .sm{ color:var(--ink-soft); font-size:0.9em; }
+  .jfig .sm{ font-size:15px; fill:var(--ink-soft); }
+  .eq{ text-align:center; max-width:none; margin:14px 0 18px; }
+  figure{ margin:28px 0 34px; }
+  .frame{ background:var(--fig); border:1px solid var(--rule); border-radius:6px; padding:12px; }
+  .grid4{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+  .grid4 .cell.wide{ grid-column:1 / -1; }
+  .grid4 .cell{ background:var(--fig); border:1px solid var(--rule); border-radius:6px; padding:8px 8px 4px; }
+  .cell .cap{ font-family:"JetBrains Mono",ui-monospace,Consolas,monospace; font-size:12px; color:var(--ink-soft); margin:2px 4px 6px; }
+  .cell svg{ display:block; width:100%; height:auto; }
+  canvas{ display:block; width:100%; height:auto; border-radius:4px; touch-action:none; }
+  figcaption{ font-size:0.88rem; color:var(--ink-soft); line-height:1.5; margin-top:12px; max-width:72ch; }
+  figcaption b{ color:var(--ink); }
+  .controls{ display:flex; flex-wrap:wrap; gap:8px 18px; align-items:center; margin:0 0 10px;
+             font-family:"JetBrains Mono",ui-monospace,Consolas,monospace; font-size:12.5px; color:var(--ink-soft); }
+  .seg{ display:inline-flex; border:1px solid var(--rule); border-radius:5px; overflow:hidden; }
+  .seg button{ font:inherit; background:transparent; color:var(--ink-soft); border:0; padding:5px 10px; cursor:pointer; }
+  .seg button + button{ border-left:1px solid var(--rule); }
+  .seg button[aria-pressed="true"]{ background:var(--accent); color:var(--bg); }
+  .controls label{ display:inline-flex; gap:6px; align-items:center; cursor:pointer; }
+  .readout{ font-family:"JetBrains Mono",ui-monospace,Consolas,monospace; font-size:12.5px; color:var(--ink-soft); margin-top:8px; line-height:1.6; }
+  .legend{ display:flex; flex-wrap:wrap; gap:4px 16px; font-family:"JetBrains Mono",ui-monospace,Consolas,monospace; font-size:12px; color:var(--ink-soft); margin-top:8px; }
+  .legend i{ display:inline-block; width:12px; height:12px; border-radius:2px; vertical-align:-1px; margin-right:5px; }
+  code{ font-family:"JetBrains Mono",ui-monospace,Consolas,monospace; font-size:0.82em; background:var(--panel); padding:1px 5px; border-radius:3px; }
+  footer{ margin-top:68px; padding-top:18px; border-top:1px solid var(--rule); font-family:"JetBrains Mono",ui-monospace,Consolas,monospace;
+          font-size:12px; color:var(--ink-faint); line-height:1.6; }
+  @media (max-width:640px){
+    body{ font-size:17.5px; } .page{ padding:44px 16px 80px; } .grid4{ grid-template-columns:1fr; } .grid4 .cell, .grid4 .cell.wide{ grid-column:auto; }
+    .claim, .neg{ padding:14px 16px 2px; }
+  }
+  :root{ --zero:#111111; --allowed:#9AA0AE; }
+  @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){ --zero:#FFFFFF; --allowed:#5D6475; } }
+  :root[data-theme="dark"]{ --zero:#FFFFFF; --allowed:#5D6475; }
+  .insp{ margin-top:14px; }
+  .insp textarea{ width:100%; font-family:"JetBrains Mono",ui-monospace,Consolas,monospace; font-size:12px; line-height:1.5; color:var(--ink); background:var(--panel); border:1px solid var(--rule); border-radius:4px; padding:8px 10px; white-space:pre; overflow:auto; resize:vertical; }
+  .insp input{ font:inherit; color:var(--ink); background:var(--fig); border:1px solid var(--rule); border-radius:4px; padding:2px 6px; }
+  .note{ font-size:0.88rem; color:var(--ink-soft); margin-top:10px; }
+  .refs{ font-size:0.9rem; } .refs li{ max-width:none; }
+  .tbl{ border-collapse:collapse; font-family:"JetBrains Mono",ui-monospace,Consolas,monospace; font-size:12.5px; margin:6px 0 18px; display:block; overflow-x:auto; }
+  .tbl th, .tbl td{ padding:5px 12px; border-bottom:1px solid var(--rule); text-align:right; white-space:nowrap; }
+  .tbl th:first-child, .tbl td:first-child{ text-align:left; }
+  .tbl th{ color:var(--ink-soft); font-weight:600; }
+</style>
+</head>
+<body>
+<div class="page">
+
+<header>
+  <h1>Waves, wavelets and shadows
+    <span class="sub">Brainstorming a general method for avoiding abelian repetitions over four and three letters</span></h1>
+  <div class="byline"><b>V. Keränen</b><span>Working notes, 5 November 2026</span><span>Ideas, drawings and checks with Claude Code</span></div>
+</header>
+
+<section>
+<h2>The idea</h2>
+<p>The walks of <a href="Bending%20the%20string%20-%20plane%20and%203D%20geometries%20for%20a2f%20and%20aa2f%20words.html">“Bending the string”</a> turned an abelian square into a single geometric event, a midpoint. This note looks for a <em>method</em> behind the known constructions g85 and g98, one that could be reused for new alphabets and for ternary aa2f words. Seven ideas follow. Each comes with a picture or a small computation. They are ordered from the most developed to the most speculative:</p>
+<ol>
+  <li><b>Wavelets.</b> An abelian square is a zero of a vector-valued Haar wavelet transform, and a substitution acts on that transform as an exact renormalisation.</li>
+  <li><b>Phases.</b> In Fourier coordinates the transform splits into a rotating phasor and a real “height”. g85 advances the phase by 159.44° per level, and g98 reflects it.</li>
+  <li><b>An expanding spectrum.</b> Every secondary eigenvalue must lie outside the unit circle, and the eigenvalues set the growth of the imbalance.</li>
+  <li><b>Runs as particles.</b> A short proof that no letter-to-word morphism with images of length ≥ 2 can produce an infinite ternary aa2f word. Runs must be renormalised as single objects.</li>
+  <li><b>Counting.</b> Ternary aa2f words seem to grow exponentially.</li>
+  <li><b>Digits and Behrend.</b> The walk of a fixed point is a digital set, and abelian-square-freeness is 3-term-progression-freeness of that set.</li>
+  <li><b>Shadows on a torus</b>, and a <b>margin search</b>: modular filters and a constructive search that keeps the transform away from zero.</li>
+</ol>
+<p id="walk"><b>The walk of a word.</b> Let Σ = {<i>x</i><sub>1</sub>, …, <i>x</i><sub><i>k</i></sub>} be an alphabet. The <span class="term">Parikh vector</span> of a word <i>u</i> is Ψ(<i>u</i>) = (|<i>u</i>|<sub><i>x</i><sub>1</sub></sub>, …, |<i>u</i>|<sub><i>x</i><sub><i>k</i></sub></sub>) ∈ ℤ<sup><i>k</i></sup>, where |<i>u</i>|<sub><i>x</i></sub> is the number of occurrences of the letter <i>x</i> in <i>u</i>. Two words are <span class="term">commutatively equivalent</span> when they have the same Parikh vector. A nonempty word <i>uv</i> is an <span class="term">abelian square</span> when Ψ(<i>u</i>) = Ψ(<i>v</i>), which forces |<i>u</i>| = |<i>v</i>|. A word is <span class="term">abelian square-free</span> (a2f) when none of its factors is an abelian square. For a finite or infinite word <i>w</i> = <i>w</i><sub>1</sub><i>w</i><sub>2</sub>⋯ the <span class="term">walk</span> of <i>w</i> is the sequence of lattice points</p>
+<p style="text-align:center"><i>P</i><sub>0</sub> = 0,  <i>P</i><sub><i>i</i></sub> = Ψ(<i>w</i><sub>1</sub>⋯<i>w</i><sub><i>i</i></sub>),</p>
+<p>so the walk starts at the origin and takes the unit step <i>e</i><sub><i>x</i></sub> for each letter <i>x</i>. The factor <i>w</i><sub><i>i</i>+1</sub>⋯<i>w</i><sub><i>i</i>+2<i>p</i></sub> is an abelian square exactly when <i>P</i><sub><i>i</i>+<i>p</i></sub> − <i>P</i><sub><i>i</i></sub> = <i>P</i><sub><i>i</i>+2<i>p</i></sub> − <i>P</i><sub><i>i</i>+<i>p</i></sub>, that is, when <i>P</i><sub><i>i</i>+<i>p</i></sub> is the midpoint of <i>P</i><sub><i>i</i></sub> and <i>P</i><sub><i>i</i>+2<i>p</i></sub>.</p>
+<div class="claim">
+  <p><span class="lbl">Proposition 1.</span> A word over a finite alphabet is abelian square-free if and only if no point of its walk is the midpoint of two others. Equivalently, the set {<i>P</i><sub>0</sub>, <i>P</i><sub>1</sub>, …} contains no three-term arithmetic progression.</p>
+  <p class="proof"><span class="lbl">Proof.</span> The coordinate sum of <i>P</i><sub><i>i</i></sub> is <i>i</i>, and the points are distinct. If <i>P</i><sub><i>j</i></sub> = (<i>P</i><sub><i>i</i></sub> + <i>P</i><sub><i>l</i></sub>)/2 with <i>i</i> &lt; <i>l</i>, taking coordinate sums gives <i>j</i> = (<i>i</i> + <i>l</i>)/2, so the three points are equally spaced in time and the factor between <i>P</i><sub><i>i</i></sub> and <i>P</i><sub><i>l</i></sub> is an abelian square. The converse is the computation above. <span class="qed">∎</span></p>
+</div>
+<p>This is Proposition 1 of <a href="Bending%20the%20string%20-%20plane%20and%203D%20geometries%20for%20a2f%20and%20aa2f%20words.html">“Bending the string”</a>, stated there for {a, b, c, d} and here for any alphabet. Every idea below is a way of looking at this one event, a midpoint of the walk.</p>
+</section>
+
+<section>
+<h2>1 · Abelian squares are zeros of a Haar transform</h2>
+<p>For a word <i>w</i> over <i>k</i> letters, a position <i>i</i> and a scale <i>p</i>, let</p>
+<p class="eq"><i>H</i><sub><i>p</i></sub>(<i>i</i>) = Ψ(<i>w</i><sub><i>i</i>+1</sub> ⋯ <i>w</i><sub><i>i</i>+<i>p</i></sub>) − Ψ(<i>w</i><sub><i>i</i>+<i>p</i>+1</sub> ⋯ <i>w</i><sub><i>i</i>+2<i>p</i></sub>) &nbsp;∈ ℤ<sup><i>k</i></sup>.</p>
+<p>This is the Haar wavelet (+1 on the first half of the window, −1 on the second) applied to each of the <i>k</i> letter-indicator signals (see <a href="#bg-haar">Background</a> for the terms and their history). The factor of length 2<i>p</i> starting after position <i>i</i> is an abelian square exactly when <i>H</i><sub><i>p</i></sub>(<i>i</i>) = 0. So:</p>
+<div class="claim">
+  <p><b>A word is a2f if and only if its vector Haar scalogram has no zero. It is aa2f if and only if every zero lies on the bottom row <i>p</i> = 1.</b> The coordinates of <i>H</i> sum to zero and ‖<i>H</i><sub><i>p</i></sub>(<i>i</i>)‖<sub>1</sub> is even, so the smallest non-zero value is 2. These one-letter near misses are exactly the <i>uv</i> patterns of the near-miss page.</p>
+</div>
+<figure>
+  <div class="frame">
+    <div class="controls">
+      <span>word</span><span class="seg" id="sw"><button aria-pressed="true" data-v="g85">g85²(a)</button><button aria-pressed="false" data-v="g98">g98²(a)</button><button aria-pressed="false" data-v="r4">random, 4 letters</button><button aria-pressed="false" data-v="t">aa2fr3268</button><button aria-pressed="false" data-v="r3">random, 3 letters</button></span>
+    </div>
+    <canvas id="scal" width="860" height="360" style="cursor:crosshair"></canvas>
+    <div class="readout" id="scalRead"></div>
+    <div class="legend"><span><i style="background:var(--zero)"></i>zero: abelian square</span><span><i style="background:var(--allowed)"></i>zero at p = 1 (a run xx, allowed in aa2f)</span><span><i style="background:var(--u)"></i>‖H‖₁ = 2: one-letter near miss</span><span><i style="background:linear-gradient(90deg,hsl(220,70%,55%),hsl(30,70%,55%))"></i>‖H‖₁ / √(2p), small → large</span></div>
+  </div>
+  <figcaption><b>The Haar scalogram.</b> Position <i>i</i> (1-based) runs to the right (the first 1200 positions), scale <i>p</i> = 1, …, 150 upwards. A random word is full of zeros at every scale. g85²(a) and g98²(a) have none, and aa2fr3268 has zeros only on the bottom row. In g85²(a) the near misses crowd the small scales and thin out quickly as <i>p</i> grows.</figcaption>
+  <div class="frame insp">
+    <div class="controls" style="margin-bottom:6px"><b style="color:var(--ink)">Inspect a coefficient</b><span>click a point of the scalogram, or type</span>
+      <label>i <input id="qi" type="number" min="1" value="1" style="width:76px"></label>
+      <label>p <input id="qp" type="number" min="1" value="1" style="width:64px"></label>
+      <button id="qCopy" class="seg" style="font:inherit;color:var(--ink-soft);background:transparent;padding:3px 10px;cursor:pointer">copy</button></div>
+    <textarea id="qOut" readonly rows="7" spellcheck="false"></textarea>
+    <div class="controls" style="margin:12px 0 6px"><b style="color:var(--ink)">All zeros and one-letter near misses in the window</b>
+      <label>with p &ge; <input id="lp" type="number" min="1" value="10" style="width:64px"></label>
+      <button id="lCopy" class="seg" style="font:inherit;color:var(--ink-soft);background:transparent;padding:3px 10px;cursor:pointer">copy</button><span id="lCount"></span></div>
+    <textarea id="lOut" readonly rows="10" spellcheck="false"></textarea>
+  </div>
+  <p class="note">Positions are 1-based: the coefficient (<i>i</i>, <i>p</i>) compares <i>u</i> = <i>w</i>[<i>i</i> .. <i>i</i>+<i>p</i>&minus;1] with <i>v</i> = <i>w</i>[<i>i</i>+<i>p</i> .. <i>i</i>+2<i>p</i>&minus;1], and <i>H</i> = &Psi;(<i>u</i>) &minus; &Psi;(<i>v</i>). The list is shown with its columns aligned by spaces. Its <b>copy</b> button gives the same list tab-separated (kind, i, p, &Psi;(u), &Psi;(v), H, u, v), so it pastes straight into a spreadsheet or into Mathematica as a table. For the whole of g85²(a) and g98²(a), up to <i>i</i> = 4000 and <i>p</i> = 2000, see the <a href="Haar%20scalograms%20of%20g85%20and%20g98%20at%20full%20resolution.html">full-resolution scalograms</a>.</p>
+</figure>
+<p>Near-miss share by scale, computed over the whole of g85²(a) (7225 letters) and a random 4-letter word of the same length, for <i>p</i> ≤ 2000:</p>
+<table class="tbl">
+  <tr><th></th><th>abelian squares</th><th><i>p</i> 1–10</th><th><i>p</i> 11–100</th><th><i>p</i> 101–500</th><th><i>p</i> 501–2000</th></tr>
+  <tr><td>g85²(a)</td><td>0</td><td>46.64 %</td><td>1.16 %</td><td>0.03 %</td><td>0.00 %</td></tr>
+  <tr><td>random</td><td>5552</td><td>30.47 %</td><td>1.63 %</td><td>0.08 %</td><td>0.02 %</td></tr>
+</table>
+<p>At small scales g85 is <em>more</em> crowded with near misses than a random word: it lives right next to zero and never touches it. At large scales it keeps a wider berth than randomness does.</p>
+<h3>Substitution as renormalisation of the scalogram</h3>
+<p>If <i>w</i>′ = g85(<i>w</i>), then at block-aligned points the scalogram of <i>w</i>′ is the scalogram of <i>w</i> multiplied by the <a href="#gl-parikh">Parikh matrix</a> <i>A</i>:</p>
+<p class="eq"><i>H</i>′<sub>85<i>p</i></sub>(85<i>i</i>) = <i>A</i> · <i>H</i><sub><i>p</i></sub>(<i>i</i>).</p>
+<p><i>A</i> is invertible, so a zero at an aligned point would come from a zero one level down. At points that are not aligned, <i>H</i>′ equals <i>A</i>·(a coefficient of <i>w</i>) plus a <em>junction term</em>, which depends only on a few letters around the three cuts. This is the lifting rule of the experiments note: there were 2472 junctions, and every zero had to come from a near miss one level down. In wavelet language, a proof that a morphism is a2f consists of</p>
+<ol>
+  <li>an expanding <i>A</i>, so that coefficients at large scales grow away from zero, and</li>
+  <li>a finite table of junction terms, together with a bound on how large a junction term can be compared with |<i>A</i><i>H</i>|.</li>
+</ol>
+<p>This is the template method of Currie and Rampersad, recast as a statement about one picture.</p>
+<h3 id="junction">What is a junction term?</h3>
+<p>The word <i>w</i>′ = g85(<i>w</i>) is a row of blocks of length 85, one block g85(<i>x</i>) for each letter <i>x</i> of <i>w</i>. A coefficient of <i>w</i>′ is fixed by three cut points: where <i>u</i> starts, where <i>u</i> ends and <i>v</i> starts, and where <i>v</i> ends. Write each cut as <i>t</i>′ = 85<i>t</i> + <i>r</i> with 0 ≤ <i>r</i> &lt; 85: the cut lies <i>r</i> letters into the block of the letter <i>x</i> = <i>w</i><sub><i>t</i>+1</sub>. The Parikh vector of the prefix up to the cut is then</p>
+<p class="eq"><i>P</i>′(<i>t</i>′) = <i>A</i> · <i>P</i>(<i>t</i>) + ψ(<i>x</i>, <i>r</i>), &nbsp;&nbsp; ψ(<i>x</i>, <i>r</i>) = Ψ(the first <i>r</i> letters of g85(<i>x</i>)).</p>
+<p>The whole blocks before the cut contribute <i>A</i> · <i>P</i>(<i>t</i>); the cut-open block contributes ψ. Since <i>H</i>′ = 2<i>P</i>′(middle cut) − <i>P</i>′(left cut) − <i>P</i>′(right cut), the coefficient splits into two parts:</p>
+<p class="eq"><i>H</i>′ = <i>A</i> · (2<i>P</i>(<i>t</i><sub>2</sub>) − <i>P</i>(<i>t</i><sub>1</sub>) − <i>P</i>(<i>t</i><sub>3</sub>)) &nbsp;+&nbsp; <i>J</i>, &nbsp;&nbsp; <i>J</i> = 2ψ(<i>x</i><sub>2</sub>, <i>r</i><sub>2</sub>) − ψ(<i>x</i><sub>1</sub>, <i>r</i><sub>1</sub>) − ψ(<i>x</i><sub>3</sub>, <i>r</i><sub>3</sub>).</p>
+<figure>
+  <div class="frame"><svg class="jfig" viewBox="0 0 860 260" role="img" aria-label="Three cut-open blocks of g85 and the factors u and v">
+    <!-- u and v brackets -->
+    <path d="M85 62 V52 H435 V62" fill="none" stroke="var(--u)" stroke-width="2"/>
+    <text x="260" y="42" text-anchor="middle" style="fill:var(--u)"><tspan font-style="italic">u</tspan> = <tspan font-style="italic">s</tspan>₁ <tspan font-style="italic">U p</tspan>₂</text>
+    <path d="M435 62 V52 H785 V62" fill="none" stroke="var(--v)" stroke-width="2"/>
+    <text x="610" y="42" text-anchor="middle" style="fill:var(--v)"><tspan font-style="italic">v</tspan> = <tspan font-style="italic">s</tspan>₂ <tspan font-style="italic">V p</tspan>₃</text>
+    <!-- blocks: prefixes p shaded -->
+    <g stroke="var(--ink)" stroke-width="1.2">
+      <rect x="45" y="80" width="40" height="44" fill="var(--claim-bg)"/><rect x="85" y="80" width="70" height="44" fill="var(--fig)"/>
+      <rect x="155" y="80" width="220" height="44" fill="var(--panel)"/>
+      <rect x="375" y="80" width="60" height="44" fill="var(--claim-bg)"/><rect x="435" y="80" width="50" height="44" fill="var(--fig)"/>
+      <rect x="485" y="80" width="220" height="44" fill="var(--panel)"/>
+      <rect x="705" y="80" width="80" height="44" fill="var(--claim-bg)"/><rect x="785" y="80" width="30" height="44" fill="var(--fig)"/>
+    </g>
+    <!-- cuts -->
+    <g stroke="var(--accent)" stroke-width="2"><line x1="85" y1="66" x2="85" y2="134"/><line x1="435" y1="66" x2="435" y2="134"/><line x1="785" y1="66" x2="785" y2="134"/></g>
+    <g text-anchor="middle" font-style="italic">
+      <text x="65" y="108">p₁</text><text x="120" y="108">s₁</text>
+      <text x="265" y="108">U</text>
+      <text x="405" y="108">p₂</text><text x="460" y="108">s₂</text>
+      <text x="595" y="108">V</text>
+      <text x="745" y="108">p₃</text><text x="800" y="108">s₃</text>
+    </g>
+    <g text-anchor="middle" class="sm">
+      <text x="100" y="152">g85(<tspan font-style="italic">x</tspan>₁)</text><text x="265" y="152"><tspan font-style="italic">U</tspan> = g85(<tspan font-style="italic">u</tspan>₁)</text>
+      <text x="430" y="152">g85(<tspan font-style="italic">x</tspan>₂)</text><text x="595" y="152"><tspan font-style="italic">V</tspan> = g85(<tspan font-style="italic">v</tspan>₁)</text>
+      <text x="760" y="152">g85(<tspan font-style="italic">x</tspan>₃)</text>
+    </g>
+    <!-- preimage -->
+    <g stroke="var(--ink-faint)" fill="none">
+      <path d="M45 160 L80 200 M155 160 L120 200"/><path d="M155 160 L225 200 M375 160 L305 200"/>
+      <path d="M375 160 L410 200 M485 160 L450 200"/><path d="M485 160 L555 200 M705 160 L635 200"/>
+      <path d="M705 160 L740 200 M815 160 L780 200"/>
+    </g>
+    <g stroke="var(--ink)" stroke-width="1.2" fill="var(--fig)">
+      <rect x="80" y="200" width="40" height="34"/><rect x="225" y="200" width="80" height="34" fill="var(--panel)"/>
+      <rect x="410" y="200" width="40" height="34"/><rect x="555" y="200" width="80" height="34" fill="var(--panel)"/>
+      <rect x="740" y="200" width="40" height="34"/>
+    </g>
+    <g text-anchor="middle" font-style="italic">
+      <text x="100" y="223">x₁</text><text x="265" y="223">u₁</text><text x="430" y="223">x₂</text><text x="595" y="223">v₁</text><text x="760" y="223">x₃</text>
+    </g>
+    <text x="20" y="223" class="sm" text-anchor="start">w:</text><text x="20" y="108" class="sm" text-anchor="start">w′:</text>
+  </svg></div>
+  <figcaption><b>A window that cuts three blocks.</b> Top: a factor <i>uv</i> of <i>w</i>′ = g85(<i>w</i>), with the three cuts (blue). Each cut splits a block X<sub><i>j</i></sub> = g85(<i>x</i><sub><i>j</i></sub>) into a prefix <i>p</i><sub><i>j</i></sub> of <i>r</i><sub><i>j</i></sub> letters (shaded) and a suffix <i>s</i><sub><i>j</i></sub>; <i>U</i> and <i>V</i> are runs of whole blocks, drawn short. Bottom: the preimage <i>x</i><sub>1</sub><i>u</i><sub>1</sub><i>x</i><sub>2</sub><i>v</i><sub>1</sub><i>x</i><sub>3</sub> in <i>w</i>. The drawing follows Fig. 1 of [16], where the prefixes are called <i>p</i><sub>0</sub>, <i>p</i><sub>1</sub>, <i>p</i><sub>2</sub>. In the drawing <i>r</i><sub>1</sub> + <i>r</i><sub>3</sub> = 2<i>r</i><sub>2</sub>; in general <i>r</i><sub>1</sub> + <i>r</i><sub>3</sub> ≡ 2<i>r</i><sub>2</sub> (mod 85).</figcaption>
+</figure>
+<p>Read off the picture. Since Ψ(<i>s</i><sub><i>j</i></sub>) = Ψ(X<sub><i>j</i></sub>) − Ψ(<i>p</i><sub><i>j</i></sub>),</p>
+<p class="eq">Ψ(<i>u</i>) − Ψ(<i>v</i>) = Ψ(<i>s</i><sub>1</sub><i>U p</i><sub>2</sub>) − Ψ(<i>s</i><sub>2</sub><i>V p</i><sub>3</sub>) = [Ψ(X<sub>1</sub><i>U</i>) − Ψ(X<sub>2</sub><i>V</i>)] + [2Ψ(<i>p</i><sub>2</sub>) − Ψ(<i>p</i><sub>1</sub>) − Ψ(<i>p</i><sub>3</sub>)] = <i>A</i> · (Ψ(<i>x</i><sub>1</sub><i>u</i><sub>1</sub>) − Ψ(<i>x</i><sub>2</sub><i>v</i><sub>1</sub>)) + <i>J</i>.</p>
+<p>The first bracket is the image of the short window <i>x</i><sub>1</sub><i>u</i><sub>1</sub> | <i>x</i><sub>2</sub><i>v</i><sub>1</sub> of <i>w</i>; the second is the junction term, with ψ(<i>x</i><sub><i>j</i></sub>, <i>r</i><sub><i>j</i></sub>) = Ψ(<i>p</i><sub><i>j</i></sub>). In [16] this picture explains condition (iii) of Carpi's criterion (Proposition 2 there). In the present notation it says: whenever <i>J</i> lies in the lattice spanned by the columns of <i>A</i>, it must be one of the values</p>
+<p class="eq"><i>J</i> = <i>A</i> · (2ε<sub>2</sub><i>e</i><sub><i>x</i><sub>2</sub></sub> − ε<sub>1</sub><i>e</i><sub><i>x</i><sub>1</sub></sub> − ε<sub>3</sub><i>e</i><sub><i>x</i><sub>3</sub></sub>), &nbsp; ε<sub><i>j</i></sub> ∈ {0, 1},</p>
+<p>that is, the value <i>J</i> would have if each cut were moved to the start (ε = 0) or the end (ε = 1) of its block. Together with conditions (i) and (ii) in [16], <i>H</i>′ = 0 then forces an abelian square in the preimage, and an a2f preimage has none.</p>
+<p>The first part is <i>A</i> times a coefficient of the shorter word <i>w</i>. (The two halves of the short window are equal in length, or differ by one letter; then the shorter half gets one extra letter, the one whose block is cut.) The second part <i>J</i> is the <b>junction term</b>: what the three cut-open blocks contribute. It has three properties that make proofs possible:</p>
+<ul>
+  <li>It is <b>local</b>: it depends only on the three letters <i>x</i><sub>1</sub>, <i>x</i><sub>2</sub>, <i>x</i><sub>3</sub> under the cuts and on the offsets <i>r</i><sub>1</sub>, <i>r</i><sub>2</sub>, <i>r</i><sub>3</sub>, not on the rest of the word.</li>
+  <li>It comes from a <b>finite table</b>. There are 4<sup>3</sup> letter triples, and the offsets satisfy <i>r</i><sub>1</sub> + <i>r</i><sub>3</sub> ≡ 2<i>r</i><sub>2</sub> (mod 85), because the two halves of <i>w</i>′ have equal length.</li>
+  <li>It is <b>bounded</b>: ‖ψ‖<sub>1</sub> = <i>r</i> &lt; 85, so ‖<i>J</i>‖<sub>1</sub> ≤ 4 · 84 = 336, whatever the scale.</li>
+</ul>
+<p>A zero <i>H</i>′ = 0 needs <i>A</i> · <i>H</i> = −<i>J</i>. The expanding matrix <i>A</i> makes <i>A</i> · <i>H</i> large unless <i>H</i> itself is small, so a zero of <i>w</i>′ can only come from a small coefficient of <i>w</i>: a near miss one level down, sitting at the right letters and offsets. This is the lifting rule. When the cuts fall exactly between blocks, all <i>r</i> are 0, <i>J</i> = 0, and we are back at the aligned formula above. The name refers to the block structure: <i>J</i> collects everything that happens where the cuts of the window meet the blocks of g85, instead of the joints between them.</p>
+<p>The general method we are after could be: <b>choose the <a href="#gl-renorm">renormalisation</a> (the matrix) first, then search for local blocks whose junction terms are too small to cancel it.</b></p>
+</section>
+
+<section>
+<h2>2 · Phases: the transform splits into a phasor and a height</h2>
+<p>Take the Fourier transform over the alphabet, viewed as the cyclic group ℤ<sub>4</sub>, of the vector <i>H</i>. Write Δ#<i>x</i> = |<i>u</i>|<sub><i>x</i></sub> − |<i>v</i>|<sub><i>x</i></sub> for the difference of the numbers of letters <i>x</i> in the two halves, so that <i>H</i> = (Δ#a, Δ#b, Δ#c, Δ#d). Channel 0 is Δ#a + Δ#b + Δ#c + Δ#d = |<i>u</i>| − |<i>v</i>| = 0. Channel 2 is the real <em>height</em> difference</p>
+<p class="eq">Δ<i>h</i> = Δ#a − Δ#b + Δ#c − Δ#d.</p>
+<p>Channel 1 is a complex <a href="#gl-phasor"><em>phasor</em></a></p>
+<p class="eq">Δ<i>z</i> = (Δ#a − Δ#c) + <i>i</i> (Δ#b − Δ#d),</p>
+<p>and channel 3 is its complex conjugate. Here <i>h</i> = #a − #b + #c − #d and <i>z</i> = (#a − #c) + <i>i</i>(#b − #d) are the height and the plane position of a single word, as in “Bending the string”, and Δ always means “value on <i>u</i> minus value on <i>v</i>”. So</p>
+<p class="eq">abelian square &nbsp;⇔&nbsp; Δ<i>z</i> = 0 and Δ<i>h</i> = 0.</p>
+<p>Over three letters (the group ℤ<sub>3</sub>) there is only one non-trivial channel pair: Δ<i>z</i> = Δ#a + Δ#b · ω + Δ#c · ω² with ω = e<sup>2π<i>i</i>/3</sup>. For ternary words <b>a single complex phasor carries the whole test.</b></p>
+<figure>
+  <div class="frame">
+    <div class="controls">
+      <span>word</span><span class="seg" id="pw"><button aria-pressed="true" data-v="g85">g85²(a)</button><button aria-pressed="false" data-v="r4">random, 4 letters</button><button aria-pressed="false" data-v="t">aa2fr3268</button></span>
+      <label>scale p <input id="pp" type="range" min="1" max="400" value="85" style="width:180px"></label><span id="ppv"></span>
+    </div>
+    <canvas id="phas" width="860" height="520"></canvas>
+    <div class="readout" id="phasRead"></div>
+  </div>
+  <figcaption><b>The phasor cloud at one scale.</b> Each dot is Δ<i>z</i> for one position <i>i</i>, coloured by the height channel Δ<i>h</i> (blue negative, orange positive, black zero). Dots exactly at the origin are planar near-squares; a ringed dot at the origin with Δ<i>h</i> = 0 is an abelian square. For aa2fr3268 the phasor is the Eisenstein one and there is no height. Move <i>p</i> to 85 and then to 86: at <i>p</i> = 85 the cloud of g85²(a) is the cloud of g85(a) at <i>p</i> = 1, turned by 159.44° and stretched by √73 at the aligned points, with the junction terms blurring it.</figcaption>
+</figure>
+<p><b>Phase advance and phase reversal.</b> At aligned points, g85 multiplies the phasor by −8 + 3<i>i</i> (a phase advance of 159.44° and a stretch by √73) and the height by 7. The endomorphism g98 behaves differently. Its Parikh matrix is not <a href="#gl-circulant">circulant</a> but anti-circulant (each column is the previous one shifted the other way), and on the phasor it acts as</p>
+<p class="eq"><i>z</i> &nbsp;↦&nbsp; (−9 + 3<i>i</i>) · <span style="text-decoration:overline"><i>z</i></span>, &nbsp;&nbsp; <i>h</i> ↦ −8 <i>h</i>,</p>
+<p>a reflection followed by a stretch by √90. Its eigenvalues are 98, ±√90 ≈ ±9.487 and −8. So the two known 4-letter constructions are the two kinds of similarity of the plane: g85 turns the phase, and g98 reflects it at every level. This suggests a <b>classification by phase behaviour</b>, and a search for new morphisms by prescribing the phase map: a rotation by an angle that is not a rational multiple of π (as for g85), a reflection (as for g98), or a rotation by a rational angle, which g85 and g98 avoid.</p>
+</section>
+
+<section>
+<h2>3 · An expanding spectrum, and what it predicts</h2>
+<p>Words with bounded imbalance contain abelian powers of every order. This is a theorem of Richomme, Saari and Zamboni, cited from memory; the exact statement is to be checked. For a <a href="#gl-primitive">primitive</a> morphism, bounded imbalance follows when every secondary eigenvalue lies inside the unit circle (<a href="#gl-pisot">the Pisot case</a>). Hence the <b>design rule: an a2f fixed point needs secondary eigenvalues of modulus > 1</b>, so that the scalogram grows away from zero. The ratio of logarithms also predicts how fast the imbalance grows:</p>
+<p class="eq">imbalance of a factor of length <i>N</i> &nbsp;≈&nbsp; <i>N</i><sup>α</sup>, &nbsp;&nbsp; α = log |λ<sub>2</sub>| / log λ<sub>1</sub>.</p>
+<p>For g85, α = log 8.544 / log 85 = 0.483. This matches the exponent 0.48 measured earlier for g85. For g98, α = log 9.487 / log 98 = 0.491.</p>
+<figure>
+  <div class="frame"><svg id="eig" viewBox="0 0 860 330"></svg></div>
+  <figcaption><b>Eigenvalue maps.</b> The secondary eigenvalues of g85 (dots) and g98 (squares) in the complex plane, with the unit circle shaded. A Pisot morphism, for example Fibonacci, has all its secondary eigenvalues inside the circle and is balanced, so it is full of abelian squares. Both a2f morphisms have every secondary eigenvalue at distance 7–9.5 from 0, close to √λ<sub>1</sub> (√85 ≈ 9.2, √98 ≈ 9.9). This is the “random-like” size; a larger λ<sub>2</sub> would mean larger fluctuations.</figcaption>
+</figure>
+<p>A useful sharpening: the eigenvalues should be large in modulus <em>and</em> spread in phase. Then the junction terms of §1 cannot line up with the renormalised coefficients. A search could reject at once every block length and Parikh matrix whose spectrum fails this test, before looking at a single letter.</p>
+</section>
+
+<section>
+<h2>4 · Runs as particles: why ternary aa2f words need molecules</h2>
+<div class="claim">
+  <p><span class="lbl">Proposition 2.</span> Let <i>w</i> be an infinite aa2f word over {a, b, c}, and let <i>h</i> be a morphism with |<i>h</i>(<i>x</i>)| ≥ 2 for every letter <i>x</i>. Then <i>h</i>(<i>w</i>) is not aa2f. In particular, no such morphism has an infinite aa2f fixed point.</p>
+  <p class="proof"><span class="lbl">Proof.</span> Every ternary word of length 8 contains an abelian square, so <i>w</i> contains abelian squares. Since <i>w</i> is aa2f, they all have period 1, so <i>w</i> contains a factor <i>xx</i>. Then <i>h</i>(<i>w</i>) contains <i>h</i>(<i>x</i>)<i>h</i>(<i>x</i>), an abelian square of period |<i>h</i>(<i>x</i>)| ≥ 2. <span class="qed">∎</span></p>
+</div>
+<p>The proposition is elementary, almost trivial. It is stated here as a reminder, because it closes at once the most natural road to infinite ternary aa2f words: iterating a morphism letter by letter, as g85 and g98 do over four letters.</p>
+<p>A computer search agrees. There are 49 638 cyclic morphisms a → <i>u</i>, b → σ(<i>u</i>), c → σ²(<i>u</i>) with <i>u</i> aa2f and |<i>u</i>| = 2, …, 14, and for none of them is the fixed point aa2f up to length 2500. The proposition explains this. A renormalisation of ternary aa2f words must treat a run <i>xxx</i> as one object, a <em>particle</em>. The molecule alphabet Γ<sub>6</sub> = {a, b, c, aaa, bbb, ccc} of the experiments note is exactly this. In the walk picture a particle is a straight step of length 3. Midpoints along a straight step are harmless, and every other midpoint is forbidden.</p>
+<p><b>Suggested method.</b> Work with walks whose steps are particles: unit steps and triple steps in the three Eisenstein directions (1, ω and ω² in the complex plane, 120° apart; see <a href="#bg-eisenstein">Background</a>). Look for a cyclic morphism on particles whose Eisenstein multiplier μ (the image of a unit step) has |μ| > 1 and a phase that is not a rational multiple of π, as in §2–3. The run budget is then a property of the particle alphabet, not of the morphism.</p>
+</section>
+
+<section>
+<h2>5 · How many ternary aa2f words are there?</h2>
+<p>The number <i>c</i><sub><i>n</i></sub> of ternary aa2f words of length <i>n</i> has been computed up to <i>n</i> = 70 on the page <a href="https://algebra.fi/keranen/research/_NumberOfA2FreeWordsForWeb.html">Number of a2f words</a> (local copy: <a href="Number%20of%20a2f%20words.html">Number of a2f words.html</a>). At <i>n</i> = 70 there are</p>
+<p class="eq"><i>c</i><sub>70</sub> = 69 909 193 375 806 &nbsp; ternary aa2f words, &nbsp; <i>c</i><sub>70</sub> / <i>c</i><sub>69</sub> = 1.33397.</p>
+<p>For this note the words starting with a were counted again from scratch up to <i>n</i> = 36 (<code>probe2.js</code>). Times three, they agree with that table at every length.</p>
+<figure>
+  <div class="frame"><svg id="cnt" viewBox="0 0 860 300"></svg></div>
+  <figcaption><b>Growth.</b> The bars give log<sub>10</sub> <i>c</i><sub><i>n</i></sub> for <i>n</i> ≤ 70. The line is the mean growth per letter over the last five lengths, (<i>c</i><sub><i>n</i></sub>/<i>c</i><sub><i>n</i>−5</sub>)<sup>1/5</sup>: 2.05, 1.66, 1.51, 1.44, 1.41, 1.37, 1.34 at <i>n</i> = 10, 20, …, 70. (The one-step ratio <i>c</i><sub><i>n</i></sub>/<i>c</i><sub><i>n</i>−1</sub> alternates slightly between even and odd <i>n</i>; the five-step mean smooths this out.) It is still falling, but more and more slowly.</figcaption>
+</figure>
+<p>The ratios suggest exponential growth with a rate somewhere around 1.3. If so, ternary aa2f words are not rare in the count. But most of them are dead ends. On the page <a href="https://algebra.fi/keranen/research/web240526/AA2F3letExtensionsForWordLength40withExtensionLength46simultaneouslyToBothSidesUsingMaximumStepOf10million.html">aa2f extensions of the words of length 40</a> (local copy: <a href="AA2F3letExtensionsForWordLength40withExtensionLength46simultaneouslyToBothSidesUsingMaximumStepOf10million.html">AA2F3letExtensions…html</a>), all 4 688 961 678 aa2f words of length 40 were reduced by letter permutations and mirror images and then extended, in an aa2f way, by 46 letters to <em>both</em> sides at once, with at most 10 million search steps per word. The words fall into three categories: <b>Extendable</b> (so far), <b>Undecided</b> (so far) and <b>NonExtendable</b> (a clear situation). Only 124 318 432 words stayed in the first two categories. So the counts grow exponentially, while the words that can sit in the middle of a long aa2f word are a thin subset. The repetitive variant is thinner still: according to current testing, only 2 403 132 aa2fr words of length 40 over {a, b, c} can be extended in an aa2fr way, about 0.05 % of the 4 688 961 678 unextended aa2f words of length 40. (This result is not yet published on the web pages.) The problem is to find the structured ones among them. Two things to try:</p>
+<ul>
+  <li>Compare the growth of all aa2f words with the growth of the two-sided extendable ones. The second rate is the one that matters for infinite words.</li>
+  <li>Try for a proof of exponential growth in the style of the 4-letter case. Carpi [15] proved in 1998 that the number <i>c</i><sub><i>n</i></sub> of 4-letter a2f words grows exponentially, <i>c</i><sub><i>n</i></sub> &gt; β<sup><i>n</i>−<i>t</i></sup> with β = 2<sup>19/<i>t</i></sup> ≈ 1.000021 and <i>t</i> = 85<sup>3</sup> − 85, using very long substitutions built from g85. Keränen [16] (<a href="33_VK_TCS_APowerfulAbelianSquare-FreeSubstitutionOver4Letters.pdf">local copy</a>) found in 2009 many new a2f endomorphisms of moduli 102–115, and twelve of modulus 109 that together form an a2f substitution σ<sub>109</sub>: each letter has 12 image words, and any choice of images keeps a word a2f. This gives <i>c</i><sub><i>n</i></sub> &gt; β<sup><i>n</i>−50</sup> with β = 12<sup>1/109</sup> ≈ 1.02306. For ternary aa2f words the proposition of §4 rules out morphisms on letters, so the analogue would be a substitution on particles: several image words for each particle of Γ<sub>6</sub>, all keeping words aa2f.</li>
+</ul>
+</section>
+
+<section>
+<h2>6 · Digits and Behrend: abelian-square-freeness as progression-freeness</h2>
+<p>Every prefix of the fixed point g85<sup>ω</sup>(a) has a unique Dumont–Thomas expansion: a sequence of proper prefixes <i>q</i><sub><i>n</i></sub>, …, <i>q</i><sub>0</sub> of images g85(<i>x</i>) such that</p>
+<p class="eq"><i>P</i><sub><i>t</i></sub> = Σ<sub><i>k</i></sub> <i>A</i><sup><i>k</i></sup> Ψ(<i>q</i><sub><i>k</i></sub>), &nbsp;&nbsp; <i>t</i> = Σ<sub><i>k</i></sub> 85<sup><i>k</i></sup> |<i>q</i><sub><i>k</i></sub>|.</p>
+<p>So the walk is a <em>digital set</em>, like the integers written in base 85, but with vector digits Ψ(<i>q</i>) and the matrix <i>A</i> in place of the number 85. By <a href="#walk">Proposition 1</a>, a2f means that this set contains no 3-term arithmetic progression. That is the subject of the Salem–Spencer and Behrend constructions (<a href="#bg-behrend">Background</a>). Their trick: choose digits so that adding two numbers produces no carries, and keep only the numbers whose digit vectors lie on one sphere. A sphere contains no midpoints.</p>
+<p><b>Idea: Behrend morphisms.</b> Choose the blocks so that, at every level, the digit vectors Ψ(<i>q</i>) of the proper prefixes lie close to a strictly convex shell in the plane-and-height coordinates, and the expanding <i>A</i> keeps the levels apart. A midpoint triple would then have to borrow from one level to another, which is the junction case of §1 again. This would give the template method a geometric reason. It would also suggest which prefix shapes to search for: prefixes whose walks bulge outward.</p>
+</section>
+
+<section>
+<h2>7 · Shadows on a torus, and a margin search</h2>
+<p><b>Modular shadows.</b> Reduce the walk modulo <i>m</i>, so that it lives on the finite torus (ℤ/<i>m</i>)<sup>4</sup>. An abelian square forces the second difference <i>P</i><sub><i>i</i></sub> − 2<i>P</i><sub><i>i</i>+<i>p</i></sub> + <i>P</i><sub><i>i</i>+2<i>p</i></sub> to vanish modulo every <i>m</i>. g85 acts on each torus as <i>A</i> mod <i>m</i>, a “<a href="#gl-cat">cat map</a>” that permutes the torus whenever the matrix <i>A</i> is invertible modulo <i>m</i>. An integer matrix is invertible modulo <i>m</i> exactly when its determinant is a unit modulo <i>m</i>, that is, gcd(det <i>A</i>, <i>m</i>) = 1, because the inverse is the adjugate divided by the determinant. For g85, det <i>A</i> = 43435 = 5 · 7 · 17 · 73, so <i>A</i> permutes (ℤ/<i>m</i>)<sup>4</sup> for every <i>m</i> prime to these four primes. For g98, det <i>A</i> = 70560 = 2<sup>5</sup> · 3<sup>2</sup> · 5 · 7<sup>2</sup>. At the excluded moduli the cat map folds the torus onto a smaller one, and the shadow loses information. The second differences modulo <i>m</i> can be read by a finite automaton, which gives finite-state filters. Combined over several moduli by the <a href="#gl-crt">Chinese remainder theorem</a>, they could rule out abelian squares in whole families of candidate morphisms at once, before any long word is generated.</p>
+<p><b>Margin search.</b> A constructive counterpart of §1: grow a word letter by letter (<a href="#gl-search">beam search or annealing</a>) and score it by its <em>clearance</em>, the smallest normalised ‖<i>H</i><sub><i>p</i></sub>(<i>i</i>)‖<sub>1</sub>/√(2<i>p</i>) over large scales. Plain backtracking only asks for “not zero”. The margin pushes the word towards the behaviour that g85 shows in the table above: a wide berth at large scales. A <a href="#gl-grammar">grammar inference</a> step (finding a substitution that generates the long words found) would then show whether high-margin words are morphic, and with which phase map.</p>
+</section>
+
+<section>
+<h2>What to try first</h2>
+<ol>
+  <li><b>A wavelet certificate for g85 and g98.</b> Turn the junction table of §1 into an automatic proof (an expanding matrix and bounded junction terms), then rerun it as a filter on candidate morphisms.</li>
+  <li><b>A particle search for ternary aa2f words.</b> Cyclic morphisms on Γ<sub>6</sub>, pruned first by the spectrum: an expanding Eisenstein multiplier whose phase is not a rational multiple of π. Then search the blocks by their junction terms.</li>
+  <li><b>Phase classification.</b> Search 4-letter and 5-letter morphisms by prescribed phase maps: rotations like g85, reflections like g98, and the third, untried kind, rotations by rational angles.</li>
+  <li><b>Counting the extendable words</b>: the growth rate of the ternary aa2f words that extend far to both sides, next to the rate ≈ 1.33 of all of them.</li>
+  <li><b>Behrend morphisms and modular filters</b>, as longer-term ideas.</li>
+</ol>
+</section>
+
+<section id="background">
+<h2>Background · borrowed words, with a short history</h2>
+
+<h3 id="bg-behrend">Behrend</h3>
+<p><b>History.</b> In 1936 Erdős and Turán [1] asked how large a set of integers in {1, …, <i>N</i>} can be without a 3-term arithmetic progression <i>x</i>, <i>y</i>, <i>z</i> with <i>y</i> = (<i>x</i> + <i>z</i>)/2. Salem and Spencer [2] gave the first dense examples in 1942, and Felix Behrend [3] improved them in 1946 to sets of size <i>N</i>·e<sup>−<i>c</i>√log <i>N</i></sup>. Roth [4] proved in 1953 that such a set always has density tending to 0. Behrend's construction stayed essentially the best one; Elkin [5] improved it by a factor √log <i>N</i> in 2011. In 2023 Kelley and Meka [6] proved an upper bound of the same shape, e<sup>−<i>c</i>(log <i>N</i>)<sup>1/12</sup></sup>, so Behrend's sphere is close to the truth.</p>
+<p><b>The idea.</b> Write the numbers in a base <i>b</i> with small digits, so that adding two of them never produces a carry. Then a midpoint relation between numbers is a midpoint relation between their digit vectors. Keep only the numbers whose digit vector lies on one sphere (‖digits‖² = constant). The midpoint of two points on a sphere lies strictly inside it, so no third point of the set can be that midpoint.</p>
+<p><b>The connection.</b> <a href="#walk">Proposition 1</a> says that a2f means no midpoint triple among the walk points. The walk of g85<sup>ω</sup>(a) is a “digital set” in base 85, with vector digits Ψ(prefix) and the matrix <i>A</i> in place of the number 85 (§6). A “Behrend morphism” would choose the blocks so that those digit vectors lie near a convex shell, like Behrend's sphere. The link between repetition-free words and progression-free sets is old: Dekking [7] used it in 1979 to build words without abelian cubes over three letters and without abelian fourth powers over two.</p>
+
+<h3 id="bg-haar">Haar wavelet transform</h3>
+<p><b>History.</b> Alfréd Haar introduced the function in his 1909 Göttingen dissertation, published in 1910 [8], as the first orthonormal basis of square-integrable functions made of step functions. The word “wavelet” came much later, from Grossmann and Morlet [9] in 1984, who analysed seismic signals with shifted and stretched copies of one shape. Daubechies [10] found smooth wavelets with compact support in 1988; the Haar wavelet is the first and simplest member of her family.</p>
+<p><b>The idea.</b> The Haar wavelet is +1 on the first half of a window and −1 on the second half. Applied to a signal, it gives at each position <i>i</i> and scale <i>p</i> the sum over the first half of the window minus the sum over the second half. Doing this for all <i>i</i> and all <i>p</i> is the Haar wavelet transform: it shows how much the signal changes at every place and every scale. The fast Haar transform uses only the scales 1, 2, 4, 8, … and non-overlapping windows. Here every integer position and every integer scale is used, as in a continuous wavelet transform, because an abelian square can start anywhere and have any period.</p>
+
+<h3 id="bg-scalogram">Vector Haar scalogram</h3>
+<p>A word over <i>k</i> letters gives <i>k</i> signals, one for each letter: 1 where that letter stands, 0 elsewhere. Applying the Haar wavelet to all <i>k</i> signals at once gives a vector at each (<i>i</i>, <i>p</i>):</p>
+<p class="eq"><i>H</i><sub><i>p</i></sub>(<i>i</i>) = Ψ(<i>u</i>) − Ψ(<i>v</i>), &nbsp; with <i>u</i> the first and <i>v</i> the second half of the window.</p>
+<p>A scalogram is the picture of a wavelet transform: position horizontally, scale vertically, the size of the coefficient as colour. “Vector” means that each pixel stands for a whole vector, here coloured by its norm ‖<i>H</i>‖<sub>1</sub>. The point of the picture is that an abelian square is exactly a zero of this transform. A pixel with ‖<i>H</i>‖<sub>1</sub> = 2 is a one-letter near miss.</p>
+<p><b>History of the zeros.</b> Erdős [11] asked in 1961 whether abelian squares can be avoided over a finite alphabet, that is, whether some infinite word has a scalogram without zeros. Evdokimov [12] did it with 25 letters in 1968, Pleasants [13] with 5 in 1970, and Keränen [14] with 4 in 1992, the smallest possible number. Over three letters every word of length 8 contains an abelian square; this is why §4 and §5 turn to aa2f words, whose scalogram may vanish only on the bottom row.</p>
+
+<h3 id="bg-eisenstein">Eisenstein directions</h3>
+<p><b>History.</b> Gotthold Eisenstein used the numbers <i>a</i> + <i>b</i>ω, with integers <i>a</i>, <i>b</i> and ω = e<sup>2π<i>i</i>/3</sup> a cube root of unity, in his 1844 proof of cubic reciprocity [17]. They are now called the Eisenstein integers. In the complex plane they form the triangular lattice, and its six unit vectors ±1, ±ω, ±ω² point to the corners of a regular hexagon.</p>
+<p><b>The idea.</b> Over {a, b, c}, send a ↦ 1, b ↦ ω, c ↦ ω²: three unit steps, 120° apart. These are the three <b>Eisenstein directions</b>. A word becomes a walk on the triangular lattice, its position after <i>t</i> letters being <i>z</i>(<i>t</i>) = #a + #b·ω + #c·ω². Is anything lost in passing from the Parikh vector (#a, #b, #c) ∈ ℤ<sup>3</sup> to the single number <i>z</i> ∈ ℤ[ω]? Since ω² = −1 − ω,</p>
+<p style="text-align:center"><i>z</i> = (#a − #c) + (#b − #c)·ω.</p>
+<p>The numbers 1 and ω are linearly independent over ℝ, so <i>z</i> = 0 exactly when #a = #b = #c. In other words, <i>z</i> does not change when one a, one b and one c are added to the counts: that adds 1 + ω + ω² = 0. This is the only thing <i>z</i> cannot see. Two Parikh vectors have the same <i>z</i> if and only if they differ by a multiple of (1, 1, 1), the “all-ones direction”. But adding (1, 1, 1) also adds 3 to the length <i>t</i> = #a + #b + #c, and the walk always knows its time <i>t</i>. So <i>z</i> together with <i>t</i> gives back the counts: from <i>z</i> = α + βω, #c = (<i>t</i> − α − β)/3, #a = α + #c and #b = β + #c. Hence the walk loses nothing: <i>uv</i> is an abelian square exactly when the walk returns to the same point after equal times, Δ<i>z</i> = 0 (§2). Multiplying by an Eisenstein integer μ turns and stretches the whole lattice into itself, which is why a cyclic ternary morphism acts on the walk as <i>z</i> ↦ μ<i>z</i>.</p>
+<p><b>The connection.</b> A run <i>xxx</i> is a straight step of length 3 in one Eisenstein direction: the “particle” of §4. Its inner midpoints are the allowed period-1 squares; any other return of the walk is forbidden.</p>
+
+<h3 id="bg-glossary">A short glossary</h3>
+<p>Some words on this page come from neighbouring fields. Here is a one- or two-line description of each; the details are easy to find on the web.</p>
+<dl class="gloss">
+  <dt id="gl-parikh">Parikh matrix</dt>
+  <dd>For a morphism <i>g</i>, the matrix <i>A</i> whose column <i>x</i> is the Parikh vector Ψ(<i>g</i>(<i>x</i>)). Then Ψ(<i>g</i>(<i>w</i>)) = <i>A</i> · Ψ(<i>w</i>) for every word <i>w</i>. <span class="sm">Details: <a href="https://en.wikipedia.org/wiki/Parikh%27s_theorem">Parikh’s theorem</a> (Wikipedia).</span></dd>
+  <dt id="gl-primitive">Primitive morphism; leading and secondary eigenvalues</dt>
+  <dd>A morphism is primitive when some power of its Parikh matrix has only positive entries. Its matrix then has one largest real eigenvalue λ<sub>1</sub> (85 for g85, the block length), and the frequencies of the letters in the fixed point come from its eigenvector. The other eigenvalues are the secondary ones. <span class="sm">Details: <a href="https://en.wikipedia.org/wiki/Perron%E2%80%93Frobenius_theorem">Perron–Frobenius theorem</a> (Wikipedia).</span></dd>
+  <dt id="gl-pisot">The Pisot case</dt>
+  <dd>All secondary eigenvalues have modulus less than 1. The name comes from Pisot numbers: algebraic integers greater than 1 whose other conjugates lie inside the unit circle, such as the golden ratio. Then the letter counts of every prefix stay within a bounded distance of their expected values, the word is balanced, and it is full of abelian powers. The Fibonacci word is the standard example. <span class="sm">Details: <a href="https://en.wikipedia.org/wiki/Pisot%E2%80%93Vijayaraghavan_number">Pisot–Vijayaraghavan number</a> (Wikipedia).</span></dd>
+  <dt id="gl-renorm">Renormalisation</dt>
+  <dd>Describing a structure at a coarse scale by the same rules as at a fine scale. A term from physics. Here: g85 sends the scalogram of <i>w</i> at scale <i>p</i> to that of g85(<i>w</i>) at scale 85<i>p</i>, multiplied by <i>A</i>, up to junction terms. <span class="sm">Details: <a href="https://en.wikipedia.org/wiki/Renormalization_group">Renormalization group</a> (Wikipedia).</span></dd>
+  <dt id="gl-circulant">Circulant and anti-circulant matrix</dt>
+  <dd>A circulant matrix has each column equal to the previous one shifted down by one place, cyclically; the Fourier transform diagonalises it. In an anti-circulant matrix the shift goes upwards. The Parikh matrix of g85 is circulant, that of g98 anti-circulant. <span class="sm">Details: <a href="https://en.wikipedia.org/wiki/Circulant_matrix">Circulant matrix</a> (Wikipedia).</span></dd>
+  <dt id="gl-phasor">Phasor</dt>
+  <dd>A complex number <i>r</i>e<sup><i>i</i>θ</sup> used to record an amplitude <i>r</i> and a phase θ together. Electrical engineers use it for alternating currents. Here it is channel 1 of the Fourier transform of <i>H</i>. <span class="sm">Details: <a href="https://en.wikipedia.org/wiki/Phasor">Phasor</a> (Wikipedia).</span></dd>
+  <dt id="gl-cat">Cat map</dt>
+  <dd>Arnold’s cat map is (<i>x</i>, <i>y</i>) ↦ (2<i>x</i> + <i>y</i>, <i>x</i> + <i>y</i>) on the torus ℝ<sup>2</sup>/ℤ<sup>2</sup>. It stretches in one direction and squeezes in another, and because its determinant is 1, it permutes the points of every finite grid (ℤ/<i>m</i>)<sup>2</sup>. V. I. Arnold illustrated it with the picture of a cat. Here the name is borrowed for any integer matrix acting on (ℤ/<i>m</i>)<sup><i>k</i></sup>. <span class="sm">Details: <a href="https://en.wikipedia.org/wiki/Arnold%27s_cat_map">Arnold’s cat map</a> (Wikipedia).</span></dd>
+  <dt id="gl-crt">Chinese remainder theorem</dt>
+  <dd>If the moduli <i>m</i><sub>1</sub>, …, <i>m</i><sub><i>s</i></sub> are pairwise coprime, the residues modulo each <i>m</i><sub><i>j</i></sub> determine the residue modulo their product. So filters for several small moduli together act as one filter for a large modulus. <span class="sm">Details: <a href="https://en.wikipedia.org/wiki/Chinese_remainder_theorem">Chinese remainder theorem</a> (Wikipedia).</span></dd>
+  <dt id="gl-search">Beam search, simulated annealing</dt>
+  <dd>Two heuristic search methods. Beam search keeps only the best few partial solutions at each step. Simulated annealing accepts worse solutions with a probability that slowly decreases, to escape local optima. <span class="sm">Details: <a href="https://en.wikipedia.org/wiki/Beam_search">Beam search</a> (Wikipedia).</span></dd>
+  <dt id="gl-grammar">Grammar inference</dt>
+  <dd>Finding a small set of rules, here a substitution, that generates a given set of words. <span class="sm">Details: <a href="https://en.wikipedia.org/wiki/Grammar_induction">Grammar induction</a> (Wikipedia).</span></dd>
+</dl>
+
+<h3>References</h3>
+<ol class="refs">
+  <li>P. Erdős, P. Turán, On some sequences of integers, <i>J. London Math. Soc.</i> 11 (1936) 261–264. <a href="https://doi.org/10.1112/jlms/s1-11.4.261">doi</a></li>
+  <li>R. Salem, D. C. Spencer, On sets of integers which contain no three terms in arithmetical progression, <i>Proc. Natl. Acad. Sci. USA</i> 28 (1942) 561–563. <a href="https://doi.org/10.1073/pnas.28.12.561">doi</a></li>
+  <li>F. A. Behrend, On sets of integers which contain no three terms in arithmetical progression, <i>Proc. Natl. Acad. Sci. USA</i> 32 (1946) 331–332. <a href="https://doi.org/10.1073/pnas.32.12.331">doi</a></li>
+  <li>K. F. Roth, On certain sets of integers, <i>J. London Math. Soc.</i> 28 (1953) 104–109. <a href="https://doi.org/10.1112/jlms/s1-28.1.104">doi</a></li>
+  <li>M. Elkin, An improved construction of progression-free sets, <i>Israel J. Math.</i> 184 (2011) 93–128. <a href="https://doi.org/10.1007/s11856-011-0061-1">doi</a></li>
+  <li>Z. Kelley, R. Meka, Strong bounds for 3-progressions, 2023. <a href="https://arxiv.org/abs/2302.05537">arXiv:2302.05537</a></li>
+  <li>F. M. Dekking, Strongly non-repetitive sequences and progression-free sets, <i>J. Combin. Theory Ser. A</i> 27 (1979) 181–185. <a href="https://doi.org/10.1016/0097-3165(79)90044-X">doi</a></li>
+  <li>A. Haar, Zur Theorie der orthogonalen Funktionensysteme, <i>Math. Ann.</i> 69 (1910) 331–371. <a href="https://doi.org/10.1007/BF01456326">doi</a></li>
+  <li>A. Grossmann, J. Morlet, Decomposition of Hardy functions into square integrable wavelets of constant shape, <i>SIAM J. Math. Anal.</i> 15 (1984) 723–736. <a href="https://doi.org/10.1137/0515056">doi</a></li>
+  <li>I. Daubechies, Orthonormal bases of compactly supported wavelets, <i>Comm. Pure Appl. Math.</i> 41 (1988) 909–996. <a href="https://doi.org/10.1002/cpa.3160410705">doi</a></li>
+  <li>P. Erdős, Some unsolved problems, <i>Magyar Tud. Akad. Mat. Kutató Int. Közl.</i> 6 (1961) 221–254.</li>
+  <li>A. A. Evdokimov, Strongly asymmetric sequences generated by a finite number of symbols, <i>Soviet Math. Dokl.</i> 9 (1968) 536–539.</li>
+  <li>P. A. B. Pleasants, Non-repetitive sequences, <i>Proc. Cambridge Philos. Soc.</i> 68 (1970) 267–274. <a href="https://doi.org/10.1017/S0305004100046077">doi</a></li>
+  <li>V. Keränen, Abelian squares are avoidable on 4 letters, in <i>ICALP 1992</i>, Lecture Notes in Comput. Sci. 623, Springer (1992) 41–52. <a href="https://doi.org/10.1007/3-540-55719-9_62">doi</a> · see also <a href="https://algebra.fi/keranen/">algebra.fi/keranen</a></li>
+  <li>A. Carpi, On the number of Abelian square-free words on four letters, <i>Discrete Appl. Math.</i> 81 (1998) 155–167. <a href="https://doi.org/10.1016/S0166-218X(97)88002-X">doi</a></li>
+  <li>V. Keränen, A powerful abelian square-free substitution over 4 letters, <i>Theoret. Comput. Sci.</i> 410 (2009) 3893–3900. <a href="https://doi.org/10.1016/j.tcs.2009.05.027">doi</a> · <a href="33_VK_TCS_APowerfulAbelianSquare-FreeSubstitutionOver4Letters.pdf">local copy</a></li>
+  <li>G. Eisenstein, Beweis des Reciprocitätssatzes für die cubischen Reste in der Theorie der aus dritten Wurzeln der Einheit zusammengesetzten complexen Zahlen, <i>J. reine angew. Math.</i> 27 (1844) 289–310. <a href="https://doi.org/10.1515/crll.1844.27.289">doi</a></li>
+</ol>
+<p class="note">Further reading: <a href="https://en.wikipedia.org/wiki/Salem%E2%80%93Spencer_set">Salem–Spencer set</a>, <a href="https://en.wikipedia.org/wiki/Haar_wavelet">Haar wavelet</a> and <a href="https://en.wikipedia.org/wiki/Continuous_wavelet_transform">continuous wavelet transform</a> on Wikipedia. The bibliographic data of [1]–[10] and [13]–[17] were checked against Crossref and arXiv; [11] and [12] are cited in the usual form.</p>
+</section>
+
+<section id="acknowledgements">
+<h2>Acknowledgements</h2>
+<p>Many individuals have provided ongoing support for this research, offered numerous suggestions for improvement, and contributed computational services. Special mention is due, at the very least, to Gautam Dasgupta, Ray Dougherty, Joonas Huhta, Benjamin Koo and Henry Koo.</p>
+</section>
+
+<footer>
+  The figures are computed in the page from g85(a), its cyclic shifts, aa2fr3268 (from <code>aa2f15796_aa2f25379_aa2fr1928+More.html</code>) and seeded random words. The table of §1, the eigenvalues of §3, the morphism search of §4 and the recount of §5 (n ≤ 36) come from <code>research_4to3/brainstorm/probe1.js</code>–<code>probe3.js</code>; the counts up to n = 70 are from <code>Number of a2f words.html</code>. The page is built from <code>research_4to3/brainstorm/template.html</code> by <code>research_4to3/brainstorm/build.js</code>.
+</footer>
+
+</div>
+<script>
+'use strict';
+const G85A = 'abcacdcbcdcadcdbdabacabadbabcbdbcbacbcdcacbabdabacadcbcdcacdbcbacbcdcacdcbdcdadbdcbca';
+const AA2FR3268 = 'abcccbbbaaabbbcbbbabbbcccabbbaaacaaabaaacccaaabbbaaacabcbbbaaabbbcccbbbabbbcbbbaaabcccaaabaaacabbbcaaacccabcccbbbabcbbbaaabcccaaabaaacaaabbbaaacccaaabacbcccacccbbbaaacbcacccbbbabbbcbbbaaabbbcccaaabbbacbcccaaabaaacaaabbbcbbbabcaaacccbbbaaabbbcbbbabbbcccbbbaaacccbbbcabaaacabbbcacccbcccaaacccbbbcccacccbcaaabbbcbbbabbbcccbbbaaacccabcbbbaaacaaabaaacccbcccacccbbbacaaabacccbbbcabbbaaacaaabaaacccbbbaaacabcacccbbbabbbcbbbaaabbbcccabbbaaacaaabaaacccaaabbbaaacabcbbbaaabbbcccacbcccaaabbbaaacaaabaaacccbaaabbbcccacccbcccaaacbaaabbbcbbbabbbcccbbbaaacccbcccacccbbbabcbaaabcccaaabaaacaaabbbcaaacccbcccacccbbbcccaaacccbcabaaacaaabbbcbbbabcacccbbbcccaaacccbcccacccbbbcaaabbbcccbbbabbbcbbbaaabcaaacccbbbabbbcbacccbbbcaaacccbcabaaacaaabbbcccaaacccbcccacccbbbcaaabbbcbacbcccacbaaacccabbbaaacbabbbcbbbaaacabacccabbbaaacaaabaaacccbcccacccbbbacccabaaacabcbbbabcccbbbaaabcccaaabacaaabbbaaacccbbbaaabbbcbbbabbbcccbbbaaacccbabcbbbaaacabaaacccbbbcccacbabbbcccbbbaaabbbcbbbabbbcccbaaacccbbbcccacccbcccaaabcccbbbcabbbaaabcabbbcccacccbcaaabcccbbbabcbbbaaacaaabaaacccbaaabbbcbaaacccbcccacccbbbcccaaabbbcbbbabcacccbbbcccaaacccbcccacccbbbacccaaabaaacabcbbbabbbcccacccbcccaaacccbbbaaacccaaabaaacaaabbbaaacccbbbabbbcbbbaaabcaaacccabbbcccacccbcabaaacaaabbbcccaaacccbcccacccbbbcaaabbbcccbbbabbbcbacaaabacbcccacccbbbcaaabbbcccbbbabbbcbbbaaabcaaacccbbbabcbbbaaacaaabaaacccabcccbbbabcabaaacabcbbbabbbcccbaaacbbbcccacccbcccaaabaaacabcccbbbaaacccaaabaaacaaabbbaaacccbbbcabaaacaaabbbcbbbabbbcccabbbaaacabaaacccaaabbbcaaacccbcccacbabbbcbbbaaacccbbbcccacccbcccaaacccbbbaaabcacccbcccaaabaaacaaabbbacccaaabacabbbcacccbcccaaabcccbbbabbbcbbbaaacaaabaaacccabbbcaaacccbcabaaacccaaabbbaaacaaabaaacccbabbbcbbbaaacaaabacccaaabbbacccbbbabbbcbbbaaabcccaaabbbaaacaaabaaacccbcccacccbbbacbaaabbbacbbbcccbaaacbbbcccacccbcccaaabaaacabcccbbbaaacccaaabaaacaaabbbcaaacccbbbcaaabbbcbbbabbbcccabbbaaabcaaacccbcccacbabbbcbaaabbbcccbbbabbbcbbbaaabcaaacccbabbbcbbbaaacaaabaaacccbcabbbaaacccbbbaaabbbcbbbabbbcccbaaacccbcccacccbbbacccaaabacbabbbcccbaaacccbcccacccbbbcccaaacccbcabaaacaaabbbaaacccbbbcccacbacaaabbbcbbbabbbcccacccbcabbbaaacccaaabaaacabcbbbabbbcccaaabbbaaacaaabaaacccaaabbbcccaaacccbcccacbbbacaaabaaacccaaabbbcccaaacccbcccacccbbbcccaaabbbcacbcccaaabacaaabbbcccbbbabcacccbbbcccaaacccbcccacccbbbcaaabbbcccbbbabbbcbbbaaacbcccacccbbbaaabcbbbabcccbbbaaacabaaacccaaabbbcccbbbabcacccbcccaaabcccbbbaaabcccaaabaaacaaabbbcaaacbcacccbbbcaaabbbcbbbabbbcccbaaabbbacabaaacccbaaabbbcccbbbabcacccbcccaaabbbcccbbbabbbcbbbaaabbbcccaaabacbabbbcbacbcccaaabbbcccbbbabbbcbbbaaabbbcccaaabaaacaaabbbcbabbbcccabbbaaacccaaabaaacaaabbbcaaacccabcccbbbacbcccaaabaaacaaabbbcbbbabbbcccbacccaaabbbcccbbbabbbcbbbaaacabacccbbbabcbbbaaacaaabacbcccaaacccbbbaaabcbbbabcccbbbaaacccbbbcccacccbcccaaabacabbbcccbacccaaacbaaabbbcacbcccaaabaaacaaabbbaaacccbbbabbbcbacccaaabbbcccacccbcccaaabaaacaaabbbcbabcccaaabbbcccbbbabbbcbbbaaacabacccbbbaaabbbcbacaaabaaacccabcccbbbaaacccaaabaaacaaabbbaaacccbbbaaabbbcbbbabcccabaaacaaabbbaaacccbbbaaabbbcbbbabbbcccbbbaaacccbcabbbaaacbabbbcbbbaaacccbcccacccbbbaaacaaabacbbbcccaaabbbcccbbbabbbcbbbaaabcccaaabbbaaacaaabaaacccabcccbbbaaabcbbbabcccabbbaaacaaabaaacccbcccacbaaabbbcccaaacccbcccacccbbbabbbcbaaacbbbcccbaaacccbcabaaacaaabbbaaacccbbbaaabbbcbbbabbbcccacccbcaaabbbcbbbabbbcccbbbaaabbbcbacaaabaaacccbabbbcccbbbaaacbbbcccacbab';
+const sig = s => s.replace(/[abcd]/g, x => 'bcda'['abcd'.indexOf(x)]);
+const G = { a: G85A }; G.b = sig(G.a); G.c = sig(G.b); G.d = sig(G.c);
+const G85SQ = [...G85A].map(x => G[x]).join('');
+const rnd = (n, k, seed) => { let s = seed, r = ''; for (let i = 0; i < n; i++) { s = (s * 1103515245 + 12345) % 2147483648; r += 'abcd'[Math.floor(s / 2147483648 * k)]; } return r; };
+const G98 = {"a":"abcacdcbcdcadbdcbdbabcbdcacbabdbabcabdadcdadbdcbdbabdbcbacbcdbabdcdbdcacdbcbacbcdcacdcbdcdadbdcbca","b":"dabdbcbabcbdcacbacadabacbdbadacadabdacdcbcdcacbacadacabadbabcadacbcacbdbcabadbabcbdbcbacbcdcacbabd","c":"cdacabadabacbdbadbdcdadbacadcdbdcdacdbcbabcbdbadbdcdbdadcadabdcdbabdbacabdadcadabacabadbabcbdbadac","d":"bcdbdadcdadbacadcacbcdcadbdcbcacbcdbcabadabacadcacbcacdcbdcdacbcadacadbdacdcbdcdadbdadcadabacadcdb"};   // the four images of g98 (98 letters each)
+const G98SQ = [...G98.a].map(x => G98[x]).join('');
+const WORDS = { g85: [G85SQ, 4], g98: [G98SQ, 4], r4: [rnd(7225, 4, 7), 4], t: [AA2FR3268, 3], r3: [rnd(3268, 3, 11), 3] };
+const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const isDark = () => { const t = document.documentElement.dataset.theme; return t ? t === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches; };
+function setupCanvas(cv, aspect) {
+  const dpr = Math.max(1, window.devicePixelRatio || 1), w = cv.clientWidth || cv.parentElement.clientWidth;
+  const h = Math.round(w * aspect);
+  cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr); cv.style.height = h + 'px';
+  const ctx = cv.getContext('2d'); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.fillStyle = css('--fig'); ctx.fillRect(0, 0, w, h);
+  return { ctx, w, h };
+}
+function prefix(w, k) {            // prefix letter counts, flat array (n+1) x k
+  const n = w.length, P = new Int32Array((n + 1) * k);
+  for (let j = 0; j < n; j++) { for (let c = 0; c < k; c++) P[(j + 1) * k + c] = P[j * k + c]; P[(j + 1) * k + w.charCodeAt(j) - 97]++; }
+  return P;
+}
+function segment(id, onPick) {
+  const el = document.getElementById(id);
+  el.addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return;
+    el.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', String(x === b))); onPick(b.dataset.v); });
+}
+const hexToRgb = h => { const m = h.replace('#', ''); return [0, 2, 4].map(i => parseInt(m.slice(i, i + 2), 16)); };
+function hslToRgb(hh, s, l) { s /= 100; l /= 100; const k = n => (n + hh / 30) % 12, a = s * Math.min(l, 1 - l);
+  return [0, 8, 4].map(n => Math.round(255 * (l - a * Math.max(-1, Math.min(k(n) - 3, 9 - k(n), 1))))); }
+
+// Figure 1: Haar scalogram ----------------------------------------------
+let sWord = 'g85';
+// inspection of single coefficients and a copyable list (positions 1-based)
+const SC = { map: null, sel: null };
+const psiOf = (w, k, a, b) => { const v = new Array(k).fill(0); for (let j = a; j < b; j++) v[w.charCodeAt(j) - 97]++; return v; };
+const LAB = k => k === 4 ? '(#a,#b,#c,#d)' : '(#a,#b,#c)';
+function inspect(i, p) {
+  const [w, k] = WORDS[sWord], out = document.getElementById('qOut');
+  document.getElementById('qi').value = i; document.getElementById('qp').value = p;
+  if (i < 1 || p < 1 || i - 1 + 2 * p > w.length) { out.value = `(i, p) = (${i}, ${p}) is outside the word (length ${w.length})`; return; }
+  const a = i - 1, u = w.slice(a, a + p), v = w.slice(a + p, a + 2 * p), pu = psiOf(w, k, a, a + p), pv = psiOf(w, k, a + p, a + 2 * p);
+  const H = pu.map((x, c) => x - pv[c]), n1 = H.reduce((s, x) => s + Math.abs(x), 0);
+  const kind = n1 === 0 ? (p === 1 && k === 3 ? 'zero at p = 1: a run xx (allowed in aa2f)' : 'zero: an abelian square') : n1 === 2 ? 'one-letter near miss' : 'not an abelian square';
+  out.value = [`word ${document.querySelector('#sw [aria-pressed="true"]').textContent}, i = ${i}, p = ${p}: ${kind}`,
+    `u = w[${i}..${i + p - 1}] = ${u}`, `v = w[${i + p}..${i + 2 * p - 1}] = ${v}`,
+    `Psi(u) = ${LAB(k)} = (${pu.join(',')})`, `Psi(v) = (${pv.join(',')})`,
+    `H = Psi(u) - Psi(v) = (${H.join(',')}),  ||H||_1 = ${n1}`].join('\n');
+}
+// the list is shown with space-aligned columns; the copy button gives it tab-separated
+let LIST_TSV = '';
+function aligned(table) {
+  const wd = table[0].map((_, c) => Math.max(...table.map(r => String(r[c]).length)));
+  return table.map(r => r.map((x, c) => c === r.length - 1 ? x : String(x).padEnd(wd[c])).join('  ')).join('\n');
+}
+function listAll() {
+  const [w, k] = WORDS[sWord], N = 1200, Pmax = 150, pmin = Math.max(1, +document.getElementById('lp').value || 1), P = prefix(w, k), rows = [];
+  for (let p = Pmax; p >= pmin; p--) for (let i = 0; i < N && i + 2 * p <= w.length; i++) {
+    let n1 = 0; for (let c = 0; c < k; c++) n1 += Math.abs(2 * P[(i + p) * k + c] - P[i * k + c] - P[(i + 2 * p) * k + c]);
+    if (n1 > 2) continue;
+    const pu = psiOf(w, k, i, i + p), pv = psiOf(w, k, i + p, i + 2 * p), H = pu.map((x, c) => x - pv[c]);
+    rows.push([n1 ? 'near-miss' : (p === 1 && k === 3 ? 'run' : 'square'), i + 1, p, `(${pu.join(',')})`, `(${pv.join(',')})`, `(${H.join(',')})`, w.slice(i, i + p), w.slice(i + p, i + 2 * p)]);
+  }
+  const cap = 2000, table = [['kind', 'i', 'p', 'Psi(u) ' + LAB(k), 'Psi(v)', 'H', 'u', 'v'], ...rows.slice(0, cap)];
+  LIST_TSV = table.map(r => r.join('\t')).join('\n');
+  document.getElementById('lOut').value = aligned(table);
+  document.getElementById('lCount').textContent = rows.length > cap ? `${rows.length} found, the first ${cap} listed (largest p first)` : `${rows.length} found (largest p first)`;
+}
+function selectFirstListed() {
+  const first = document.getElementById('lOut').value.split('\n')[1];
+  if (first) { const f = first.split('\t'); SC.sel = [+f[1], +f[2]]; } else SC.sel = [1, 1];
+  figScal(); inspect(SC.sel[0], SC.sel[1]);
+}
+function figScal() {
+  const [w, k] = WORDS[sWord], N = 1200, Pmax = 150, P = prefix(w, k);
+  const cv = document.getElementById('scal'), { ctx, w: W, h: H } = setupCanvas(cv, 0.42);
+  const img = new ImageData(N, Pmax), zero = hexToRgb(css('--zero')), allowed = hexToRgb(css('--allowed')), nm = hexToRgb(css('--u'));
+  const bg = hexToRgb(css('--fig')), dark = isDark();
+  let zeros = 0, runs = 0, near = 0, cells = 0;
+  for (let p = 1; p <= Pmax; p++) for (let i = 0; i < N; i++) {
+    const o = ((Pmax - p) * N + i) * 4; let col;
+    if (i + 2 * p > w.length) col = bg;
+    else {
+      let s = 0; for (let c = 0; c < k; c++) s += Math.abs(2 * P[(i + p) * k + c] - P[i * k + c] - P[(i + 2 * p) * k + c]);
+      cells++;
+      if (s === 0) { if (p === 1 && k === 3) { col = allowed; runs++; } else { col = zero; zeros++; } }
+      else if (s === 2) { col = nm; near++; }
+      else { const t = Math.min(1, Math.log(s / Math.sqrt(2 * p)) / Math.log(6) + 0.35); col = hslToRgb(220 - 190 * Math.max(0, t), 65, dark ? 22 + 30 * Math.max(0, t) : 86 - 30 * Math.max(0, t)); }
+    }
+    img.data[o] = col[0]; img.data[o + 1] = col[1]; img.data[o + 2] = col[2]; img.data[o + 3] = 255;
+  }
+  const off = document.createElement('canvas'); off.width = N; off.height = Pmax; off.getContext('2d').putImageData(img, 0, 0);
+  const L = 34, B = 22; ctx.imageSmoothingEnabled = false; ctx.drawImage(off, L, 6, W - L - 6, H - B - 6);
+  SC.map = { L, T: 6, w: W - L - 6, h: H - B - 6, N, Pmax };
+  if (SC.sel) { const [si, sp] = SC.sel, x = L + (si - 0.5) / N * SC.map.w, y = 6 + (Pmax - sp + 0.5) / Pmax * SC.map.h;
+    if (si <= N && sp <= Pmax) { ctx.strokeStyle = css('--ink'); ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(x, y, 6, 0, 2 * Math.PI); ctx.stroke(); } }
+  ctx.fillStyle = css('--ink-soft'); ctx.font = '11px monospace'; ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+  for (const p of [1, 50, 100, 150]) ctx.fillText('p=' + p, L - 3, 6 + (Pmax - p + 0.5) / Pmax * (H - B - 6));
+  ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  for (const i of [1, 300, 600, 900, 1200]) { ctx.textAlign = i === 1 ? 'left' : i === 1200 ? 'right' : 'center'; ctx.fillText('i=' + i, L + (i === 1 ? 0 : i / N) * (W - L - 6), H - B + 4); }
+  document.getElementById('scalRead').textContent = `${cells.toLocaleString()} coefficients shown: ${zeros} abelian squares (p ≥ 2${k === 4 ? ' or p = 1' : ''}), ${runs} zeros at p = 1 (runs), ${near.toLocaleString()} one-letter near misses`;
+}
+segment('sw', v => { sWord = v; listAll(); selectFirstListed(); });
+document.getElementById('scal').addEventListener('click', e => {
+  const m = SC.map; if (!m) return; const r = e.currentTarget.getBoundingClientRect(), x = e.clientX - r.left - m.L, y = e.clientY - r.top - m.T;
+  if (x < 0 || y < 0 || x >= m.w || y >= m.h) return;
+  const i = Math.floor(x / m.w * m.N) + 1, p = m.Pmax - Math.floor(y / m.h * m.Pmax);
+  SC.sel = [i, p]; figScal(); inspect(i, p);
+});
+for (const id of ['qi', 'qp']) document.getElementById(id).addEventListener('change', () => { const i = +document.getElementById('qi').value, p = +document.getElementById('qp').value; SC.sel = [i, p]; figScal(); inspect(i, p); });
+document.getElementById('lp').addEventListener('change', listAll);
+for (const [b, t] of [['qCopy', 'qOut'], ['lCopy', 'lOut']]) document.getElementById(b).addEventListener('click', async () => {
+  const ta = document.getElementById(t), btn = document.getElementById(b);
+  try { await navigator.clipboard.writeText(t === 'lOut' ? LIST_TSV : ta.value); } catch (_) { ta.select(); document.execCommand('copy'); }
+  btn.textContent = 'copied'; setTimeout(() => { btn.textContent = 'copy'; }, 1200);
+});
+
+// Figure 2: phasor cloud --------------------------------------------------
+let pWord = 'g85';
+function figPhas() {
+  const [w, k] = WORDS[pWord], p = +document.getElementById('pp').value, P = prefix(w, k);
+  document.getElementById('ppv').textContent = 'p = ' + p;
+  const cv = document.getElementById('phas'), { ctx, w: W, h: H } = setupCanvas(cv, 0.6);
+  const pts = [], S3 = Math.sqrt(3) / 2;
+  for (let i = 0; i + 2 * p <= w.length; i++) {
+    const d = c => 2 * P[(i + p) * k + c] - P[i * k + c] - P[(i + 2 * p) * k + c];   // first half minus second half, per letter
+    let x, y, h = null;
+    if (k === 4) { x = d(0) - d(2); y = d(1) - d(3); h = d(0) - d(1) + d(2) - d(3); }
+    else { x = d(0) - 0.5 * (d(1) + d(2)); y = S3 * (d(1) - d(2)); }
+    pts.push([x, y, h]);
+  }
+  let R = 1; for (const q of pts) R = Math.max(R, Math.abs(q[0]), Math.abs(q[1]));
+  const cx = W / 2, cy = H / 2, s = (Math.min(W, H) / 2 - 16) / R;
+  ctx.strokeStyle = css('--rule'); ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(16, cy); ctx.lineTo(W - 16, cy); ctx.moveTo(cx, 8); ctx.lineTo(cx, H - 8); ctx.stroke();
+  let hmax = 1; for (const q of pts) if (q[2] !== null) hmax = Math.max(hmax, Math.abs(q[2]));
+  const dark = isDark(); let origin = 0, squares = 0;
+  ctx.globalAlpha = 0.55;
+  for (const [x, y, h] of pts) {
+    if (x === 0 && Math.abs(y) < 1e-9) { origin++; if (h === null || h === 0) squares++; }
+    let col;
+    if (h === null) col = css('--accent');
+    else if (h === 0) col = css('--ink');
+    else { const t = h / hmax; col = t > 0 ? `hsl(25,80%,${dark ? 62 : 50}%)` : `hsl(210,75%,${dark ? 65 : 45}%)`; }
+    ctx.fillStyle = col; ctx.beginPath(); ctx.arc(cx + s * x, cy - s * y, 2, 0, 2 * Math.PI); ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+  if (squares) { ctx.strokeStyle = css('--zero'); ctx.lineWidth = 2.5; ctx.beginPath(); ctx.arc(cx, cy, 9, 0, 2 * Math.PI); ctx.stroke(); }
+  document.getElementById('phasRead').textContent = `${pts.length.toLocaleString()} positions; phasor at the origin: ${origin}` + (k === 4 ? `, of which with Δh = 0 (abelian squares): ${squares}` : ` (abelian squares${p === 1 ? ', here runs xx' : ''}): ${squares}`);
+}
+segment('pw', v => { pWord = v; figPhas(); });
+document.getElementById('pp').addEventListener('input', figPhas);
+
+// Figure 3: eigenvalue maps (static SVG) ---------------------------------
+function svgEl(svg, tag, attrs, text) { const e = document.createElementNS('http://www.w3.org/2000/svg', tag); for (const a in attrs) e.setAttribute(a, attrs[a]); if (text) e.textContent = text; svg.appendChild(e); return e; }
+function figEig() {
+  const svg = document.getElementById('eig'); svg.innerHTML = '';
+  const ink = css('--ink-soft'), rule = css('--rule'), panels = [
+    { x0: 150, title: 'g85: λ₁ = 85', ev: [[7, 0], [-8, 3], [-8, -3]], shape: 'circle' },
+    { x0: 430, title: 'g98: λ₁ = 98', ev: [[Math.sqrt(90), 0], [-Math.sqrt(90), 0], [-8, 0, 1]], shape: 'square' },
+    { x0: 710, title: 'Fibonacci (Pisot): λ₁ = 1.618', ev: [[-0.618, 0]], shape: 'circle' }];
+  const s = 12, cy = 165;
+  for (const P of panels) {
+    svgEl(svg, 'circle', { cx: P.x0, cy, r: s, fill: css('--panel'), stroke: css('--ink-faint') });
+    for (const r of [5, 10]) svgEl(svg, 'circle', { cx: P.x0, cy, r: r * s, fill: 'none', stroke: rule, 'stroke-dasharray': '3 3' });
+    svgEl(svg, 'line', { x1: P.x0 - 125, x2: P.x0 + 125, y1: cy, y2: cy, stroke: rule }); svgEl(svg, 'line', { x1: P.x0, x2: P.x0, y1: cy - 125, y2: cy + 125, stroke: rule });
+    svgEl(svg, 'text', { x: P.x0, y: 22, 'text-anchor': 'middle', 'font-size': 13, fill: css('--ink'), 'font-family': 'monospace' }, P.title);
+    svgEl(svg, 'text', { x: P.x0 + 10 * s * 0.71 + 4, y: cy - 10 * s * 0.71 - 4, 'font-size': 10, fill: ink, 'font-family': 'monospace' }, '|λ| = 10');
+    for (const [re, im, below] of P.ev) {
+      const x = P.x0 + s * re, y = cy - s * im, col = css('--u');
+      if (P.shape === 'circle') svgEl(svg, 'circle', { cx: x, cy: y, r: 5.5, fill: col }); else svgEl(svg, 'rect', { x: x - 5, y: y - 5, width: 10, height: 10, fill: col });
+      const lab = im ? `${re}${im > 0 ? '+' : '−'}${Math.abs(im)}i` : (Math.abs(re - Math.round(re)) > 1e-6 ? (re > 0 ? '+' : '−') + (Math.abs(re) > 1 ? '√90' : '0.618') : String(re).replace('-', '−'));
+      svgEl(svg, 'text', { x: x + (re >= 0 ? 8 : -8), y: y + (im > 0 ? -8 : im < 0 || below ? 18 : -9), 'text-anchor': re >= 0 ? 'start' : 'end', 'font-size': 11, fill: ink, 'font-family': 'monospace' }, lab);
+    }
+  }
+  svgEl(svg, 'text', { x: 430, y: 318, 'text-anchor': 'middle', 'font-size': 11, fill: ink, 'font-family': 'monospace' }, 'shaded: |λ| < 1 (bounded imbalance)  ·  dashed: |λ| = 5 and 10');
+}
+
+// Figure 4: counts (static SVG) -----------------------------------------
+// all ternary aa2f words of length n = 1..70 (V. Keränen, "Number of a2f words"); n <= 36 recounted in probe2.js
+const COUNTS = [3, 9, 27, 66, 162, 360, 786, 1572, 3114, 5850, 11070, 20454, 37698, 67746, 120084, 207354, 352710, 584730, 958572, 1534644, 2442792, 3820194, 5963814, 9172128, 14111766, 21433746, 32548104, 48838248, 73374756, 109134090, 162502878, 239456694, 353018418, 515766912, 753738288, 1092152922, 1582937112, 2277322608, 3277969326, 4688961678, 6711975342, 9556710960, 13620872190, 19315286742, 27411843570, 38697836448, 54640565430, 76738660518, 107744295960, 150468909474, 209997309000, 291517053024, 404311374036, 557861853108, 769001094162, 1054807891746, 1445567846316, 1971779324736, 2687391085356, 3646641094272, 4945189419510, 6678795097830, 9016561718934, 12127588393038, 16310079690648, 21863562240876, 29312761952346, 39186055535052, 52406748457434, 69909193375806];
+function figCnt() {
+  const svg = document.getElementById('cnt'); svg.innerHTML = '';
+  const L = 60, R = 800, T = 20, B = 250, n = COUNTS.length, bw = (R - L) / n;
+  const ink = css('--ink-soft'), rule = css('--rule');
+  const y1 = v => B - (B - T) * v / 14, y2 = v => B - (B - T) * (v - 1) / 1.2;   // log10 count 0..14, ratio 1..2.2
+  for (const v of [0, 7, 14]) { svgEl(svg, 'line', { x1: L, x2: R, y1: y1(v), y2: y1(v), stroke: rule }); svgEl(svg, 'text', { x: L - 6, y: y1(v) + 4, 'text-anchor': 'end', 'font-size': 11, fill: ink, 'font-family': 'monospace' }, '10^' + v); }
+  COUNTS.forEach((c, j) => svgEl(svg, 'rect', { x: L + j * bw + 1, y: y1(Math.log10(c)), width: bw - 2, height: B - y1(Math.log10(c)), fill: css('--panel'), stroke: css('--ink-faint'), 'stroke-width': 0.6 }));
+  const pts = []; for (let m = 10; m <= n; m++) pts.push([L + (m - 0.5) * bw, y2((COUNTS[m - 1] / COUNTS[m - 6]) ** 0.2)]);
+  svgEl(svg, 'polyline', { points: pts.map(q => q.join(',')).join(' '), fill: 'none', stroke: css('--u'), 'stroke-width': 2.2 });
+  for (const v of [1.2, 1.4, 1.6, 1.8, 2.0]) svgEl(svg, 'text', { x: R + 6, y: y2(v) + 4, 'font-size': 11, fill: css('--u'), 'font-family': 'monospace' }, v.toFixed(1));
+  for (const m of [1, 10, 20, 30, 40, 50, 60, 70]) svgEl(svg, 'text', { x: L + (m - 0.5) * bw, y: B + 16, 'text-anchor': 'middle', 'font-size': 11, fill: ink, 'font-family': 'monospace' }, 'n=' + m);
+  svgEl(svg, 'text', { x: L, y: 288, 'font-size': 11, fill: ink, 'font-family': 'monospace' }, 'bars: log₁₀ count (left axis)   line: growth per letter (c_n / c_{n−5})^{1/5} (right axis)');
+}
+
+const drawAll = () => { figScal(); figPhas(); figEig(); figCnt(); };
+drawAll();
+listAll(); selectFirstListed();
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change', drawAll);
+let rt; window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { figScal(); figPhas(); }, 150); });
+</script>
+</body>
+</html>
