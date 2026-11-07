@@ -1,0 +1,345 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Image Words in Colour</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=STIX+Two+Text:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600;700&display=swap">
+<style>
+  :root{
+    --bg:#FBFBF8; --ink:#1D2230; --ink-soft:#505769; --ink-faint:#80869A; --rule:#D9DBD2;
+    --accent:#2F4F8A; --panel:#F1F2EC; --fig:#FFFFFF; --hl:#E6E0F5; --hl-edge:#9C88D8; --shade:#DCE2F0;
+    /* letter colours: a red, b green, c yellow, d blue */
+    --la:#e74c3c; --lb:#27ae60; --lc:#f1c40f; --ld:#2980b9;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#15171E; --ink:#E7E8E2; --ink-soft:#B0B5C4; --ink-faint:#7C8296; --rule:#33374A;
+      --accent:#8FAAE6; --panel:#1E212B; --fig:#1A1D26; --hl:#3A2F5C; --hl-edge:#9F8FD6; --shade:#2F3856;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#15171E; --ink:#E7E8E2; --ink-soft:#B0B5C4; --ink-faint:#7C8296; --rule:#33374A;
+    --accent:#8FAAE6; --panel:#1E212B; --fig:#1A1D26; --hl:#3A2F5C; --hl-edge:#9F8FD6; --shade:#2F3856;
+  }
+  *{ box-sizing:border-box; }
+  body{ margin:0; background:var(--bg); color:var(--ink); font-family:"STIX Two Text",Cambria,"Times New Roman",serif; font-size:18px; line-height:1.6; }
+  .page{ max-width:1460px; margin:0 auto; padding:56px 16px 90px; }
+  header{ margin-bottom:28px; }
+  h1{ font-weight:600; font-size:clamp(1.75rem,4.4vw,2.35rem); line-height:1.14; margin:0 0 20px; text-wrap:balance; }
+  h1 .sub{ display:block; font-weight:400; font-style:italic; color:var(--ink-soft); font-size:0.72em; margin-top:8px; }
+  h2{ font-size:0.82rem; font-family:"JetBrains Mono",ui-monospace,Consolas,monospace; font-weight:600; letter-spacing:0.1em;
+      text-transform:uppercase; color:var(--accent); margin:56px 0 14px; }
+  h2 .nt{ text-transform:none; }
+  .xsel{ display:inline-flex; gap:4px; margin-left:14px; vertical-align:2px; }
+  .xsel button{ font-family:"JetBrains Mono",monospace; font-weight:700; font-size:14px; width:2em; padding:1px 0; background:transparent; border:1px solid var(--rule); border-radius:4px; cursor:pointer; }
+  .xsel button:hover{ border-color:var(--ink-faint); }
+  .xsel button.on{ background:var(--panel); border-color:var(--ink-soft); box-shadow:inset 0 0 0 1px var(--ink-soft); }
+  p{ max-width:820px; }
+  a{ color:var(--accent); }
+  .byline{ font-family:"JetBrains Mono",ui-monospace,Consolas,monospace; font-size:13px; color:var(--ink-soft);
+           display:flex; gap:14px; flex-wrap:wrap; padding-top:16px; border-top:1px solid var(--rule); }
+  .byline b{ color:var(--ink); }
+  .controls{ display:flex; flex-wrap:wrap; gap:10px 22px; align-items:center; font-family:system-ui,sans-serif; font-size:14px; color:var(--ink-soft);
+             position:sticky; top:0; z-index:5; background:var(--bg); padding:10px 0; border-bottom:1px solid var(--rule); margin:22px 0 8px; }
+  .controls label{ display:inline-flex; gap:6px; align-items:center; cursor:pointer; }
+  .legend{ display:inline-flex; gap:12px; font-family:"JetBrains Mono",monospace; font-weight:700; }
+  .frame{ background:var(--fig); border:1px solid var(--rule); border-radius:6px; padding:12px; overflow-x:auto; }
+  .meta{ font-family:system-ui,sans-serif; font-size:13.5px; color:var(--ink-soft); margin:6px 0 4px; display:flex; flex-wrap:wrap; gap:6px 18px; align-items:center; }
+  .meta button{ font:inherit; font-size:12.5px; color:var(--ink-soft); background:transparent; border:1px solid var(--rule); border-radius:4px; padding:2px 8px; cursor:pointer; }
+  .meta button:hover{ color:var(--ink); border-color:var(--ink-faint); }
+  .w{ font-family:"JetBrains Mono",ui-monospace,Consolas,monospace; font-weight:700; letter-spacing:0.02em; white-space:nowrap; }
+  .w1{ font-size:16px; line-height:2.0; }
+  /* square cells: each letter of g²(a) gets a cell as wide as it is high */
+  .grid{ --cell:12px; font-size:11px; }
+  .row{ display:flex; height:var(--cell); }
+  .row > span:not(.lab){ flex:none; display:inline-block; width:var(--cell); height:var(--cell); line-height:var(--cell); text-align:center; font-size:calc(var(--cell) * 0.85); }
+  .row .lab{ flex:none; width:6.5ch; color:var(--ink-faint); font-weight:400; text-align:right; padding-right:1.2ch; line-height:var(--cell); font-size:min(11px, var(--cell)); }
+  .gd{ box-shadow:inset 0 0 0 1px var(--ink-faint); }
+  body.nodiag .gd{ box-shadow:none; }
+  .row .lab i{ font-style:normal; }
+  .a{ color:var(--la); } .b{ color:var(--lb); } .c{ color:var(--lc); } .d{ color:var(--ld); }
+  .row.alt{ background:var(--panel); }
+  body.nobands .row.alt{ background:transparent; }
+  /* moving letters of g109 */
+  .m{ background:var(--hl); outline:1.5px solid var(--hl-edge); outline-offset:-1px; border-radius:2px; }
+  .w1 .m{ outline-width:2px; padding:1px 0; }
+  .s{ background:var(--shade); }
+  body.nohl .m{ background:none; outline:none; }
+  body.noshade .s{ background:none; }
+  .sv{ font-family:"STIX Two Text",Cambria,serif; font-size:1.15em; color:var(--ink); }
+  .struct{ font-family:"JetBrains Mono",monospace; font-size:13px; color:var(--ink-soft); margin-top:6px; }
+  .readout{ font-family:"JetBrains Mono",monospace; font-size:12.5px; color:var(--ink-soft); min-height:1.6em; margin-top:6px; }
+  table.pv{ border-collapse:collapse; font-family:"JetBrains Mono",monospace; font-size:13px; margin:8px 0; }
+  table.pv td, table.pv th{ border:1px solid var(--rule); padding:3px 10px; text-align:right; }
+  table.pv th{ font-weight:600; color:var(--ink-soft); }
+  /* section 3: coloured disks */
+  .dctl{ display:flex; flex-wrap:wrap; gap:8px 22px; align-items:center; font-family:system-ui,sans-serif; font-size:14px; color:var(--ink-soft); margin:8px 0; }
+  .dctl label{ display:inline-flex; gap:6px; align-items:center; cursor:pointer; }
+  .dctl input[type=number]{ width:4.5em; font:inherit; padding:1px 4px; }
+  .dctl button{ font:inherit; font-size:12.5px; color:var(--ink-soft); background:transparent; border:1px solid var(--rule); border-radius:4px; padding:2px 8px; cursor:pointer; }
+  .dctl button:hover{ color:var(--ink); border-color:var(--ink-faint); }
+  textarea.lay{ width:100%; font-family:"JetBrains Mono",ui-monospace,Consolas,monospace; font-size:14px; line-height:1.5; padding:6px 8px; background:var(--fig); color:var(--ink);
+               border:1px solid var(--rule); border-radius:4px; resize:vertical; white-space:pre-wrap; word-break:break-all; }
+  textarea.lay:disabled{ opacity:0.55; }
+  .dstat{ font-family:system-ui,sans-serif; font-size:13px; color:var(--ink-soft); margin:4px 0 8px; }
+  .dstat .bad{ color:#c0392b; }
+  .disks{ --dk:24px; display:flex; flex-direction:column; gap:calc(var(--dk) * 0.22); padding:4px; }
+  .dline{ display:flex; gap:calc(var(--dk) * 0.22); min-height:var(--dk); }
+  .dk{ flex:none; width:var(--dk); height:var(--dk); border-radius:50%; display:flex; align-items:center; justify-content:center;
+       font-family:"JetBrains Mono",monospace; font-weight:700; font-size:calc(var(--dk) * 0.5); color:transparent; }
+  body.dkletters .dk{ color:rgba(20,22,30,0.72); }
+  .dk.ka{ background:var(--la); } .dk.kb{ background:var(--lb); } .dk.kc{ background:var(--lc); } .dk.kd{ background:var(--ld); }
+  .dk.sp{ background:transparent; }
+  .dk.dm{ outline:2.5px solid var(--hl-edge); outline-offset:2px; }
+  body.nohl .dk.dm{ outline:none; }
+  footer{ margin-top:60px; font-size:14px; color:var(--ink-soft); border-top:1px solid var(--rule); padding-top:12px; }
+  @media (max-width:600px){ body{ font-size:17px; } .w1{ font-size:14px; } }
+</style>
+</head>
+<body>
+<div class="page">
+<header>
+  <h1>Image words in colour
+    <span class="sub">g85(a), g98(a) and g109(a), and their squares g85²(a), g98²(a) and g109²(a), letter by letter</span></h1>
+  <div class="byline"><b>V. Keränen</b><span>Working notes, 7 November 2026</span><span>Drawn with Claude Code</span></div>
+</header>
+
+<p>The letters are coloured <span class="w a">a</span> red, <span class="w b">b</span> green, <span class="w c">c</span> yellow and <span class="w d">d</span> blue. In the squares, each row is one block, the image of one letter of g(a), and every letter has a square cell. So g²(a) is drawn as an |g(a)| × |g(a)| square, with the blocks lined up under each other. The colour pattern of each block is a recolouring of the first one.</p>
+<p>All six words are abelian square-free. The page checks this when it loads; the result is shown under each word.</p>
+
+<div class="controls">
+  <span class="legend"><span class="a">a</span><span class="b">b</span><span class="c">c</span><span class="d">d</span></span>
+  <label><input type="checkbox" id="hl" checked> mark the moving letters of g109</label>
+  <label><input type="checkbox" id="sh" checked> shade w₄ and w₃</label>
+  <label><input type="checkbox" id="bands" checked> band alternate rows</label>
+  <label><input type="checkbox" id="dg"> frame the diagonal</label>
+  <label>cell size <input type="range" id="fs" min="6" max="20" value="12" style="width:110px"></label>
+</div>
+
+<h2>1 · The image words <span class="nt">g(a)</span></h2>
+<div id="one"></div>
+
+<h2>2 · The squares <span class="nt">g²(x)</span>, one block per row</h2>
+<p>Choose the letter <i>x</i> ∈ {a, b, c, d} with the buttons <span class="w a">a</span> <span class="w b">b</span> <span class="w c">c</span> <span class="w d">d</span> next to each heading; the square then shows g²(<i>x</i>), with the blocks g(<i>y</i>) for the letters <i>y</i> of g(<i>x</i>). Each g²(<i>x</i>) is a recolouring of g²(a), so all of them are abelian square-free too; the page checks each one when you choose it. Hover over a letter to see its position. In g109²(<i>x</i>) every block has its moving letters at offsets 17 and 48, so they form two marked columns.</p>
+<p><b>The diagonals.</b> The diagonal of the square g²(a) consists of the letters g(<i>x</i><sub><i>r</i></sub>)[<i>r</i>], where <i>x</i><sub><i>r</i></sub> is the <i>r</i>th letter of g(a); these are the positions <i>r</i>(|g(a)| + 1) + 1 of g²(a), an arithmetic progression with difference |g(a)| + 1. In g98²(a) all 98 diagonal letters are <span class="w a">a</span>. The reason is how the four images of g98 are related. With σ the cyclic recolouring a → b → c → d → a, the images satisfy g98(σ<sup><i>k</i></sup>(a)) = σ<sup>−<i>k</i></sup>(g98(a)): the recolouring runs backwards. If <i>x</i><sub><i>r</i></sub> = σ<sup><i>k</i></sup>(a), the diagonal letter is σ<sup>−<i>k</i></sup>(<i>x</i><sub><i>r</i></sub>) = σ<sup>−<i>k</i></sup>(σ<sup><i>k</i></sup>(a)) = a. For the cyclic morphisms g85 and g109, g(σ<sup><i>k</i></sup>(a)) = σ<sup><i>k</i></sup>(g(a)), so the diagonal letter is σ<sup>2<i>k</i></sup>(a), which is a or c: the diagonal of g85²(a) has 46 a's and 39 c's, that of g109²(a) 50 a's and 59 c's. For other <i>x</i> the same argument with <i>x</i> = σ<sup><i>j</i></sup>(a) gives: in g98²(<i>x</i>) every diagonal letter is <i>x</i>, and in g85²(<i>x</i>) and g109²(<i>x</i>) the diagonal letters are σ<sup><i>j</i>+2<i>k</i></sup>(a), so a and c for <i>x</i> ∈ {a, c} and b and d for <i>x</i> ∈ {b, d}. Tick “frame the diagonal” to see it.</p>
+<div id="two"></div>
+
+<h2>3 · The image words as coloured disks, in your own lines</h2>
+<p>Each letter is a coloured disk. There are two ways to break g(a) into lines. <b>Cut every <i>n</i> letters</b> gives lines of equal length. <b>Own layout</b> reads the text box: a “.” ends the line after it, a space leaves an empty place as wide as one disk, and a line break also ends a line. Any other characters are ignored. The page checks that the letters of the layout, read in order, spell g(a) exactly. “Take the cut layout” copies the current cut into the text box as a starting point.</p>
+<div class="dctl">
+  <label>disk size <input type="range" id="dks" min="8" max="44" value="24" style="width:120px"></label>
+  <label><input type="checkbox" id="dkl"> letters in the disks</label>
+</div>
+<div id="three"></div>
+
+<footer>
+  Source: <code>research_4to3/imagewords/template.html</code>, built by <code>research_4to3/imagewords/build.js</code>. g85 and g98 come from <code>research_4to3/lib.js</code>; g109(a) is the first of the twelve image words of σ<sub>109</sub>(a) in V. Keränen, A powerful abelian square-free substitution over 4 letters, <i>Theoret. Comput. Sci.</i> 410 (2009) 3893–3900, <a href="https://doi.org/10.1016/j.tcs.2009.05.027">doi:10.1016/j.tcs.2009.05.027</a>.
+</footer>
+</div>
+
+<script>
+'use strict';
+const G85 = {"a":"abcacdcbcdcadcdbdabacabadbabcbdbcbacbcdcacbabdabacadcbcdcacdbcbacbcdcacdcbdcdadbdcbca","b":"bcdbdadcdadbadacabcbdbcbacbcdcacdcbdcdadbdcbcabcbdbadcdadbdacdcbdcdadbdadcadabacadcdb","c":"cdacabadabacbabdbcdcacdcbdcdadbdadcadabacadcdbcdcacbadabacabdadcadabacabadbabcbdbadac","d":"dabdbcbabcbdcbcacdadbdadcadabacabadbabcbdbadacdadbdcbabcbdbcabadbabcbdbcbacbcdcacbabd"};
+const G98 = {"a":"abcacdcbcdcadbdcbdbabcbdcacbabdbabcabdadcdadbdcbdbabdbcbacbcdbabdcdbdcacdbcbacbcdcacdcbdcdadbdcbca","b":"dabdbcbabcbdcacbacadabacbdbadacadabdacdcbcdcacbacadacabadbabcadacbcacbdbcabadbabcbdbcbacbcdcacbabd","c":"cdacabadabacbdbadbdcdadbacadcdbdcdacdbcbabcbdbadbdcdbdadcadabdcdbabdbacabdadcadabacabadbabcbdbadac","d":"bcdbdadcdadbacadcacbcdcadbdcbcacbcdbcabadabacadcacbcacdcbdcdacbcadacadbdacdcbdcdadbdadcadabacadcdb"};
+const cyc = s => s.replace(/[abcd]/g, x => ({ a: 'b', b: 'c', c: 'd', d: 'a' })[x]);
+const A109 = 'abcacdcbcdcadcdbdabcbadacdadbdcdbdabdbcbabcbdcbcadbdcdadcdbcbabcbdcbcacdcacbadabcbdcbcadbabcbabdbcdbdadbdcbca';
+const G109 = { a: A109, b: cyc(A109), c: cyc(cyc(A109)), d: cyc(cyc(cyc(A109))) };
+// g109(a) = p16 w4 u27 w3 s59 with w4 = dabc, w3 = cad (the first of the twelve image words);
+// the moving letters are the d of w4 (offset 16) and the c of w3 (offset 47), 0-based.
+const MOVE = new Set([16, 47]);
+const SHADE = new Set([16, 17, 18, 19, 47, 48, 49]);
+
+const MORPH = [
+  { key: 'g85', name: 'g85', g: G85, note: 'Keränen 1992. The four images are cyclic recolourings a → b → c → d → a of g85(a).' },
+  { key: 'g98', name: 'g98', g: G98, note: 'The images of b, c, d are the recolourings σ⁻¹, σ⁻², σ⁻³ of g98(a), with σ: a → b → c → d → a; its Parikh matrix is anti-circulant.' },
+  { key: 'g109', name: 'g109', g: G109, mark: true, note: 'The first of the twelve image words of σ<sub>109</sub>(a) (Keränen 2009). The images of b, c, d are its cyclic recolourings.' },
+];
+
+const esc = s => s;
+function span(ch, cls) { return `<span class="${ch}${cls ? ' ' + cls : ''}">${ch}</span>`; }
+function cls(mark, off) { if (!mark) return ''; return (MOVE.has(off) ? 'm' : '') + (SHADE.has(off) ? (MOVE.has(off) ? ' s' : 's') : ''); }
+function parikh(w) { const p = { a: 0, b: 0, c: 0, d: 0 }; for (const x of w) p[x]++; return p; }
+function abelianSquares(w) {
+  const n = w.length, P = new Int32Array((n + 1) * 4);
+  for (let i = 0; i < n; i++) { for (let c = 0; c < 4; c++) P[(i + 1) * 4 + c] = P[i * 4 + c]; P[(i + 1) * 4 + 'abcd'.indexOf(w[i])]++; }
+  let cnt = 0;
+  for (let p = 1; 2 * p <= n; p++) for (let i = 0; i + 2 * p <= n; i++) {
+    const a = i * 4, b = (i + p) * 4, e = (i + 2 * p) * 4;
+    if (2 * P[b] === P[a] + P[e] && 2 * P[b + 1] === P[a + 1] + P[e + 1] && 2 * P[b + 2] === P[a + 2] + P[e + 2]) cnt++;
+  }
+  return cnt;
+}
+function copyBtn(word) {
+  const b = document.createElement('button'); b.textContent = 'copy word';
+  b.onclick = () => { navigator.clipboard.writeText(word).then(() => { b.textContent = 'copied'; setTimeout(() => b.textContent = 'copy word', 1200); }, () => {}); };
+  return b;
+}
+function meta(word, extra) {
+  const m = document.createElement('div'); m.className = 'meta';
+  const p = parikh(word);
+  m.innerHTML = `<span>length ${word.length.toLocaleString('en-US')}</span><span>Parikh vector (#a, #b, #c, #d) = (${p.a}, ${p.b}, ${p.c}, ${p.d})</span><span class="sq">abelian squares: checking…</span>${extra || ''}`;
+  m.appendChild(copyBtn(word));
+  return m;
+}
+
+// ---- section 1
+const one = document.getElementById('one');
+for (const M of MORPH) {
+  const w = M.g.a;
+  const h = document.createElement('div');
+  h.innerHTML = `<h3 style="font-size:1.08rem;margin:26px 0 4px">${M.name}(a) <span style="font-weight:400;color:var(--ink-soft);font-size:0.9rem">— ${M.note}</span></h3>`;
+  const fr = document.createElement('div'); fr.className = 'frame';
+  fr.innerHTML = `<div class="w w1">${[...w].map((x, o) => span(x, cls(M.mark, o))).join('')}</div>` +
+    (M.mark ? `<div class="struct"><span class="sv"><i>p</i><sub>16</sub></span> = abcacdcbcdcadcdb · <span class="sv"><i>w</i><sub>4</sub></span> = <b>d</b>abc · <span class="sv"><i>u</i><sub>27</sub></span> · <span class="sv"><i>w</i><sub>3</sub></span> = <b>c</b>ad · <span class="sv"><i>s</i><sub>59</sub></span>. The marked letters are the moving d (letter 17) and c (letter 48). In the twelve image words of σ₁₀₉(a), the d moves through w₄ ∈ {dabc, adbc, abdc, abcd} and the c through w₃ ∈ {cad, acd, adc}; this page uses only the first word.</div>` : '');
+  const mt = meta(w); h.appendChild(fr); h.appendChild(mt); one.appendChild(h);
+  M.meta1 = mt;
+}
+
+// ---- section 2: g²(x) for a chosen letter x
+const two = document.getElementById('two');
+for (const M of MORPH) {
+  const h = document.createElement('div');
+  h.innerHTML = `<h3 style="font-size:1.08rem;margin:26px 0 4px">${M.name}²(<span class="cur"></span>) <span style="font-weight:400;color:var(--ink-soft);font-size:0.9rem">— <span class="nb"></span> blocks of <span class="nb"></span> letters</span>
+    <span class="xsel" role="group" aria-label="choose x">${[...'abcd'].map(x => `<button data-x="${x}" class="${x}">${x}</button>`).join('')}</span></h3>`;
+  const mt = meta(''); h.appendChild(mt); M.meta2 = mt;
+  const fr = document.createElement('div'); fr.className = 'frame';
+  const rd = document.createElement('div'); rd.className = 'readout'; rd.textContent = 'hover over a letter';
+  h.appendChild(fr); h.appendChild(rd); two.appendChild(h);
+  M.x = 'a';
+  M.drawSquare = (x) => {
+    M.x = x;
+    const w1 = M.g[x], L = w1.length, w2 = [...w1].map(y => M.g[y]).join('');
+    M.w2 = w2;
+    h.querySelector('.cur').innerHTML = `<span class="${x}" style="font-family:'JetBrains Mono',monospace;font-weight:700">${x}</span>`;
+    h.querySelectorAll('.nb').forEach(s => s.textContent = L);
+    h.querySelectorAll('.xsel button').forEach(b => b.classList.toggle('on', b.dataset.x === x));
+    const p = parikh(w2);
+    mt.querySelector('span').textContent = `length ${w2.length.toLocaleString('en-US')}`;
+    mt.querySelectorAll('span')[1].textContent = `Parikh vector (#a, #b, #c, #d) = (${p.a}, ${p.b}, ${p.c}, ${p.d})`;
+    mt.querySelector('button').replaceWith(copyBtn(w2));
+    const sq = mt.querySelector('.sq'); sq.textContent = 'abelian squares: checking…';
+    setTimeout(() => { if (M.w2 !== w2) return; const k = abelianSquares(w2); sq.textContent = k === 0 ? 'abelian squares: none (checked)' : `abelian squares: ${k}`; }, 30);
+    const rows = [];
+    for (let r = 0; r < L; r++) {
+      const y = w1[r], blk = M.g[y];
+      rows.push(`<div class="row${r % 2 ? ' alt' : ''}" data-r="${r}"><span class="lab">${r + 1} <i class="${y}">${y}</i></span>${[...blk].map((z, o) => span(z, (cls(M.mark, o) + (o === r ? ' gd' : '')).trim())).join('')}</div>`);
+    }
+    const old = fr.querySelector('.grid'), cell = old ? old.style.getPropertyValue('--cell') : document.getElementById('fs').value + 'px';
+    fr.innerHTML = `<div class="w grid" style="--cell:${cell}">${rows.join('')}</div>`;
+    rd.textContent = 'hover over a letter';
+  };
+  h.querySelector('.xsel').addEventListener('click', e => { const b = e.target.closest('button'); if (b) M.drawSquare(b.dataset.x); });
+  fr.addEventListener('mousemove', e => {
+    const t = e.target; if (!t.parentElement || !t.parentElement.classList.contains('row') || t.classList.contains('lab')) return;
+    const w1 = M.g[M.x], L = w1.length;
+    const row = t.parentElement, r = +row.dataset.r, o = Array.prototype.indexOf.call(row.children, t) - 1;
+    rd.textContent = `letter ${(r * L + o + 1).toLocaleString('en-US')} of ${M.name}²(${M.x}) = ${t.textContent}: block ${r + 1} = ${M.name}(${w1[r]}), offset ${o + 1}` + (M.mark && MOVE.has(o) ? ' (a moving letter)' : '');
+  });
+  M.drawSquare('a');
+}
+
+// ---- section 3: coloured disks, cut every n letters or laid out by a text with "." and spaces
+const DISK = {
+  g85: { cut: 17, text: '   abcacdcbcdcadcdbda bac.abadbabcbdbcbacbcdcacbabd abaca dcbcdcacd.bcbacbcdcacdcbdcdadbdcbca' },
+  g98: { cut: 14 },
+  g109: { cut: 16 },
+};
+function cutText(w, n) { const out = []; for (let i = 0; i < w.length; i += n) out.push(w.slice(i, i + n)); return out.join('.'); }
+// parse a layout text into lines of tokens: a letter, or null for a blank place
+function parseLayout(t) {
+  const lines = [[]]; let ignored = 0;
+  for (const ch of t) {
+    if ('abcd'.includes(ch)) lines[lines.length - 1].push(ch);
+    else if (ch === ' ') lines[lines.length - 1].push(null);
+    else if (ch === '.' || ch === '\n') lines.push([]);
+    else if (ch !== '\r') ignored++;
+  }
+  while (lines.length > 1 && lines[lines.length - 1].length === 0) lines.pop();
+  return { lines, ignored };
+}
+const three = document.getElementById('three');
+for (const M of MORPH) {
+  const w = M.g.a, D = DISK[M.key];
+  const h = document.createElement('div');
+  h.innerHTML = `<h3 style="font-size:1.08rem;margin:26px 0 4px">${M.name}(a) <span style="font-weight:400;color:var(--ink-soft);font-size:0.9rem">— ${w.length} letters</span></h3>
+    <div class="dctl">
+      <label><input type="radio" name="mode-${M.key}" value="cut" checked> cut every <input type="number" class="n" min="1" max="${w.length}" value="${D.cut}"> letters</label>
+      <label><input type="radio" name="mode-${M.key}" value="own"> own layout</label>
+      <button class="take">take the cut layout</button>
+      <button class="cp">copy layout text</button>
+    </div>
+    <textarea class="lay" rows="3" spellcheck="false"></textarea>
+    <div class="dstat"></div>`;
+  const fr = document.createElement('div'); fr.className = 'frame';
+  const box = document.createElement('div'); box.className = 'disks'; fr.appendChild(box); h.appendChild(fr);
+  three.appendChild(h);
+  const ta = h.querySelector('textarea'), nIn = h.querySelector('.n'), st = h.querySelector('.dstat');
+  ta.value = D.text || cutText(w, D.cut);
+  const mode = () => h.querySelector(`input[name="mode-${M.key}"]:checked`).value;
+  function draw() {
+    const own = mode() === 'own';
+    ta.disabled = !own;
+    let text;
+    if (own) text = ta.value;
+    else { const n = Math.max(1, Math.min(w.length, Math.floor(+nIn.value) || 1)); text = cutText(w, n); }
+    const { lines, ignored } = parseLayout(text);
+    const letters = lines.flat().filter(x => x).join('');
+    let k = 0, html = '';
+    for (const ln of lines) {
+      html += '<div class="dline">' + ln.map(x => {
+        if (!x) return '<span class="dk sp"></span>';
+        const mv = M.mark && letters === w && MOVE.has(k); k++;
+        return `<span class="dk k${x}${mv ? ' dm' : ''}" title="letter ${k}: ${x}">${x}</span>`;
+      }).join('') + '</div>';
+    }
+    box.innerHTML = html;
+    let msg = `${lines.length} line${lines.length === 1 ? '' : 's'}, ${letters.length} letters`;
+    if (letters === w) msg += `; the letters spell ${M.name}(a)`;
+    else {
+      let i = 0; while (i < letters.length && i < w.length && letters[i] === w[i]) i++;
+      msg += `; <span class="bad">${i < Math.min(letters.length, w.length) ? `differs from ${M.name}(a) at letter ${i + 1}` : `${letters.length < w.length ? 'shorter' : 'longer'} than ${M.name}(a) (${w.length} letters)`}</span>`;
+    }
+    if (ignored) msg += `; ${ignored} other character${ignored === 1 ? '' : 's'} ignored`;
+    if (M.mark && letters === w) msg += '; the moving d and c are ringed';
+    st.innerHTML = msg;
+  }
+  h.querySelectorAll(`input[name="mode-${M.key}"]`).forEach(r => r.onchange = draw);
+  nIn.oninput = () => { h.querySelector(`input[name="mode-${M.key}"][value="cut"]`).checked = true; draw(); };
+  ta.oninput = draw;
+  h.querySelector('.take').onclick = () => {
+    const n = Math.max(1, Math.floor(+nIn.value) || 1);
+    ta.value = cutText(w, n); h.querySelector(`input[name="mode-${M.key}"][value="own"]`).checked = true; draw(); ta.focus();
+  };
+  h.querySelector('.cp').onclick = e => {
+    const b = e.target, t = mode() === 'own' ? ta.value : cutText(w, Math.max(1, Math.floor(+nIn.value) || 1));
+    navigator.clipboard.writeText(t).then(() => { b.textContent = 'copied'; setTimeout(() => b.textContent = 'copy layout text', 1200); }, () => {});
+  };
+  if (D.text) h.querySelector(`input[name="mode-${M.key}"][value="cut"]`).checked = true;
+  draw();
+}
+document.getElementById('dks').oninput = e => document.querySelectorAll('.disks').forEach(g => g.style.setProperty('--dk', e.target.value + 'px'));
+document.getElementById('dkl').onchange = e => document.body.classList.toggle('dkletters', e.target.checked);
+
+// ---- controls
+const body = document.body;
+document.getElementById('hl').onchange = e => body.classList.toggle('nohl', !e.target.checked);
+document.getElementById('sh').onchange = e => body.classList.toggle('noshade', !e.target.checked);
+document.getElementById('bands').onchange = e => body.classList.toggle('nobands', !e.target.checked);
+document.getElementById('dg').onchange = e => body.classList.toggle('nodiag', !e.target.checked);
+body.classList.add('nodiag');
+document.getElementById('fs').oninput = e => document.querySelectorAll('.grid').forEach(g => g.style.setProperty('--cell', e.target.value + 'px'));
+
+// ---- checks, after first paint
+setTimeout(() => {
+  for (const M of MORPH) {
+    for (const [mt, w] of [[M.meta1, M.g.a]]) {
+      const k = abelianSquares(w);
+      mt.querySelector('.sq').textContent = k === 0 ? 'abelian squares: none (checked)' : `abelian squares: ${k}`;
+    }
+  }
+}, 50);
+</script>
+</body>
+</html>
