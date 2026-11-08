@@ -1,0 +1,657 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Diamond Walks</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=STIX+Two+Text:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600;700&display=swap">
+<style>
+  :root{
+    --bg:#FBFBF8; --ink:#1D2230; --ink-soft:#505769; --ink-faint:#80869A; --rule:#D9DBD2;
+    --accent:#2F4F8A; --panel:#F1F2EC; --fig:#FFFFFF; --hl-edge:#7A5FC8; --grey-walk:#C9CCD6; --lat:#9AA0B2;
+    /* letter colours: a red, b green, c yellow, d blue */
+    --la:#e74c3c; --lb:#27ae60; --lc:#f1c40f; --ld:#2980b9;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#15171E; --ink:#E7E8E2; --ink-soft:#B0B5C4; --ink-faint:#7C8296; --rule:#33374A;
+      --accent:#8FAAE6; --panel:#1E212B; --fig:#1A1D26; --hl-edge:#C9B8FF; --grey-walk:#3A3F52; --lat:#5A6075;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#15171E; --ink:#E7E8E2; --ink-soft:#B0B5C4; --ink-faint:#7C8296; --rule:#33374A;
+    --accent:#8FAAE6; --panel:#1E212B; --fig:#1A1D26; --hl-edge:#C9B8FF; --grey-walk:#3A3F52; --lat:#5A6075;
+  }
+  *{ box-sizing:border-box; }
+  body{ margin:0; background:var(--bg); color:var(--ink); font-family:"STIX Two Text",Cambria,"Times New Roman",serif; font-size:18px; line-height:1.6; }
+  .page{ max-width:1180px; margin:0 auto; padding:56px 16px 90px; }
+  header{ margin-bottom:28px; }
+  h1{ font-weight:600; font-size:clamp(1.75rem,4.4vw,2.35rem); line-height:1.14; margin:0 0 20px; text-wrap:balance; }
+  h1 .sub{ display:block; font-weight:400; font-style:italic; color:var(--ink-soft); font-size:0.72em; margin-top:8px; }
+  .byline{ font-family:"JetBrains Mono",ui-monospace,Consolas,monospace; font-size:13px; color:var(--ink-soft);
+           display:flex; gap:14px; flex-wrap:wrap; padding-top:16px; border-top:1px solid var(--rule); }
+  .byline b{ color:var(--ink); }
+  h2{ font-size:0.82rem; font-family:"JetBrains Mono",ui-monospace,Consolas,monospace; font-weight:600; letter-spacing:0.1em;
+      text-transform:uppercase; color:var(--accent); margin:56px 0 14px; }
+  h2 .nt{ text-transform:none; }
+  h3{ font-size:1.02rem; font-weight:600; margin:22px 0 6px; }
+  p{ max-width:820px; margin:0 0 1em; }
+  a{ color:var(--accent); }
+  .w{ font-family:"JetBrains Mono",ui-monospace,Consolas,monospace; font-weight:700; }
+  .a{ color:var(--la); } .b{ color:var(--lb); } .c{ color:var(--lc); } .d{ color:var(--ld); }
+  .ui{ font-family:system-ui,sans-serif; font-size:14px; color:var(--ink-soft); }
+  .bar{ display:flex; flex-wrap:wrap; gap:8px 18px; align-items:center; margin:8px 0; }
+  .bar label{ display:inline-flex; gap:6px; align-items:center; cursor:pointer; }
+  .seg{ display:inline-flex; gap:4px; flex-wrap:wrap; }
+  .seg button, .btn{ font-family:system-ui,sans-serif; font-size:13.5px; color:var(--ink); background:transparent; border:1px solid var(--rule); border-radius:4px; padding:2px 9px; cursor:pointer; }
+  .seg button:hover, .btn:hover{ border-color:var(--ink-faint); }
+  .seg button.on{ background:var(--panel); border-color:var(--ink-soft); box-shadow:inset 0 0 0 1px var(--ink-soft); }
+  .seg.mono button{ font-family:"JetBrains Mono",monospace; font-weight:700; }
+  .frame{ background:var(--fig); border:1px solid var(--rule); border-radius:6px; padding:8px; position:relative; }
+  canvas{ display:block; width:100%; border-radius:4px; touch-action:none; cursor:grab; }
+  .readout{ font-family:"JetBrains Mono",monospace; font-size:12.5px; color:var(--ink-soft); min-height:1.6em; margin:6px 2px 0; word-break:break-all; }
+  .cols{ display:grid; grid-template-columns:minmax(0,1.25fr) minmax(0,1fr); gap:22px; margin-top:18px; }
+  @media (max-width:860px){ .cols{ grid-template-columns:1fr; } }
+  .box{ border:1px solid var(--rule); border-radius:6px; padding:10px 12px; background:var(--fig); }
+  .box h3{ margin-top:0; }
+  .fw{ font-family:"JetBrains Mono",monospace; font-weight:700; font-size:15px; line-height:1.7; word-break:break-all; background:var(--panel); border-radius:4px; padding:4px 8px; margin:6px 0; }
+  .list{ max-height:340px; overflow-y:auto; border-top:1px solid var(--rule); margin-top:8px; padding-top:6px; }
+  .list button{ display:block; width:100%; text-align:left; font-family:"JetBrains Mono",monospace; font-size:12.5px; color:var(--ink); background:transparent; border:0; border-bottom:1px dotted var(--rule); padding:3px 4px; cursor:pointer; }
+  .list button:hover{ background:var(--panel); }
+  .list button.on{ background:var(--panel); box-shadow:inset 3px 0 0 var(--hl-edge); }
+  .tag{ font-family:system-ui,sans-serif; font-size:11.5px; color:var(--ink-soft); border:1px solid var(--rule); border-radius:3px; padding:0 4px; margin-left:4px; }
+  .tag.sym{ color:var(--hl-edge); border-color:var(--hl-edge); }
+  input[type=number]{ width:5.5em; font:inherit; padding:1px 4px; }
+  .muted{ color:var(--ink-faint); }
+  .key{ display:inline-block; width:18px; height:0; border-top:4px solid; vertical-align:middle; margin-right:4px; border-radius:2px; }
+  ul, ol{ max-width:820px; box-sizing:border-box; padding-left:1.4em; } li{ margin:5px 0; }
+  .ov{ text-decoration:overline; }
+  .tfig{ margin:18px 0; max-width:820px; } .tfig svg{ display:block; width:100%; max-width:640px; height:auto; margin:0 auto; background:var(--fig); border:1px solid var(--rule); border-radius:6px; }
+  .tfig figcaption{ font-size:15px; color:var(--ink-soft); margin-top:8px; }
+  .tf-e{ stroke:var(--ink-faint); stroke-width:1.4; } .tf-l{ stroke:var(--hl-edge); stroke-width:1.2; stroke-dasharray:7 5; opacity:.8; }
+  .tf-p{ stroke:var(--ink-faint); stroke-width:1; stroke-dasharray:3 3; }
+  .tf-m{ fill:var(--fig); stroke:var(--hl-edge); stroke-width:2; } .tf-o{ fill:var(--ink); }
+  .tf-t{ fill:var(--ink); font-family:'STIX Two Text',Georgia,serif; font-size:17px; } .tf-v{ font-weight:700; font-size:19px; }
+  .tf-s{ fill:var(--hl-edge); } .tf-small{ font-size:14px; }
+  ol.steps{ max-width:820px; } ol.steps li{ margin:10px 0; } .eq{ margin:6px 0 6px 1em; }
+  ol.refs{ font-size:15px; color:var(--ink-soft); } ol.refs li{ overflow-wrap:anywhere; }
+  footer{ margin-top:60px; font-size:14px; color:var(--ink-soft); border-top:1px solid var(--rule); padding-top:12px; }
+</style>
+</head>
+<body>
+<div class="page">
+<header>
+  <h1>Diamond walks of g85, g98 and g109
+    <span class="sub">The tetrahedral walk of “Bending the string” for g85(a), g98(a), the twelve words g109(a) and the squares g²(a), with loops, factors and pseudo mirror images</span></h1>
+  <div class="byline"><b>V. Keränen</b><span>Working notes, 8 November 2026</span><span>Drawn with Claude Code</span></div>
+</header>
+
+<p>Every letter is a step of length 1 from the centre of a regular tetrahedron towards one of its vertices: <span class="w a">a</span> points up, and <span class="w b">b</span>, <span class="w c">c</span>, <span class="w d">d</span> point down to the three base vertices. This is panel (E) of <a href="https://algebra.fi/keranen/research/web051126/Bending%20the%20string%20-%20plane%20and%203D%20geometries%20for%20a2f%20and%20aa2f%20words.html">“Bending the string”</a>, following E. Jensen and V. Keränen, <a href="https://algebra.fi/keranen/JavaApplet/4LetterWalksInDiamondLattice.html">4 Letter Walks in Diamond Lattice</a> (2004). The walk starts at the origin <i>P</i><sub>0</sub>, and <i>P</i><sub><i>k</i></sub> is the point reached after the first <i>k</i> letters. The four step vectors add up to zero and that is their only relation, so <i>P</i><sub><i>k</i></sub> records the Parikh vector of the prefix up to adding the same number to all four counts.</p>
+<p>Two facts make the picture useful. <b>Loops:</b> the walk returns to a point it has visited before, <i>P</i><sub><i>i</i></sub> = <i>P</i><sub><i>j</i></sub>, exactly when the factor <i>w</i><sub><i>i</i>+1</sub>⋯<i>w</i><sub><i>j</i></sub> contains every letter equally often; its length is then a multiple of 4. <b>Abelian squares:</b> <i>w</i><sub><i>i</i>+1</sub>⋯<i>w</i><sub><i>i</i>+2<i>p</i></sub> is an abelian square exactly when <i>P</i><sub><i>i</i>+<i>p</i></sub> is the midpoint of <i>P</i><sub><i>i</i></sub> and <i>P</i><sub><i>i</i>+2<i>p</i></sub>, so the walks below have no such midpoints.</p>
+
+<h2>1 · The walk</h2>
+<div class="ui bar">
+  <span>word</span>
+  <span class="seg" id="wsel">
+    <button data-k="g85" data-l="1">g85(a)</button><button data-k="g98" data-l="1">g98(a)</button><button data-k="g109" data-l="1">g109(a)</button>
+    <button data-k="g85" data-l="2">g85²(a)</button><button data-k="g98" data-l="2">g98²(a)</button><button data-k="g109" data-l="2">g109²(a)</button>
+  </span>
+</div>
+<div class="ui bar" id="vrow">
+  <span>g109: <i>w</i>₄</span><span class="seg mono" id="v4"></span>
+  <span><i>w</i>₃</span><span class="seg mono" id="v3"></span>
+  <label id="all12l"><input type="checkbox" id="all12"> show all twelve at once</label>
+</div>
+<div class="ui bar">
+  <label><input type="checkbox" id="spin"> spin</label>
+  <label id="latl"><input type="checkbox" id="lat" checked> lattice points</label>
+  <label id="gridl"><input type="checkbox" id="grid"> lattice edges</label>
+  <label><input type="checkbox" id="rev" checked> ring revisited points</label>
+  <label id="arrl"><input type="checkbox" id="arr" checked> arrowheads</label>
+  <label>zoom <input type="range" id="zoom" min="0" max="100" value="0" style="width:110px"></label>
+  <button class="btn" id="reset">reset view</button>
+</div>
+<div class="ui bar">
+  <button class="btn" id="play">▶ play</button>
+  <label>step <input type="range" id="step" min="0" max="85" value="85" style="width:260px"></label>
+  <span id="stepv" class="muted"></span>
+</div>
+<div class="frame"><canvas id="cv"></canvas></div>
+<div class="readout" id="read">hover over the walk; click a point to pick it</div>
+<p class="ui" style="margin-top:6px">Drag to turn the walk; shift-drag (or right-drag) moves it. <b>Click two points</b> of the walk to pick the factor between them. The ringed point is the start <i>P</i><sub>0</sub>, the filled point the end.</p>
+
+<div class="cols">
+  <div class="box" id="selbox">
+    <h3>The factor between two points</h3>
+    <div class="ui bar">
+      <label>from <i>P</i> <input type="number" id="ia" min="0"></label>
+      <label>to <i>P</i> <input type="number" id="ib" min="0"></label>
+      <button class="btn" id="clr">clear</button>
+    </div>
+    <div id="selinfo" class="ui">Click two points of the walk, or type their times. The factor read from the first point to the second is <i>w</i><sub><i>i</i>+1</sub>⋯<i>w</i><sub><i>j</i></sub>: its first letter is the step leaving <i>P</i><sub><i>i</i></sub> and its last letter the step arriving at <i>P</i><sub><i>j</i></sub>.</div>
+    <div id="rel"></div>
+  </div>
+  <div class="box">
+    <h3>Loops of the walk</h3>
+    <div id="loopinfo" class="ui"></div>
+    <div class="list" id="loops"></div>
+  </div>
+</div>
+<div class="box" style="margin-top:14px">
+  <h3>Pseudo palindromes of the walk</h3>
+  <div class="ui bar"><label>at least <input type="number" id="pmin" min="2" value="9" style="width:4.5em"> letters</label>
+    <label><input type="radio" name="ppar" value="all" checked> all</label><label><input type="radio" name="ppar" value="odd"> odd</label><label><input type="radio" name="ppar" value="even"> even</label></div>
+  <div id="palinfo" class="ui"></div>
+  <div class="list" id="pals"></div>
+</div>
+
+<h2>2 · Pseudo mirror images</h2>
+<p>The 24 permutations π of {a, b, c, d} are exactly the symmetries of the regular tetrahedron: an even permutation turns it, an odd one reflects it in a plane. So the walk of a recoloured factor π(<i>u</i>) is the walk of <i>u</i> moved by that symmetry. Reading <i>u</i> backwards gives the reversal <i>ũ</i>; its walk is the walk of <i>u</i> reflected through the midpoint of its two ends, a point reflection. Call π(<i>ũ</i>) a <b>pseudo mirror image</b> of <i>u</i>. For a picked factor <i>u</i>, the box above lists every occurrence in the word of π(<i>u</i>) and π(<i>ũ</i>), and says whether its walk is congruent to that of <i>u</i> by a rotation or by a mirror image. A point reflection in space is itself a mirror map, so π(<i>ũ</i>) is a rotated copy when π is odd and a mirror copy when π is even. Click an occurrence to draw it in violet.</p>
+<p>A factor that is its own pseudo mirror image, <i>u</i> = π(<i>ũ</i>), is a <b>pseudo palindrome</b>; with π = id it is an ordinary palindrome. Applying the rule twice gives <i>u</i> = π²(<i>u</i>), so π is the identity or an involution: one of the six transpositions or the three double transpositions. An odd pseudo palindrome has a middle letter <i>x</i> with π(<i>x</i>) = <i>x</i>; an even one has a middle pair <i>x</i>π(<i>x</i>) with π(<i>x</i>) ≠ <i>x</i>. Its walk is mapped onto itself, with the two ends swapped, by a congruence that fixes the midpoint <i>M</i> of the ends:</p>
+<ul>
+  <li>π = id: the point reflection through <i>M</i>;</li>
+  <li>π a transposition (xy): a half-turn about an axis through <i>M</i>, parallel to the edge from vertex x to vertex y of the tetrahedron;</li>
+  <li>π a double transposition (xy)(zt): a mirror image in a plane through <i>M</i>, perpendicular to the line joining the midpoints of the edges xy and zt.</li>
+</ul>
+<p>The box “Pseudo palindromes of the walk” lists, for each centre of the word, the longest pseudo palindrome around it, longest first. Clicking one picks it; the box “The factor between two points” then shows it split at its centre, and the walk marks <i>M</i>. Picked factors and loops get the tag <span class="tag sym">pseudo palindrome</span> as well. The longest one in g98(a) is the odd 55-letter factor <i>w</i><sub>40</sub>⋯<i>w</i><sub>94</sub>,</p>
+<p class="fw w" style="text-align:center"><span class="d">d</span><span class="c">c</span><span class="d">d</span><span class="a">a</span><span class="d">d</span><span class="b">b</span><span class="d">d</span><span class="c">c</span><span class="b">b</span><span class="d">d</span><span class="b">b</span><span class="a">a</span><span class="b">b</span><span class="d">d</span><span class="b">b</span><span class="c">c</span><span class="b">b</span><span class="a">a</span><span class="c">c</span><span class="b">b</span><span class="c">c</span><span class="d">d</span><span class="b">b</span><span class="a">a</span><span class="b">b</span><span class="d">d</span><span class="c">c</span> <b><span class="d">d</span></b> <span class="b">b</span><span class="d">d</span><span class="c">c</span><span class="a">a</span><span class="c">c</span><span class="d">d</span><span class="b">b</span><span class="c">c</span><span class="b">b</span><span class="a">a</span><span class="c">c</span><span class="b">b</span><span class="c">c</span><span class="d">d</span><span class="c">c</span><span class="a">a</span><span class="c">c</span><span class="d">d</span><span class="c">c</span><span class="b">b</span><span class="d">d</span><span class="c">c</span><span class="d">d</span><span class="a">a</span><span class="d">d</span><span class="b">b</span><span class="d">d</span></p>
+<p>with middle letter d and π = (bc), so its walk is unchanged by a half-turn about an axis through <i>M</i>. The same factor is depicted in V. Keränen, <a href="https://algebra.fi/keranen/research/web2/Structuresg98_SomeForbiddenFactors.html">Structures of g98: some forbidden factors</a> (2003, 2026).</p>
+
+<h2>3 · The twelve words of g109 and the squares</h2>
+<p>For g109(a), the buttons <i>w</i>₄ and <i>w</i>₃ choose one of the twelve image words of σ<sub>109</sub>(a): the d of <i>w</i>₄ = dabc moves 0–3 steps to the right and the c of <i>w</i>₃ = cad 0–2 steps. Moving a letter inside <i>w</i>₄ only changes the path between <i>P</i><sub>16</sub> and <i>P</i><sub>20</sub>, and inside <i>w</i>₃ only between <i>P</i><sub>47</sub> and <i>P</i><sub>50</sub>; all other points stay where they are. Tick “show all twelve at once” to see the alternative paths dashed in violet. For g109²(a), the chosen word is used as g109(a) and its cyclic recolourings as g109(b), g109(c), g109(d).</p>
+<p>The squares g85²(a), g98²(a) and g109²(a) have 7225, 9604 and 11881 letters. For them the page uses a lighter drawing: each letter colour is one polyline, without depth sorting, arrowheads or lattice, and the step slider and play move in larger jumps. Picking, loops and mirror images work as for the short words.</p>
+
+<h2>4 · A note on DNA and RNA</h2>
+<p>DNA and RNA are words over four letters too: A, C, G, T (U in RNA). The two strands of DNA run in opposite directions and pair A with T and C with G, so the partner strand of <i>u</i> is its <b>reverse complement</b>. Writing a, b, c, d for A, C, G, T, the reverse complement is the pseudo mirror image π(<i>ũ</i>) with π = (ad)(bc), a double transposition. So the following ideas of this page have a direct meaning in bioinformatics:</p>
+<ul>
+  <li><b>Watson–Crick palindromes</b>, <i>u</i> = π(<i>ũ</i>) with π = (AT)(CG), are the pseudo palindromes with this π. They read the same on both strands, like the EcoRI restriction site GAATTC. As π fixes no letter they always have even length, and in the walk they have a mirror plane through <i>M</i>. In combinatorics on words they are the ϑ-palindromes of de Luca and De Luca [5].</li>
+  <li><b>Hairpins</b> (stem-loops) of RNA and <b>cruciforms</b> of DNA have the form <i>u</i> <i>v</i> π(<i>ũ</i>): a pseudo palindrome with a short spacer <i>v</i> in the middle, where the strand folds back and pairs with itself. RNA also pairs G with U (the wobble pair), which loosens the rule. Predicting such folds is the subject of RNA secondary structure programs like ViennaRNA [7].</li>
+  <li><b>Tandem repeats</b> are squares <i>uu</i>, mostly with a few mutations. Unlike the words on this page, real DNA is full of squares and abelian squares, that is, midpoints of its walk; programs like Tandem Repeats Finder [6] search for approximate ones.</li>
+  <li><b>The walk itself</b> is essentially the <b>Z-curve</b> of Zhang and Zhang [1], which also steps towards the vertices of a regular tetrahedron; its three coordinates measure purines against pyrimidines, amino against keto bases and A+T against G+C. Its drift shows changes of composition, such as the GC skew that changes sign at the replication origin of a bacterial genome. Older relatives are the one-dimensional DNA walk of Peng et al. [2] and the chaos game representation of Jeffrey [3]. A loop of the walk is a window with equal amounts of A, C, G and T.</li>
+</ul>
+<p>The page itself takes only g85, g98 and g109; a DNA version would need an input box for any sequence, a coarser drawing for long genomes and searches that allow mismatches. Sequences can be taken from GenBank at <a href="https://www.ncbi.nlm.nih.gov/">NCBI</a>; Gusfield's book [4] covers the string algorithms behind such searches.</p>
+<p>Such searches could also serve AI agents. In the Virtual Biotech of Zhang et al. [10], agents built on Claude use over a hundred database tools to assess drug targets and clinical trials. Their drugs are antibodies and small molecules. For nucleic-acid drugs, such as antisense oligonucleotides, siRNAs and CRISPR guide RNAs, a sequence tool would check that a designed strand has no long Watson–Crick palindromes or hairpins, so that it does not fold back on itself.</p>
+<h3>Complementarity and computational universality: the twin-shuffle language</h3>
+<p>Complementarity is not only a symmetry; it can compute anything. Following A. Salomaa [8], write the four DNA letters as bits with and without a bar: A = 0, G = 1, T = <span class="ov">0</span>, C = <span class="ov">1</span>. Purines are unbarred, pyrimidines barred, and the bar is the Watson–Crick complement, with double bars cancelling. A <b>shuffle</b> of two words interleaves them without changing the order of the letters within either word. The <b>twin-shuffle language</b> TS consists of all shuffles of a binary word <i>y</i> with its barred copy <span class="ov"><i>y</i></span>. For example, 0<span class="ov">0</span>1<span class="ov">1</span> and 01<span class="ov">01</span> are in TS (<i>y</i> = 01), but 01<span class="ov">10</span> is not. Membership is easy to test: delete the barred letters of <i>z</i>, then separately delete the unbarred ones and remove the bars; <i>z</i> is in TS exactly when the two results are equal. TS is thus a single, fixed and simple language, a word interleaved with its complement, just as a DNA double strand is a strand paired with its complement.</p>
+<p>The surprising fact, due to J. Engelfriet and G. Rozenberg [9], is that TS is <b>universal</b>: for every recursively enumerable language <i>L</i>, that is, for every language accepted by some Turing machine, there is a generalized sequential machine <i>g</i> with <i>L</i> = <i>g</i>(TS). A gsm is a finite automaton that writes output while it reads input; on its own it is very weak. Equivalently, <i>L</i> is obtained from a version of TS over a larger alphabet by intersecting with a regular language and erasing the auxiliary letters. So all the power of a Turing machine already lies in the complementarity relation. Only the input–output format <i>g</i> changes from task to task, while TS, like Watson–Crick complementarity, always stays the same. Salomaa [8] uses this to explain why so many quite different models of DNA computing turn out to be Turing universal: every one of them contains complementarity in some form. Two ways of reading a double strand show the link:</p>
+<ul>
+  <li>Reading the upper and lower strands alternately, letter by letter, gives a word of TS.</li>
+  <li>Reading the upper strand <i>x</i> forwards and then the lower strand backwards, following the orientation of the molecule, gives <i>x</i><span class="ov"><i>x̃</i></span>. This word lies in the reverse twin-shuffle language RTS, the shuffles of <i>y</i> with <span class="ov"><i>ỹ</i></span>, for which the universality theorem also holds.</li>
+</ul>
+<p>The word <i>x</i><span class="ov"><i>x̃</i></span> is exactly a Watson–Crick palindrome in the sense above: π(<i>ũ</i>) = <i>u</i> with π = (AT)(CG). So the walks of the double strands read around their ends are precisely the even pseudo palindromes of that π, the walks with a mirror plane through their midpoint.</p>
+<p><b>Hairpins are universal too.</b> Engelfriet and Rozenberg [9, Theorem 11] show that every recursively enumerable language is obtained from the <b>hairpin language</b> of all words <i>w</i>#<span class="ov"><i>w̃</i></span> in the same way: intersect it with a simple deterministic linear language and erase the auxiliary letters. Here <i>w</i> is the stem, the marker # plays the role of the loop, and <span class="ov"><i>w̃</i></span> is the reverse complement of the stem, so these words are hairpins <i>u</i> <i>v</i> π(<i>ũ</i>) with π = (AT)(CG). Among the words that have all their unbarred letters before their barred letters, the hairpin words are exactly the <b>Dyck words</b>. In a Dyck word each unbarred letter is an opening bracket, its barred copy is the matching closing bracket, and the pairs are nested. This gives a contrast between two kinds of pairing:</p>
+<ul>
+  <li><b>Nested pairing</b>, as in Dyck words and in the dot-bracket notation of RNA secondary structures predicted by ViennaRNA [7], belongs to the context-free languages. By the Chomsky–Schützenberger theorem, every context-free language is obtained from a Dyck language by intersecting with a regular language and erasing letters.</li>
+  <li><b>Parallel pairing</b>, as in TS, where the <i>i</i>-th unbarred letter is matched with the <i>i</i>-th barred one, gives all recursively enumerable languages in the same way. In the words of [9], the twin shuffles play for the recursively enumerable languages the role that the Dyck languages play for the context-free ones.</li>
+</ul>
+<p>Crossing pairs, the pseudoknots of RNA, are exactly what the standard folding programs leave out. The matching decision result [9, Theorem 17] is that it is undecidable whether a given simple deterministic linear language contains a hairpin word <i>w</i><span class="ov"><i>w̃</i></span>.</p>
+<p><b>The equality machine.</b> Engelfriet and Rozenberg [9, Section 7] also give TS a machine picture. An equality machine is a finite automaton with two write-only tapes. It accepts when, at the end, the two tapes hold the same word. Read a DNA word as a list of instructions: A and G write 0 and 1 on tape 1, and T and C write 0 and 1 on tape 2. The words of TS are exactly the instruction lists that leave the two tapes equal. Equivalently, TS is the <b>equality language</b> Eq(α, β) = {<i>z</i> : α(<i>z</i>) = β(<i>z</i>)} of two morphisms:</p>
+<ul>
+  <li>α keeps A and G and erases T and C;</li>
+  <li>β erases A and G and maps T to A and C to G.</li>
+</ul>
+<p>Equality languages of morphisms are the solution sets of instances of the Post correspondence problem. So maps of the same kind as g85, g98 and g109 are already where undecidability begins. Nondeterministic equality machines accept exactly the recursively enumerable languages, and deterministic ones with a single state accept exactly the equality languages of morphisms [9, Theorem 18].</p>
+<p>TS also has a simple picture in the walk. Write <i>t</i><sub>A</sub>, <i>t</i><sub>C</sub>, <i>t</i><sub>G</sub>, <i>t</i><sub>T</sub> for the four step vectors (<i>t</i><sub>a</sub>, <i>t</i><sub>b</sub>, <i>t</i><sub>c</sub>, <i>t</i><sub>d</sub> on this page). A word <i>z</i> of TS is <i>y</i> interleaved with its complement, so every A of <i>y</i> (a 0) is matched by a T (a <span class="ov">0</span>) and every G by a C:</p>
+<p style="text-align:center">#A = #T = <i>p</i> and #C = #G = <i>q</i>.</p>
+<p>The walk of <i>z</i> starts at <i>P</i><sub>0</sub> = 0 and ends at the sum of its steps,</p>
+<p style="text-align:center"><i>p</i><i>t</i><sub>A</sub> + <i>p</i><i>t</i><sub>T</sub> + <i>q</i><i>t</i><sub>C</sub> + <i>q</i><i>t</i><sub>G</sub> = <i>p</i>(<i>t</i><sub>A</sub> + <i>t</i><sub>T</sub>) + <i>q</i>(<i>t</i><sub>C</sub> + <i>t</i><sub>G</sub>) = (<i>p</i> − <i>q</i>)(<i>t</i><sub>A</sub> + <i>t</i><sub>T</sub>),</p>
+<p>because the four steps add up to zero, so <i>t</i><sub>C</sub> + <i>t</i><sub>G</sub> = −(<i>t</i><sub>A</sub> + <i>t</i><sub>T</sub>). Hence the walk of every word of TS ends on one and the same line ℓ: the line through the start in the direction <i>t</i><sub>A</sub> + <i>t</i><sub>T</sub>.</p>
+<ul>
+  <li>The end point is the lattice point <i>p</i> − <i>q</i> = #A − #C steps along ℓ, each of length |<i>t</i><sub>A</sub> + <i>t</i><sub>T</sub>| = 2/√3. For example, AATT (<i>y</i> = 00) ends 2 steps along ℓ, GGCC (<i>y</i> = 11) ends 2 steps the other way, and ATGC (<i>y</i> = 01) returns to the start, so it is a loop.</li>
+  <li>Geometrically, ℓ is the line through the midpoints of the opposite tetrahedron edges AT and CG. In the coordinates of the Z-curve [1] it is the <i>z</i>-axis, which measures A + T against G + C.</li>
+  <li>Only the end point is pinned down. In between, the walk may wander off ℓ, since a prefix of <i>z</i> need not be balanced.</li>
+  <li>The condition is necessary, not sufficient: AGCT has the right counts but is not in TS, because its unbarred part AG = 01 differs from its barred part CT = 10.</li>
+</ul>
+<p>The walk thus sees only the <b>abelian shadow</b> of TS, the counts #A = #T and #C = #G. That shadow can be checked by simple counting. For a single pair of letters it is the context-free language {#a = #b}, Example 2 of [9]. All the computing power of TS lies in the order of the letters, which no abelian view, such as the end point of the walk, can see.</p>
+<h3>Why |<i>t</i><sub>A</sub> + <i>t</i><sub>T</sub>| = 2/√3</h3>
+<p>The four step vectors <i>t</i><sub>A</sub>, <i>t</i><sub>C</sub>, <i>t</i><sub>G</sub>, <i>t</i><sub>T</sub> (<i>t</i><sub>a</sub>, <i>t</i><sub>b</sub>, <i>t</i><sub>c</sub>, <i>t</i><sub>d</sub> on this page) are <b>unit vectors</b>: each points from the centre <i>O</i> of a regular tetrahedron to one of its vertices A, C, G, T, and the tetrahedron is scaled so that this distance is 1. In the coordinates of the page, <i>t</i><sub>A</sub> = (0, 1, 0), and <i>t</i><sub>C</sub>, <i>t</i><sub>G</sub>, <i>t</i><sub>T</sub> point down to the base, each with height −1/3.</p>
+<figure class="tfig">
+<svg viewBox="0 0 640 400" role="img" aria-label="Regular tetrahedron ACGT with centre O, the unit step vectors, the midpoints of the opposite edges AT and CG, the line through them and the sum t_A + t_T">
+<line x1="20.0" y1="200.0" x2="620.0" y2="200.0" class="tf-l"/>
+<line x1="395.3" y1="69.5" x2="204.7" y2="166.7" class="tf-e"/>
+<line x1="395.3" y1="69.5" x2="204.7" y2="233.3" class="tf-e" stroke-dasharray="4 4"/>
+<line x1="395.3" y1="69.5" x2="395.3" y2="330.5" class="tf-e"/>
+<line x1="204.7" y1="166.7" x2="204.7" y2="233.3" class="tf-e"/>
+<line x1="204.7" y1="166.7" x2="395.3" y2="330.5" class="tf-e"/>
+<line x1="204.7" y1="233.3" x2="395.3" y2="330.5" class="tf-e"/>
+<line x1="395.3" y1="69.5" x2="490.5" y2="200.0" class="tf-p"/>
+<line x1="395.3" y1="330.5" x2="490.5" y2="200.0" class="tf-p"/>
+<line x1="300.0" y1="200.0" x2="388.8" y2="78.4" stroke="var(--la)" stroke-width="2.2"/><polygon points="395.3,69.5 392.4,81.0 385.1,75.7" fill="var(--la)"/>
+<line x1="300.0" y1="200.0" x2="215.1" y2="170.3" stroke="var(--lb)" stroke-width="2.2"/><polygon points="204.7,166.7 216.6,166.1 213.6,174.5" fill="var(--lb)"/>
+<line x1="300.0" y1="200.0" x2="215.1" y2="229.7" stroke="var(--lc)" stroke-width="2.2"/><polygon points="204.7,233.3 213.6,225.5 216.6,233.9" fill="var(--lc)"/>
+<line x1="300.0" y1="200.0" x2="388.8" y2="321.6" stroke="var(--ld)" stroke-width="2.2"/><polygon points="395.3,330.5 385.1,324.3 392.4,319.0" fill="var(--ld)"/>
+<line x1="300.0" y1="200.0" x2="479.5" y2="200.0" stroke="var(--hl-edge)" stroke-width="2.6"/><polygon points="490.5,200.0 479.5,204.5 479.5,195.5" fill="var(--hl-edge)"/>
+<circle cx="395.3" cy="200.0" r="4" class="tf-m"/>
+<circle cx="204.7" cy="200.0" r="4" class="tf-m"/>
+<circle cx="300.0" cy="200.0" r="4" class="tf-o"/>
+<g class="tf-t">
+<text x="407.6" y="52.5" class="tf-v" text-anchor="middle" dominant-baseline="middle">A</text>
+<text x="192.4" y="162.3" class="tf-v" text-anchor="middle" dominant-baseline="middle">C</text>
+<text x="192.4" y="237.7" class="tf-v" text-anchor="middle" dominant-baseline="middle">G</text>
+<text x="407.6" y="347.5" class="tf-v" text-anchor="middle" dominant-baseline="middle">T</text>
+<text x="329.1" y="137.1"><tspan font-style="italic">t</tspan><tspan baseline-shift="sub" font-size="12">A</tspan></text>
+<text x="234.9" y="167.3"><tspan font-style="italic">t</tspan><tspan baseline-shift="sub" font-size="12">C</tspan></text>
+<text x="246.9" y="246.7"><tspan font-style="italic">t</tspan><tspan baseline-shift="sub" font-size="12">G</tspan></text>
+<text x="329.1" y="270.9"><tspan font-style="italic">t</tspan><tspan baseline-shift="sub" font-size="12">T</tspan></text>
+<text x="294.0" y="222.0" text-anchor="end">O</text>
+<text x="403.3" y="191.0"><tspan font-style="italic">M</tspan><tspan baseline-shift="sub" font-size="12">AT</tspan></text>
+<text x="196.7" y="190.0" text-anchor="end"><tspan font-style="italic">M</tspan><tspan baseline-shift="sub" font-size="12">CG</tspan></text>
+<text x="486.5" y="186.0" class="tf-s"><tspan font-style="italic">t</tspan><tspan baseline-shift="sub" font-size="12">A</tspan> + <tspan font-style="italic">t</tspan><tspan baseline-shift="sub" font-size="12">T</tspan></text>
+<text x="486.5" y="224.0" class="tf-s tf-small">length 2/√3</text>
+<text x="26.0" y="190.0" font-style="italic" font-size="18">ℓ</text>
+</g></svg>
+<figcaption>The regular tetrahedron ACGT with centre <i>O</i> and the four unit step vectors. <i>t</i><sub>A</sub> + <i>t</i><sub>T</sub> (violet) is the diagonal of the parallelogram spanned by <i>t</i><sub>A</sub> and <i>t</i><sub>T</sub>. It runs along the line ℓ through the midpoints <i>M</i><sub>AT</sub> and <i>M</i><sub>CG</sub> of the opposite edges AT and CG; the hidden edge AG is dashed. The picture is a parallel projection, so lengths and angles are not to scale.</figcaption>
+</figure>
+<ol class="steps">
+  <li><b>Each step has length 1</b>, so <i>t</i><sub>A</sub>·<i>t</i><sub>A</sub> = <i>t</i><sub>C</sub>·<i>t</i><sub>C</sub> = <i>t</i><sub>G</sub>·<i>t</i><sub>G</sub> = <i>t</i><sub>T</sub>·<i>t</i><sub>T</sub> = 1.</li>
+  <li><b>Any two different steps have dot product −1/3.</b> The four vectors add up to zero, so the square of their sum is zero:
+    <p class="eq">0 = |<i>t</i><sub>A</sub> + <i>t</i><sub>C</sub> + <i>t</i><sub>G</sub> + <i>t</i><sub>T</sub>|² = (sum of the four |<i>t</i><sub>x</sub>|²) + 2 · (sum of the six products <i>t</i><sub>x</sub>·<i>t</i><sub>y</sub>).</p>
+    By the symmetry of the tetrahedron all six products have the same value <i>c</i>, so 0 = 4 + 12<i>c</i> and <i>c</i> = −1/3. This is the tetrahedral angle arccos(−1/3) ≈ 109.47° between any two steps. In the coordinates above, <i>t</i><sub>A</sub>·<i>t</i><sub>T</sub> is simply the height of <i>t</i><sub>T</sub>, −1/3.</li>
+  <li><b>The length of the sum:</b>
+    <p class="eq">|<i>t</i><sub>A</sub> + <i>t</i><sub>T</sub>|² = |<i>t</i><sub>A</sub>|² + |<i>t</i><sub>T</sub>|² + 2 <i>t</i><sub>A</sub>·<i>t</i><sub>T</sub> = 1 + 1 − 2/3 = 4/3, so |<i>t</i><sub>A</sub> + <i>t</i><sub>T</sub>| = √(4/3) = 2/√3 ≈ 1.1547.</p>
+    The same holds for every pair of letters; in particular <i>t</i><sub>C</sub> + <i>t</i><sub>G</sub> = −(<i>t</i><sub>A</sub> + <i>t</i><sub>T</sub>) has the same length.</li>
+</ol>
+<p><b>Geometric meaning.</b> The midpoint of the edge AT is <i>M</i><sub>AT</sub> = (<i>t</i><sub>A</sub> + <i>t</i><sub>T</sub>)/2, at distance 1/√3 from <i>O</i>, and the midpoint of the opposite edge CG is <i>M</i><sub>CG</sub> = (<i>t</i><sub>C</sub> + <i>t</i><sub>G</sub>)/2 = −<i>M</i><sub>AT</sub>. So ℓ passes through <i>M</i><sub>CG</sub>, <i>O</i> and <i>M</i><sub>AT</sub>, and one step along ℓ, |<i>t</i><sub>A</sub> + <i>t</i><sub>T</sub>| = 2/√3, is the distance between the midpoints of the opposite edges AT and CG. For comparison, an edge has length |<i>t</i><sub>A</sub> − <i>t</i><sub>T</sub>| = √(1 + 1 + 2/3) = √(8/3) ≈ 1.633, so the step along ℓ is the edge length divided by √2.</p>
+<ol class="refs">
+  <li>R. Zhang and C.-T. Zhang, Z curves, an intuitive tool for visualizing and analyzing the DNA sequences, <i>J. Biomol. Struct. Dyn.</i> 11 (1994) 767–782, <a href="https://doi.org/10.1080/07391102.1994.10508031">doi:10.1080/07391102.1994.10508031</a>.</li>
+  <li>C.-K. Peng, S. V. Buldyrev, A. L. Goldberger, S. Havlin, F. Sciortino, M. Simons and H. E. Stanley, Long-range correlations in nucleotide sequences, <i>Nature</i> 356 (1992) 168–170, <a href="https://doi.org/10.1038/356168a0">doi:10.1038/356168a0</a>.</li>
+  <li>H. J. Jeffrey, Chaos game representation of gene structure, <i>Nucleic Acids Res.</i> 18 (1990) 2163–2170, <a href="https://doi.org/10.1093/nar/18.8.2163">doi:10.1093/nar/18.8.2163</a>.</li>
+  <li>D. Gusfield, <i>Algorithms on Strings, Trees, and Sequences: Computer Science and Computational Biology</i>, Cambridge University Press, 1997.</li>
+  <li>A. de Luca and A. De Luca, Pseudopalindrome closure operators in free monoids, <i>Theoret. Comput. Sci.</i> 362 (2006) 282–300, <a href="https://doi.org/10.1016/j.tcs.2006.07.009">doi:10.1016/j.tcs.2006.07.009</a>. See also L. Kari and K. Mahalingam, Watson–Crick palindromes in DNA computing, <i>Natural Computing</i> 9 (2010) 297–316, <a href="https://doi.org/10.1007/s11047-009-9131-2">doi:10.1007/s11047-009-9131-2</a>.</li>
+  <li>G. Benson, Tandem repeats finder: a program to analyze DNA sequences, <i>Nucleic Acids Res.</i> 27 (1999) 573–580, <a href="https://doi.org/10.1093/nar/27.2.573">doi:10.1093/nar/27.2.573</a>.</li>
+  <li>R. Lorenz et al., ViennaRNA Package 2.0, <i>Algorithms Mol. Biol.</i> 6 (2011) 26, <a href="https://doi.org/10.1186/1748-7188-6-26">doi:10.1186/1748-7188-6-26</a>; web server and downloads at <a href="https://www.tbi.univie.ac.at/RNA/">tbi.univie.ac.at/RNA</a>.</li>
+  <li>A. Salomaa, Turing, Watson–Crick and Lindenmayer. Aspects of DNA complementarity, TUCS Technical Report No 128, Turku Centre for Computer Science, September 1997. See also G. Rozenberg and A. Salomaa, Watson–Crick complementarity, universal computations and genetic engineering, Leiden University, Computer Science Technical Report 28, 1996.</li>
+  <li>J. Engelfriet and G. Rozenberg, Fixed point languages, equality languages, and representation of recursively enumerable languages, <i>J. ACM</i> 27 (1980) 499–518. See also A. Salomaa, <i>Jewels of Formal Language Theory</i>, Computer Science Press, 1981.</li>
+  <li>H. G. Zhang, P. Eckmann, J. Miao, A. B. Mahon and J. Zou, The Virtual Biotech: a multi-agent AI framework for therapeutic discovery and development, <i>Science</i> 394 (2026) eaeg6779, <a href="https://doi.org/10.1126/science.aeg6779">doi:10.1126/science.aeg6779</a>.</li>
+</ol>
+
+<footer>
+  Source: <code>research_4to3/diamond/template.html</code>, built by <code>research_4to3/diamond/build.js</code>. g85 and g98 come from <code>research_4to3/lib.js</code>; g109(a) and its twelve variants are from V. Keränen, A powerful abelian square-free substitution over 4 letters, <i>Theoret. Comput. Sci.</i> 410 (2009) 3893–3900, <a href="https://doi.org/10.1016/j.tcs.2009.05.027">doi:10.1016/j.tcs.2009.05.027</a>. The tetrahedral walk follows E. Jensen and V. Keränen, <i>4 Letter Walks in Diamond Lattice</i> (2004).
+</footer>
+</div>
+
+<script>
+'use strict';
+const G85 = {"a":"abcacdcbcdcadcdbdabacabadbabcbdbcbacbcdcacbabdabacadcbcdcacdbcbacbcdcacdcbdcdadbdcbca","b":"bcdbdadcdadbadacabcbdbcbacbcdcacdcbdcdadbdcbcabcbdbadcdadbdacdcbdcdadbdadcadabacadcdb","c":"cdacabadabacbabdbcdcacdcbdcdadbdadcadabacadcdbcdcacbadabacabdadcadabacabadbabcbdbadac","d":"dabdbcbabcbdcbcacdadbdadcadabacabadbabcbdbadacdadbdcbabcbdbcabadbabcbdbcbacbcdcacbabd"};
+const G98 = {"a":"abcacdcbcdcadbdcbdbabcbdcacbabdbabcabdadcdadbdcbdbabdbcbacbcdbabdcdbdcacdbcbacbcdcacdcbdcdadbdcbca","b":"dabdbcbabcbdcacbacadabacbdbadacadabdacdcbcdcacbacadacabadbabcadacbcacbdbcabadbabcbdbcbacbcdcacbabd","c":"cdacabadabacbdbadbdcdadbacadcdbdcdacdbcbabcbdbadbdcdbdadcadabdcdbabdbacabdadcadabacabadbabcbdbadac","d":"bcdbdadcdadbacadcacbcdcadbdcbcacbcdbcabadabacadcacbcacdcbdcdacbcadacadbdacdcbdcdadbdadcadabacadcdb"};
+const cyc = s => s.replace(/[abcd]/g, x => ({ a: 'b', b: 'c', c: 'd', d: 'a' })[x]);
+const A109 = 'abcacdcbcdcadcdbdabcbadacdadbdcdbdabdbcbabcbdcbcadbdcdadcdbcbabcbdcbcacdcacbadabcbdcbcadbabcbabdbcdbdadbdcbca';
+const W4 = k => 'abc'.slice(0, k) + 'd' + 'abc'.slice(k), W3 = k => 'ad'.slice(0, k) + 'c' + 'ad'.slice(k);
+const variant = (d, c) => A109.slice(0, 16) + W4(d) + A109.slice(20, 47) + W3(c) + A109.slice(50);
+const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const LCOL = x => css({ a: '--la', b: '--lb', c: '--lc', d: '--ld' }[x]);
+// tetrahedral step vectors, as in panel (E) of "Bending the string": a up, b, c, d down to the base
+const TD = { a: [0, 1, 0] };
+['b', 'c', 'd'].forEach((x, j) => { const t = (90 + 120 * j) * Math.PI / 180, s = Math.sqrt(8) / 3; TD[x] = [s * Math.cos(t), -1 / 3, s * Math.sin(t)]; });
+
+// ---------------------------------------------------------------- state
+const S = { key: 'g85', level: 1, d: 0, c: 0, yaw: 30, tilt: 18, zoom: 1, panX: 0, panY: 0, k: 0, A: null, B: null, hi: null };
+let PALS = [], SELPAL = null;
+let W = '', N = 0, Q = null, CO = null, VIS = null, LOOPS = [], C0 = [0, 0, 0], SPAN = 1, LAT = null, MULTI = [];
+let PX = null, PY = null, PZ = null;
+
+function morph() {
+  if (S.key === 'g85') return G85;
+  if (S.key === 'g98') return G98;
+  const v = variant(S.d, S.c); return { a: v, b: cyc(v), c: cyc(cyc(v)), d: cyc(cyc(cyc(v))) };
+}
+const label = () => `${S.key}${S.level === 2 ? '²' : ''}(a)`;
+function buildWord(keepSel) {
+  const g = morph();
+  W = S.level === 1 ? g.a : [...g.a].map(x => g[x]).join('');
+  N = W.length;
+  Q = new Float64Array(3 * (N + 1)); CO = new Int32Array(3 * (N + 1));
+  for (let i = 0; i < N; i++) {
+    const v = TD[W[i]];
+    for (let t = 0; t < 3; t++) Q[3 * (i + 1) + t] = Q[3 * i + t] + v[t];
+    const x = W[i];
+    for (let t = 0; t < 3; t++) CO[3 * (i + 1) + t] = CO[3 * i + t] + (x === 'abc'[t] ? 1 : 0) - (x === 'd' ? 1 : 0);
+  }
+  C0 = [0, 1, 2].map(t => { let s = 0; for (let i = 0; i <= N; i++) s += Q[3 * i + t]; return s / (N + 1); });
+  SPAN = 0; for (let i = 0; i <= N; i++) SPAN = Math.max(SPAN, Math.hypot(Q[3 * i] - C0[0], Q[3 * i + 1] - C0[1], Q[3 * i + 2] - C0[2]));
+  // visits of each lattice point, and the loops between consecutive visits
+  VIS = new Map(); for (let i = 0; i <= N; i++) { const k = ckey(i); const a = VIS.get(k); if (a) a.push(i); else VIS.set(k, [i]); }
+  LOOPS = []; MULTI = [];
+  for (const ts of VIS.values()) if (ts.length > 1) { MULTI.push(ts[0]); for (let r = 0; r + 1 < ts.length; r++) LOOPS.push([ts[r], ts[r + 1]]); }
+  LOOPS.sort((p, q) => (p[1] - p[0]) - (q[1] - q[0]) || p[0] - q[0]);
+  PALS = findPals();
+  buildLattice();
+  const st = document.getElementById('step');
+  st.max = N; S.k = N; st.value = N; st.step = 1;
+  if (!keepSel) { S.A = S.B = null; S.hi = null; }
+  else { if (S.A > N) S.A = null; if (S.B > N) S.B = null; }
+  syncUI(); renderLoops(); renderPals(); renderSel(); draw();
+}
+// for each centre the longest u = π(ũ), π the identity or an involution
+const INVOL = ['abcd', 'bacd', 'cbad', 'dbca', 'acbd', 'adcb', 'abdc', 'badc', 'cdab', 'dcba'];
+function findPals() {
+  const out = [], idx = { a: 0, b: 1, c: 2, d: 3 };
+  for (let c = 0; c < 2 * N - 1; c++) {
+    let best = null;
+    for (const p of INVOL) {
+      let l, r;
+      if (c % 2 === 0) { const m = c / 2; if (p[idx[W[m]]] !== W[m]) continue; l = m - 1; r = m + 1; }
+      else { l = (c - 1) / 2; r = l + 1; }
+      while (l >= 0 && r < N && W[l] === p[idx[W[r]]]) { l--; r++; }
+      const len = r - l - 1;
+      if (len >= 2 && (!best || len > best.j - best.i)) best = { i: l + 1, j: r, p };
+    }
+    if (best) out.push(best);
+  }
+  out.sort((x, y) => (y.j - y.i) - (x.j - x.i) || x.i - y.i);
+  return out;
+}
+const symKind = p => { const c = cycles(p); return c === 'id' ? 'point reflection' : c.length === 4 ? 'half-turn' : 'mirror plane'; };
+function splitPal(u) {   // left · centre · right
+  const h = u.length >> 1;
+  return u.length % 2 ? [u.slice(0, h), u[h], u.slice(h + 1)] : [u.slice(0, h), '', u.slice(h)];
+}
+function renderPals() {
+  const el = document.getElementById('pals'), info = document.getElementById('palinfo');
+  const mn = Math.max(2, +document.getElementById('pmin').value || 2), par = document.querySelector('input[name=ppar]:checked').value;
+  const list = PALS.filter(q => { const L = q.j - q.i; return L >= mn && (par === 'all' || (L % 2 === 1) === (par === 'odd')); });
+  const top = PALS.length ? PALS[0].j - PALS[0].i : 0;
+  info.innerHTML = `${list.length} centre${list.length === 1 ? '' : 's'} of ${label()} with a pseudo palindrome of at least ${mn} letters (the longest has ${top}). Longest first; click one to pick it.`;
+  const show = list.slice(0, 300);
+  el.innerHTML = show.map((q, n) => { const u = W.slice(q.i, q.j), L = u.length;
+    return `<button data-n="${n}">P${q.i}–P${q.j} · ${L} ${L % 2 ? 'odd' : 'even'} · π = ${cycles(q.p)} · ${L <= 28 ? u : u.slice(0, 26) + '…'} <span class="tag sym">${symKind(q.p)}</span></button>`; }).join('') +
+    (list.length > 300 ? `<div class="ui muted">… ${list.length - 300} more</div>` : '');
+  el.querySelectorAll('button').forEach(b => b.onclick = () => { const q = show[+b.dataset.n]; S.A = q.i; S.B = q.j; S.hi = null; renderSel(); draw();
+    cv.scrollIntoView({ behavior: 'smooth', block: 'center' }); });
+}
+const ckey = i => CO[3 * i] + ',' + CO[3 * i + 1] + ',' + CO[3 * i + 2];
+const samePoint = (i, j) => CO[3 * i] === CO[3 * j] && CO[3 * i + 1] === CO[3 * j + 1] && CO[3 * i + 2] === CO[3 * j + 2];
+
+// lattice points p·t_a + q·t_b + r·t_c in the box around the walk (short words only)
+function buildLattice() {
+  LAT = null; if (S.level !== 1) return;
+  const lo = [1e9, 1e9, 1e9], hi = [-1e9, -1e9, -1e9], blo = [1e9, 1e9, 1e9], bhi = [-1e9, -1e9, -1e9];
+  for (let i = 0; i <= N; i++) for (let t = 0; t < 3; t++) {
+    lo[t] = Math.min(lo[t], CO[3 * i + t]); hi[t] = Math.max(hi[t], CO[3 * i + t]);
+    blo[t] = Math.min(blo[t], Q[3 * i + t]); bhi[t] = Math.max(bhi[t], Q[3 * i + t]);
+  }
+  const pts = [], idx = new Map(), pad = 0.35;
+  for (let p = lo[0] - 1; p <= hi[0] + 1; p++) for (let q = lo[1] - 1; q <= hi[1] + 1; q++) for (let r = lo[2] - 1; r <= hi[2] + 1; r++) {
+    const X = [0, 1, 2].map(t => p * TD.a[t] + q * TD.b[t] + r * TD.c[t]);
+    if (X.every((v, t) => v >= blo[t] - pad && v <= bhi[t] + pad)) { idx.set(p + ',' + q + ',' + r, pts.length); pts.push(X); }
+  }
+  // lattice edges: from each point one step in each of the four directions
+  const steps = [[1, 0, 0], [0, 1, 0], [0, 0, 1], [-1, -1, -1]], edges = [];
+  for (const [key, i] of idx) { const [p, q, r] = key.split(',').map(Number);
+    for (const s of steps) { const j = idx.get((p + s[0]) + ',' + (q + s[1]) + ',' + (r + s[2])); if (j !== undefined) edges.push(i, j); } }
+  LAT = { pts, edges };
+}
+
+// ---------------------------------------------------------------- drawing
+const cv = document.getElementById('cv');
+let ctx, CW = 0, CH = 0;
+function setup() {
+  const dpr = Math.max(1, window.devicePixelRatio || 1), w = cv.clientWidth;
+  const h = Math.round(Math.min(720, Math.max(380, w * 0.62)));
+  if (cv.width !== Math.round(w * dpr) || cv.height !== Math.round(h * dpr)) { cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr); cv.style.height = h + 'px'; }
+  ctx = cv.getContext('2d'); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); CW = w; CH = h;
+}
+function projector() {
+  const rad = Math.PI / 180, yaw = S.yaw * rad, tilt = S.tilt * rad, cy_ = Math.cos(yaw), sy = Math.sin(yaw), ct = Math.cos(tilt), stl = Math.sin(tilt);
+  const R = 0.46 * Math.min(CW, CH) / Math.max(1, SPAN) * S.zoom, ox = CW / 2 + S.panX, oy = CH / 2 + S.panY;
+  return (x, y, z) => {
+    const X = x - C0[0], Y = y - C0[1], Z = z - C0[2];
+    const X1 = X * cy_ + Z * sy, Z1 = -X * sy + Z * cy_;
+    const Y2 = Y * ct - Z1 * stl, Z2 = Y * stl + Z1 * ct;
+    return [ox + R * X1, oy - R * Y2, Z2 / Math.max(1, SPAN)];
+  };
+}
+function path(ctx, i, j) { ctx.moveTo(PX[i], PY[i]); for (let t = i + 1; t <= j; t++) ctx.lineTo(PX[t], PY[t]); }
+function draw() {
+  setup();
+  const pr = projector();
+  PX = new Float32Array(N + 1); PY = new Float32Array(N + 1); PZ = new Float32Array(N + 1);
+  for (let i = 0; i <= N; i++) { const p = pr(Q[3 * i], Q[3 * i + 1], Q[3 * i + 2]); PX[i] = p[0]; PY[i] = p[1]; PZ[i] = p[2]; }
+  ctx.fillStyle = css('--fig'); ctx.fillRect(0, 0, CW, CH);
+  const big = N > 2000, k = S.k, grey = css('--grey-walk'), ink = css('--ink');
+  // lattice
+  if (LAT && (document.getElementById('lat').checked || document.getElementById('grid').checked)) {
+    const P = LAT.pts.map(X => pr(X[0], X[1], X[2])), lc = css('--lat');
+    if (document.getElementById('grid').checked) {
+      ctx.strokeStyle = lc; ctx.lineWidth = 0.7; ctx.globalAlpha = 0.28; ctx.beginPath();
+      for (let e = 0; e < LAT.edges.length; e += 2) { const p = P[LAT.edges[e]], q = P[LAT.edges[e + 1]]; ctx.moveTo(p[0], p[1]); ctx.lineTo(q[0], q[1]); }
+      ctx.stroke();
+    }
+    if (document.getElementById('lat').checked) {
+      ctx.fillStyle = lc;
+      for (const p of P) { ctx.globalAlpha = 0.25 + 0.4 * (p[2] + 1) / 2; ctx.beginPath(); ctx.arc(p[0], p[1], 1.6, 0, 2 * Math.PI); ctx.fill(); }
+    }
+    ctx.globalAlpha = 1;
+  }
+  // the walk
+  ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  const sel = S.A !== null && S.B !== null && S.A !== S.B ? [Math.min(S.A, S.B), Math.max(S.A, S.B)] : null;
+  const dim = sel || S.hi ? 0.45 : 1;
+  if (!big) {
+    const items = [];
+    for (let i = 0; i < N; i++) items.push(i);
+    items.sort((s, t) => (PZ[s] + PZ[s + 1]) - (PZ[t] + PZ[t + 1]));
+    const arrows = document.getElementById('arr').checked && N <= 400;
+    for (const i of items) {
+      const z = (PZ[i] + PZ[i + 1]) / 2, done = i < k;
+      ctx.globalAlpha = dim * ((done ? 0.55 : 0.45) + 0.45 * (z + 1) / 2);
+      ctx.strokeStyle = done ? LCOL(W[i]) : grey; ctx.lineWidth = done ? 2.4 : 1.6;
+      ctx.beginPath(); ctx.moveTo(PX[i], PY[i]); ctx.lineTo(PX[i + 1], PY[i + 1]); ctx.stroke();
+      if (done && arrows) arrowHead(PX[i], PY[i], PX[i + 1], PY[i + 1], LCOL(W[i]));
+    }
+  } else {
+    ctx.lineWidth = 1; ctx.globalAlpha = 0.85 * dim;
+    for (const x of 'abcd') { ctx.strokeStyle = LCOL(x); ctx.beginPath(); for (let i = 0; i < Math.min(k, N); i++) if (W[i] === x) { ctx.moveTo(PX[i], PY[i]); ctx.lineTo(PX[i + 1], PY[i + 1]); } ctx.stroke(); }
+    if (k < N) { ctx.strokeStyle = grey; ctx.beginPath(); path(ctx, k, N); ctx.stroke(); }
+  }
+  ctx.globalAlpha = 1;
+  // the other g109 words, dashed: they differ from the chosen one only inside w4 and w3
+  if (S.key === 'g109' && S.level === 1 && document.getElementById('all12').checked) {
+    ctx.setLineDash([4, 3]); ctx.strokeStyle = css('--hl-edge'); ctx.lineWidth = 1.6; ctx.globalAlpha = 0.9;
+    for (const [from, len, alt] of [[16, 4, [0, 1, 2, 3].map(W4)], [47, 3, [0, 1, 2].map(W3)]]) for (const u of alt) {
+      if (u === W.slice(from, from + len)) continue;
+      let q = [Q[3 * from], Q[3 * from + 1], Q[3 * from + 2]], p = pr(...q);
+      ctx.beginPath(); ctx.moveTo(p[0], p[1]);
+      for (const x of u) { q = q.map((v, t) => v + TD[x][t]); p = pr(...q); ctx.lineTo(p[0], p[1]); }
+      ctx.stroke();
+    }
+    ctx.setLineDash([]); ctx.globalAlpha = 1;
+  }
+  // highlighted occurrence (violet) and the picked factor (thick, letter colours)
+  if (S.hi) segHighlight(S.hi[0], S.hi[1], css('--hl-edge'), big);
+  if (sel) segHighlight(sel[0], sel[1], null, big);
+  // revisited points
+  if (document.getElementById('rev').checked) {
+    ctx.strokeStyle = ink; ctx.globalAlpha = big ? 0.35 : 0.7; ctx.lineWidth = 1;
+    const r = big ? 2 : 4;
+    for (const i of MULTI) { ctx.beginPath(); ctx.arc(PX[i], PY[i], r, 0, 2 * Math.PI); ctx.stroke(); }
+    ctx.globalAlpha = 1;
+  }
+  // start, end, current step, picked points
+  ctx.strokeStyle = ink; ctx.lineWidth = 1.8; ctx.beginPath(); ctx.arc(PX[0], PY[0], 6, 0, 2 * Math.PI); ctx.stroke();
+  ctx.fillStyle = ink; ctx.beginPath(); ctx.arc(PX[N], PY[N], 5, 0, 2 * Math.PI); ctx.fill();
+  if (k > 0 && k < N) { ctx.fillStyle = css('--accent'); ctx.beginPath(); ctx.arc(PX[k], PY[k], 4.5, 0, 2 * Math.PI); ctx.fill(); }
+  if (SELPAL) { const [i, j] = SELPAL, m = pr(...[0, 1, 2].map(t => (Q[3 * i + t] + Q[3 * j + t]) / 2));
+    ctx.fillStyle = css('--hl-edge'); ctx.strokeStyle = css('--fig'); ctx.lineWidth = 2; ctx.beginPath();
+    ctx.moveTo(m[0], m[1] - 9); ctx.lineTo(m[0] + 9, m[1]); ctx.lineTo(m[0], m[1] + 9); ctx.lineTo(m[0] - 9, m[1]); ctx.closePath(); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#fff'; ctx.font = 'bold 9px system-ui,sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('M', m[0], m[1] + 0.5); }
+  for (const [t, name] of [[S.A, '1'], [S.B, '2']]) if (t !== null) pin(PX[t], PY[t], name);
+}
+function arrowHead(x0, y0, x1, y1, col) {
+  const dx = x1 - x0, dy = y1 - y0, L = Math.hypot(dx, dy); if (L < 9) return;
+  const ux = dx / L, uy = dy / L, hx = x1 - ux * 6, hy = y1 - uy * 6;
+  ctx.fillStyle = col; ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(hx - uy * 3.2, hy + ux * 3.2); ctx.lineTo(hx + uy * 3.2, hy - ux * 3.2); ctx.fill();
+}
+function segHighlight(i, j, col, big) {
+  ctx.globalAlpha = 1; ctx.strokeStyle = css('--fig'); ctx.lineWidth = big ? 4 : 6.5; ctx.beginPath(); path(ctx, i, j); ctx.stroke();
+  if (col) { ctx.strokeStyle = col; ctx.lineWidth = big ? 2.5 : 4; ctx.beginPath(); path(ctx, i, j); ctx.stroke(); return; }
+  ctx.lineWidth = big ? 2.5 : 4;
+  for (let t = i; t < j; t++) { ctx.strokeStyle = LCOL(W[t]); ctx.beginPath(); ctx.moveTo(PX[t], PY[t]); ctx.lineTo(PX[t + 1], PY[t + 1]); ctx.stroke(); }
+  if (!big && j - i <= 400) for (let t = i; t < j; t++) arrowHead(PX[t], PY[t], PX[t + 1], PY[t + 1], LCOL(W[t]));
+}
+function pin(x, y, name) {
+  ctx.fillStyle = css('--hl-edge'); ctx.strokeStyle = css('--fig'); ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.arc(x, y, 8, 0, 2 * Math.PI); ctx.fill(); ctx.stroke();
+  ctx.fillStyle = '#fff'; ctx.font = 'bold 10px system-ui,sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(name, x, y + 0.5);
+}
+
+// ---------------------------------------------------------------- picking and hover
+function nearest(mx, my) {
+  let best = -1, bd = 14 * 14, bz = -2;
+  for (let i = 0; i <= N; i++) { const dx = PX[i] - mx, dy = PY[i] - my, d = dx * dx + dy * dy;
+    if (d < bd - 1 || (Math.abs(d - bd) <= 1 && PZ[i] > bz)) { bd = d; best = i; bz = PZ[i]; } }
+  return best;
+}
+const counts = (i, j) => { const c = { a: 0, b: 0, c: 0, d: 0 }; for (let t = i; t < j; t++) c[W[t]]++; return c; };
+cv.addEventListener('mousemove', e => {
+  if (drag) return;
+  const r = cv.getBoundingClientRect(), i = nearest(e.clientX - r.left, e.clientY - r.top), rd = document.getElementById('read');
+  if (i < 0) { rd.textContent = 'hover over the walk; click a point to pick it'; return; }
+  const ts = VIS.get(ckey(i)), c = counts(0, i);
+  rd.textContent = `P${i}` + (ts.length > 1 ? ` (the walk is here at times ${ts.join(', ')})` : '') + `: prefix (#a,#b,#c,#d) = (${c.a},${c.b},${c.c},${c.d})` + (i ? `, ends …${W.slice(Math.max(0, i - 24), i)}` : '');
+});
+let drag = null;
+cv.addEventListener('contextmenu', e => e.preventDefault());
+cv.addEventListener('pointerdown', e => { drag = { x: e.clientX, y: e.clientY, x0: e.clientX, y0: e.clientY, pan: e.shiftKey || e.button === 2 }; cv.setPointerCapture(e.pointerId); cv.style.cursor = 'grabbing'; });
+cv.addEventListener('pointermove', e => {
+  if (!drag) return;
+  const dx = e.clientX - drag.x, dy = e.clientY - drag.y; drag.x = e.clientX; drag.y = e.clientY;
+  if (drag.pan) { S.panX += dx; S.panY += dy; } else { S.yaw += dx * 0.5; S.tilt = Math.max(-90, Math.min(90, S.tilt + dy * 0.5)); }
+  draw();
+});
+cv.addEventListener('pointerup', e => {
+  const d = drag; drag = null; cv.style.cursor = 'grab'; if (!d) return;
+  if (Math.hypot(e.clientX - d.x0, e.clientY - d.y0) > 4) return;
+  const r = cv.getBoundingClientRect(), i = nearest(e.clientX - r.left, e.clientY - r.top);
+  if (i < 0) return;
+  if (S.A === null || S.B !== null) { S.A = i; S.B = null; } else S.B = i;
+  S.hi = null; renderSel(); draw();
+});
+
+// ---------------------------------------------------------------- the factor, its mirror images and recolourings
+const PERMS = (() => { const out = []; const rec = (p, rest) => { if (!rest.length) return out.push(p); for (const x of rest) rec(p + x, rest.replace(x, '')); }; rec('', 'abcd'); return out; })();
+const odd = p => { let inv = 0; for (let i = 0; i < 4; i++) for (let j = i + 1; j < 4; j++) if (p[i] > p[j]) inv++; return inv % 2 === 1; };
+function cycles(p) {   // cycle notation of x -> p['abcd'.indexOf(x)]
+  const seen = new Set(), out = [];
+  for (const x of 'abcd') { if (seen.has(x)) continue; let c = '', y = x; while (!seen.has(y)) { seen.add(y); c += y; y = p['abcd'.indexOf(y)]; } if (c.length > 1) out.push('(' + c + ')'); }
+  return out.join('') || 'id';
+}
+const apply = (p, u) => u.replace(/[abcd]/g, x => p['abcd'.indexOf(x)]);
+const rev = u => [...u].reverse().join('');
+function selfSym(u) { const r = rev(u); for (const p of PERMS) if (apply(p, r) === u) return p; return null; }
+const colourWord = u => [...u].map(x => `<span class="${x}">${x}</span>`).join('');
+function renderSel() {
+  const info = document.getElementById('selinfo'), relEl = document.getElementById('rel');
+  const ia = document.getElementById('ia'), ib = document.getElementById('ib');
+  ia.max = ib.max = N; ia.value = S.A ?? ''; ib.value = S.B ?? '';
+  relEl.innerHTML = '';
+  SELPAL = null;
+  if (S.A === null) { info.innerHTML = 'Click two points of the walk, or type their times. The factor read from the first point to the second is <i>w</i><sub><i>i</i>+1</sub>⋯<i>w</i><sub><i>j</i></sub>: its first letter is the step leaving <i>P</i><sub><i>i</i></sub> and its last letter the step arriving at <i>P</i><sub><i>j</i></sub>.'; return; }
+  const alts = t => { const ts = VIS.get(ckey(t)), o = ts.filter(x => x !== S.A && x !== S.B); return o.length ? ` The walk is at this point also at time${o.length > 1 ? 's' : ''} ${ts.filter(x => x !== S.A && x !== S.B).map(x => `<button class="btn alt" data-t="${x}" data-which="${t === S.A ? 'A' : 'B'}">${x}</button>`).join(' ')}.` : ''; };
+  if (S.B === null) { info.innerHTML = `Point 1 is <i>P</i><sub>${S.A}</sub>.${alts(S.A)} Now click the second point.`; wireAlts(); return; }
+  const i = Math.min(S.A, S.B), j = Math.max(S.A, S.B), u = W.slice(i, j), c = counts(i, j);
+  let h = `<i>P</i><sub>${S.A}</sub> → <i>P</i><sub>${S.B}</sub>: the factor <i>w</i><sub>${i + 1}</sub>⋯<i>w</i><sub>${j}</sub> of ${label()}, ${u.length} letter${u.length === 1 ? '' : 's'}.${alts(S.A)}${alts(S.B)}`;
+  if (u.length) {
+    h += `<div class="fw w">${u.length > 3000 ? colourWord(u.slice(0, 3000)) + '…' : colourWord(u)}</div>`;
+    h += `<div class="bar"><button class="btn" id="cpf">copy factor</button><span>(#a,#b,#c,#d) = (${c.a},${c.b},${c.c},${c.d})</span>`;
+    if (samePoint(i, j)) h += '<span class="tag">loop: all four letters equally often</span>';
+    const sp = u.length <= 4000 ? selfSym(u) : null; SELPAL = sp ? [i, j] : null;
+    if (sp) h += `<span class="tag sym">pseudo palindrome: u = π(ũ), π = ${cycles(sp)}, ${symKind(sp)}</span>`;
+    h += '</div>';
+    if (sp && u.length <= 3000) { const [l, m, r] = splitPal(u);
+      h += `<div class="fw w">${colourWord(l)} ${m ? '<b>' + colourWord(m) + '</b> ' : '· '}${colourWord(r)}</div><div class="ui muted">${u.length % 2 ? 'Odd: left · middle letter · right' : 'Even: left · right'}; the right part is π applied to the left part read backwards. ◆ M marks the centre of the symmetry.</div>`; }
+  }
+  info.innerHTML = h; wireAlts();
+  const b = document.getElementById('cpf');
+  if (b) b.onclick = () => navigator.clipboard.writeText(u).then(() => { b.textContent = 'copied'; setTimeout(() => b.textContent = 'copy factor', 1200); }, () => {});
+  if (u.length >= 2) renderRelated(u, i);
+}
+function wireAlts() {
+  document.querySelectorAll('#selinfo .alt').forEach(b => b.onclick = () => { S[b.dataset.which] = +b.dataset.t; S.hi = null; renderSel(); draw(); });
+}
+function renderRelated(u, at) {
+  const relEl = document.getElementById('rel'), m = u.length, r = rev(u), found = [], seenPat = new Set();
+  for (const p of PERMS) for (const [pat, mir] of [[apply(p, u), false], [apply(p, r), true]]) {
+    if (seenPat.has(pat)) continue; seenPat.add(pat);
+    for (let s = W.indexOf(pat); s >= 0; s = W.indexOf(pat, s + 1)) {
+      if (s === at && pat === u) continue;
+      found.push({ s, mir, p, improper: mir !== odd(p) });
+    }
+  }
+  found.sort((x, y) => x.s - y.s);
+  const nm = found.filter(f => f.mir).length;
+  let h = `<h3 style="margin-top:14px">Recolourings π(<i>u</i>) and pseudo mirror images π(<i>ũ</i>)</h3><div class="ui">${found.length ? `${found.length} occurrence${found.length === 1 ? '' : 's'} in ${label()}, ${nm} of them pseudo mirror images. Click one to draw it in violet.` : `None in ${label()} besides <i>u</i> itself.`}${m < 4 ? ' Short factors occur very often; pick a longer one for a sharper list.' : ''}</div>`;
+  if (found.length) {
+    h += '<div class="list" id="rlist">' + found.slice(0, 400).map((f, n) =>
+      `<button data-n="${n}">P${f.s}–P${f.s + m} · ${f.mir ? 'π(ũ)' : 'π(u)'}, π = ${cycles(f.p)} <span class="tag${f.mir ? ' sym' : ''}">${f.improper ? 'mirror copy' : 'rotated copy'}</span></button>`).join('') +
+      (found.length > 400 ? `<div class="ui muted">… ${found.length - 400} more</div>` : '') + '</div>';
+  }
+  relEl.innerHTML = h;
+  relEl.querySelectorAll('#rlist button').forEach(b => b.onclick = () => {
+    const f = found[+b.dataset.n]; S.hi = [f.s, f.s + m];
+    relEl.querySelectorAll('#rlist button').forEach(o => o.classList.toggle('on', o === b)); draw();
+  });
+}
+function renderLoops() {
+  const el = document.getElementById('loops'), info = document.getElementById('loopinfo');
+  const lens = new Map(); for (const [i, j] of LOOPS) lens.set(j - i, (lens.get(j - i) || 0) + 1);
+  const sum = [...lens].sort((x, y) => x[0] - y[0]).slice(0, 8).map(([L, n]) => `${n} of length ${L}`).join(', ');
+  info.innerHTML = LOOPS.length ? `${LOOPS.length} loop${LOOPS.length === 1 ? '' : 's'} between consecutive visits of the same point (${sum}${lens.size > 8 ? ', …' : ''}). Shortest first; click one to pick it.` : `The walk of ${label()} never returns to a point.`;
+  const show = LOOPS.slice(0, 300);
+  el.innerHTML = show.map(([i, j], n) => { const u = W.slice(i, j), sp = u.length <= 400 ? selfSym(u) : null;
+    return `<button data-n="${n}">P${i}–P${j} · ${u.length} · ${u.length <= 28 ? u : u.slice(0, 26) + '…'}${sp ? ` <span class="tag sym">pseudo palindrome, π = ${cycles(sp)}</span>` : ''}</button>`; }).join('') +
+    (LOOPS.length > 300 ? `<div class="ui muted">… ${LOOPS.length - 300} more</div>` : '');
+  el.querySelectorAll('button').forEach(b => b.onclick = () => { const [i, j] = show[+b.dataset.n]; S.A = i; S.B = j; S.hi = null; renderSel(); draw(); });
+}
+
+// ---------------------------------------------------------------- controls
+function syncUI() {
+  document.querySelectorAll('#wsel button').forEach(b => b.classList.toggle('on', b.dataset.k === S.key && +b.dataset.l === S.level));
+  document.getElementById('vrow').style.display = S.key === 'g109' ? '' : 'none';
+  document.getElementById('all12l').style.display = S.level === 1 ? '' : 'none';
+  document.querySelectorAll('#v4 button').forEach(b => b.classList.toggle('on', +b.dataset.k === S.d));
+  document.querySelectorAll('#v3 button').forEach(b => b.classList.toggle('on', +b.dataset.k === S.c));
+  for (const id of ['latl', 'gridl', 'arrl']) document.getElementById(id).style.display = S.level === 1 ? '' : 'none';
+  document.getElementById('stepv').textContent = `${S.k} of ${N}`;
+}
+document.getElementById('v4').innerHTML = [0, 1, 2, 3].map(k => `<button data-k="${k}">${W4(k)}</button>`).join('');
+document.getElementById('v3').innerHTML = [0, 1, 2].map(k => `<button data-k="${k}">${W3(k)}</button>`).join('');
+document.getElementById('wsel').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return;
+  S.key = b.dataset.k; S.level = +b.dataset.l; S.zoom = 1; S.panX = S.panY = 0; document.getElementById('zoom').value = 0;
+  document.getElementById('rev').checked = S.level === 1; document.getElementById('pmin').value = S.level === 1 ? 9 : 15; buildWord(false); });
+document.getElementById('v4').addEventListener('click', e => { const b = e.target.closest('button'); if (b) { S.d = +b.dataset.k; buildWord(true); } });
+document.getElementById('v3').addEventListener('click', e => { const b = e.target.closest('button'); if (b) { S.c = +b.dataset.k; buildWord(true); } });
+for (const id of ['all12', 'lat', 'grid', 'rev', 'arr']) document.getElementById(id).addEventListener('change', draw);
+document.getElementById('pmin').addEventListener('input', renderPals);
+document.querySelectorAll('input[name=ppar]').forEach(r => r.addEventListener('change', renderPals));
+document.getElementById('zoom').addEventListener('input', e => { S.zoom = Math.pow(12, +e.target.value / 100); draw(); });
+document.getElementById('reset').onclick = () => { S.yaw = 30; S.tilt = 18; S.zoom = 1; S.panX = S.panY = 0; document.getElementById('zoom').value = 0; draw(); };
+document.getElementById('clr').onclick = () => { S.A = S.B = null; S.hi = null; renderSel(); draw(); };
+for (const [id, w] of [['ia', 'A'], ['ib', 'B']]) document.getElementById(id).addEventListener('change', e => {
+  const v = e.target.value === '' ? null : Math.max(0, Math.min(N, Math.round(+e.target.value)));
+  S[w] = v; if (S.A === null && S.B !== null) { S.A = S.B; S.B = null; } S.hi = null; renderSel(); draw(); });
+const stepEl = document.getElementById('step'), playEl = document.getElementById('play'); let timer = null;
+const stop = () => { clearInterval(timer); timer = null; playEl.textContent = '▶ play'; };
+stepEl.addEventListener('input', () => { stop(); S.k = +stepEl.value; syncUI(); draw(); });
+playEl.onclick = () => {
+  if (timer) return stop();
+  if (S.k >= N) S.k = 0;
+  playEl.textContent = '❚❚ pause';
+  const inc = Math.max(1, Math.round(N / 300)), dt = N > 2000 ? 40 : 220;
+  timer = setInterval(() => { S.k = Math.min(N, S.k + inc); stepEl.value = S.k; syncUI(); draw(); if (S.k >= N) stop(); }, dt);
+};
+// slow spin while the canvas is on screen
+let visible = true, last = 0;
+new IntersectionObserver(es => { visible = es[0].isIntersecting; }).observe(cv);
+const tick = now => {
+  if (visible && document.getElementById('spin').checked && !drag && now - last > (N > 2000 ? 80 : 33)) { S.yaw += 0.4; last = now; draw(); }
+  requestAnimationFrame(tick);
+};
+requestAnimationFrame(tick);
+let rt; window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(draw, 120); });
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change', draw);
+buildWord(false);
+</script>
+</body>
+</html>
