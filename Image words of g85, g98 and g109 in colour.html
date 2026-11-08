@@ -94,6 +94,9 @@
   .dk.sp{ background:transparent; }
   .dk.dm{ outline:2.5px solid var(--hl-edge); outline-offset:2px; }
   body.nohl .dk.dm{ outline:none; }
+  .drun{ display:flex; flex:none; gap:calc(var(--dk) * 0.22); background:var(--shade); border-radius:calc(var(--dk) * 0.3);
+         padding:calc(var(--dk) * 0.11); margin:calc(var(--dk) * -0.11); }
+  body.noshade .drun{ background:none; }
   footer{ margin-top:60px; font-size:14px; color:var(--ink-soft); border-top:1px solid var(--rule); padding-top:12px; }
   @media (max-width:600px){ body{ font-size:17px; } .w1{ font-size:14px; } }
 </style>
@@ -103,7 +106,7 @@
 <header>
   <h1>Image words in colour
     <span class="sub">g85(a), g98(a) and g109(a), and their squares g85²(a), g98²(a) and g109²(a), letter by letter</span></h1>
-  <div class="byline"><b>V. Keränen</b><span>Working notes, 7 November 2026</span><span>Drawn with Claude Code</span></div>
+  <div class="byline"><b>V. Keränen</b><span>Working notes, 8 November 2026</span><span>Drawn with Claude Code</span></div>
 </header>
 
 <p>The letters are coloured <span class="w a">a</span> red, <span class="w b">b</span> green, <span class="w c">c</span> yellow and <span class="w d">d</span> blue. In the squares, each row is one block, the image of one letter of g(a), and every letter has a square cell. So g²(a) is drawn as an |g(a)| × |g(a)| square, with the blocks lined up under each other. The colour pattern of each block is a recolouring of the first one.</p>
@@ -123,7 +126,7 @@
 
 <h2>2 · The squares <span class="nt">g²(x)</span>, one block per row</h2>
 <p>Choose the letter <i>x</i> ∈ {a, b, c, d} with the buttons <span class="w a">a</span> <span class="w b">b</span> <span class="w c">c</span> <span class="w d">d</span> next to each heading; the square then shows g²(<i>x</i>), with the blocks g(<i>y</i>) for the letters <i>y</i> of g(<i>x</i>). Each g²(<i>x</i>) is a recolouring of g²(a), so all of them are abelian square-free too; the page checks each one when you choose it. Hover over a letter to see its position. In g109²(<i>x</i>) every block has its moving letters at offsets 17 and 48, so they form two marked columns.</p>
-<p><b>The diagonals.</b> The diagonal of the square g²(a) consists of the letters g(<i>x</i><sub><i>r</i></sub>)[<i>r</i>], where <i>x</i><sub><i>r</i></sub> is the <i>r</i>th letter of g(a); these are the positions <i>r</i>(|g(a)| + 1) + 1 of g²(a), an arithmetic progression with difference |g(a)| + 1. In g98²(a) all 98 diagonal letters are <span class="w a">a</span>. The reason is how the four images of g98 are related. With σ the cyclic recolouring a → b → c → d → a, the images satisfy g98(σ<sup><i>k</i></sup>(a)) = σ<sup>−<i>k</i></sup>(g98(a)): the recolouring runs backwards. If <i>x</i><sub><i>r</i></sub> = σ<sup><i>k</i></sup>(a), the diagonal letter is σ<sup>−<i>k</i></sup>(<i>x</i><sub><i>r</i></sub>) = σ<sup>−<i>k</i></sup>(σ<sup><i>k</i></sup>(a)) = a. For the cyclic morphisms g85 and g109, g(σ<sup><i>k</i></sup>(a)) = σ<sup><i>k</i></sup>(g(a)), so the diagonal letter is σ<sup>2<i>k</i></sup>(a), which is a or c: the diagonal of g85²(a) has 46 a's and 39 c's, that of g109²(a) 50 a's and 59 c's. For other <i>x</i> the same argument with <i>x</i> = σ<sup><i>j</i></sup>(a) gives: in g98²(<i>x</i>) every diagonal letter is <i>x</i>, and in g85²(<i>x</i>) and g109²(<i>x</i>) the diagonal letters are σ<sup><i>j</i>+2<i>k</i></sup>(a), so a and c for <i>x</i> ∈ {a, c} and b and d for <i>x</i> ∈ {b, d}. Tick “frame the diagonal” to see it.</p>
+<p><b>The diagonals.</b> The diagonal of the square g²(a) consists of the letters g(<i>x</i><sub><i>r</i></sub>)[<i>r</i>] for <i>r</i> = 1, …, |g(a)|, where <i>x</i><sub><i>r</i></sub> is the <i>r</i>th letter of g(a). The letter g(<i>x</i><sub><i>r</i></sub>)[<i>r</i>] is at position (<i>r</i> − 1)(|g(a)| + 1) + 1 of g²(a), so the diagonal positions 1, |g(a)| + 2, 2|g(a)| + 3, … form an arithmetic progression with difference |g(a)| + 1. In g98²(a) all 98 diagonal letters are <span class="w a">a</span>. The reason is how the four images of g98 are related. With σ the cyclic recolouring a → b → c → d → a, the images satisfy g98(σ<sup><i>k</i></sup>(a)) = σ<sup>−<i>k</i></sup>(g98(a)): the recolouring runs backwards. If <i>x</i><sub><i>r</i></sub> = σ<sup><i>k</i></sup>(a), the diagonal letter is σ<sup>−<i>k</i></sup>(<i>x</i><sub><i>r</i></sub>) = σ<sup>−<i>k</i></sup>(σ<sup><i>k</i></sup>(a)) = a. For the cyclic morphisms g85 and g109, g(σ<sup><i>k</i></sup>(a)) = σ<sup><i>k</i></sup>(g(a)), so the diagonal letter is σ<sup>2<i>k</i></sup>(a), which is a or c: the diagonal of g85²(a) has 46 a's and 39 c's, that of g109²(a) 50 a's and 59 c's. For other <i>x</i> the same argument with <i>x</i> = σ<sup><i>j</i></sup>(a) gives: in g98²(<i>x</i>) every diagonal letter is <i>x</i>, and in g85²(<i>x</i>) and g109²(<i>x</i>) the diagonal letters are σ<sup><i>j</i>+2<i>k</i></sup>(a), so a and c for <i>x</i> ∈ {a, c} and b and d for <i>x</i> ∈ {b, d}. Tick “frame the diagonal” to see it.</p>
 <div id="two"></div>
 
 <h2>3 · The image words as coloured disks, in your own lines</h2>
@@ -244,7 +247,7 @@ for (const M of MORPH) {
 const DISK = {
   g85: { cut: 17, text: '   abcacdcbcdcadcdbda bac.abadbabcbdbcbacbcdcacbabd abaca dcbcdcacd.bcbacbcdcacdcbdcdadbdcbca' },
   g98: { cut: 14 },
-  g109: { cut: 16 },
+  g109: { cut: 31 },
 };
 function cutText(w, n) { const out = []; for (let i = 0; i < w.length; i += n) out.push(w.slice(i, i + n)); return out.join('.'); }
 // parse a layout text into lines of tokens: a letter, or null for a blank place
@@ -287,12 +290,19 @@ for (const M of MORPH) {
     const { lines, ignored } = parseLayout(text);
     const letters = lines.flat().filter(x => x).join('');
     let k = 0, html = '';
+    const marks = M.mark && letters === w;
     for (const ln of lines) {
-      html += '<div class="dline">' + ln.map(x => {
-        if (!x) return '<span class="dk sp"></span>';
-        const mv = M.mark && letters === w && MOVE.has(k); k++;
-        return `<span class="dk k${x}${mv ? ' dm' : ''}" title="letter ${k}: ${x}">${x}</span>`;
-      }).join('') + '</div>';
+      // runs of consecutive letters of w4 or w3 are wrapped in a shaded band
+      let out = '', run = '';
+      const flush = () => { if (run) { out += `<span class="drun">${run}</span>`; run = ''; } };
+      for (const x of ln) {
+        if (!x) { flush(); out += '<span class="dk sp"></span>'; continue; }
+        const mv = marks && MOVE.has(k), sh = marks && SHADE.has(k); k++;
+        const d = `<span class="dk k${x}${mv ? ' dm' : ''}" title="letter ${k}: ${x}">${x}</span>`;
+        if (sh) run += d; else { flush(); out += d; }
+      }
+      flush();
+      html += '<div class="dline">' + out + '</div>';
     }
     box.innerHTML = html;
     let msg = `${lines.length} line${lines.length === 1 ? '' : 's'}, ${letters.length} letters`;
@@ -302,7 +312,7 @@ for (const M of MORPH) {
       msg += `; <span class="bad">${i < Math.min(letters.length, w.length) ? `differs from ${M.name}(a) at letter ${i + 1}` : `${letters.length < w.length ? 'shorter' : 'longer'} than ${M.name}(a) (${w.length} letters)`}</span>`;
     }
     if (ignored) msg += `; ${ignored} other character${ignored === 1 ? '' : 's'} ignored`;
-    if (M.mark && letters === w) msg += '; the moving d and c are ringed';
+    if (M.mark && letters === w) msg += '; the moving d and c are ringed, and w₄ and w₃ shaded';
     st.innerHTML = msg;
   }
   h.querySelectorAll(`input[name="mode-${M.key}"]`).forEach(r => r.onchange = draw);
