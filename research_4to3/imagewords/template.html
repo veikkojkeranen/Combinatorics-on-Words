@@ -97,6 +97,11 @@
   .drun{ display:flex; flex:none; gap:calc(var(--dk) * 0.22); background:var(--shade); border-radius:calc(var(--dk) * 0.3);
          padding:calc(var(--dk) * 0.11); margin:calc(var(--dk) * -0.11); }
   body.noshade .drun{ background:none; }
+  .dk.dm{ cursor:grab; touch-action:none; }
+  .disks.dragging, .disks.dragging .dk{ cursor:grabbing; user-select:none; }
+  .mvctl .xsel{ margin-left:0; }
+  .mvctl .xsel button{ width:auto; padding:1px 7px; font-size:13px; color:var(--ink); }
+  .mvhint{ font-style:italic; }
   footer{ margin-top:60px; font-size:14px; color:var(--ink-soft); border-top:1px solid var(--rule); padding-top:12px; }
   @media (max-width:600px){ body{ font-size:17px; } .w1{ font-size:14px; } }
 </style>
@@ -131,6 +136,7 @@
 
 <h2>3 · The image words as coloured disks, in your own lines</h2>
 <p>Each letter is a coloured disk. There are two ways to break g(a) into lines. <b>Cut every <i>n</i> letters</b> gives lines of equal length. <b>Own layout</b> reads the text box: a “.” ends the line after it, a space leaves an empty place as wide as one disk, and a line break also ends a line. Any other characters are ignored. The page checks that the letters of the layout, read in order, spell g(a) exactly. “Take the cut layout” copies the current cut into the text box as a starting point.</p>
+<p>For g109(a) you can also go through all twelve image words of σ<sub>109</sub>(a). Drag the ringed d sideways, or use the buttons, to move it 0, 1, 2 or 3 steps to the right inside <i>w</i><sub>4</sub> (dabc, adbc, abdc, abcd), and the ringed c 0, 1 or 2 steps inside <i>w</i><sub>3</sub> (cad, acd, adc). The other letters stay where they are; the shaded bands show <i>w</i><sub>4</sub> and <i>w</i><sub>3</sub>, and the line under the text box checks that each arrangement is abelian square-free. In your own layout the letters are carried along, so the dots and spaces stay in place.</p>
 <div class="dctl">
   <label>disk size <input type="range" id="dks" min="8" max="44" value="24" style="width:120px"></label>
   <label><input type="checkbox" id="dkl"> letters in the disks</label>
@@ -264,7 +270,11 @@ function parseLayout(t) {
 }
 const three = document.getElementById('three');
 for (const M of MORPH) {
-  const w = M.g.a, D = DISK[M.key];
+  let w = M.g.a; const D = DISK[M.key];
+  // g109: the d of w4 and the c of w3 can be moved; S holds how many steps to the right
+  const S = { d: 0, c: 0 };
+  const W4 = k => 'abc'.slice(0, k) + 'd' + 'abc'.slice(k), W3 = k => 'ad'.slice(0, k) + 'c' + 'ad'.slice(k);
+  const variant = () => M.g.a.slice(0, 16) + W4(S.d) + M.g.a.slice(20, 47) + W3(S.c) + M.g.a.slice(50);
   const h = document.createElement('div');
   h.innerHTML = `<h3 style="font-size:1.08rem;margin:26px 0 4px">${M.name}(a) <span style="font-weight:400;color:var(--ink-soft);font-size:0.9rem">— ${w.length} letters</span></h3>
     <div class="dctl">
@@ -273,6 +283,11 @@ for (const M of MORPH) {
       <button class="take">take the cut layout</button>
       <button class="cp">copy layout text</button>
     </div>
+${M.mark ? `<div class="dctl mvctl">
+      <span>move the d in <i class="sv">w</i>₄:</span><span class="xsel mvd">${[0, 1, 2, 3].map(k => `<button data-k="${k}">${W4(k)}</button>`).join('')}</span>
+      <span>move the c in <i class="sv">w</i>₃:</span><span class="xsel mvc">${[0, 1, 2].map(k => `<button data-k="${k}">${W3(k)}</button>`).join('')}</span>
+      <span class="mvhint">or drag the ringed disks sideways</span>
+    </div>` : ''}
     <textarea class="lay" rows="3" spellcheck="false"></textarea>
     <div class="dstat"></div>`;
   const fr = document.createElement('div'); fr.className = 'frame';
@@ -291,14 +306,15 @@ for (const M of MORPH) {
     const letters = lines.flat().filter(x => x).join('');
     let k = 0, html = '';
     const marks = M.mark && letters === w;
+    const mvAt = new Map(M.mark ? [[16 + S.d, 'd'], [47 + S.c, 'c']] : []);
     for (const ln of lines) {
       // runs of consecutive letters of w4 or w3 are wrapped in a shaded band
       let out = '', run = '';
       const flush = () => { if (run) { out += `<span class="drun">${run}</span>`; run = ''; } };
       for (const x of ln) {
         if (!x) { flush(); out += '<span class="dk sp"></span>'; continue; }
-        const mv = marks && MOVE.has(k), sh = marks && SHADE.has(k); k++;
-        const d = `<span class="dk k${x}${mv ? ' dm' : ''}" title="letter ${k}: ${x}">${x}</span>`;
+        const mv = marks && mvAt.has(k), sh = marks && SHADE.has(k); k++;
+        const d = `<span class="dk k${x}${mv ? ' dm' : ''}"${mv ? ` data-mv="${mvAt.get(k - 1)}"` : ''} title="letter ${k}: ${x}">${x}</span>`;
         if (sh) run += d; else { flush(); out += d; }
       }
       flush();
@@ -306,7 +322,7 @@ for (const M of MORPH) {
     }
     box.innerHTML = html;
     let msg = `${lines.length} line${lines.length === 1 ? '' : 's'}, ${letters.length} letters`;
-    if (letters === w) msg += `; the letters spell ${M.name}(a)`;
+    if (letters === w) msg += M.mark && (S.d || S.c) ? `; the letters spell the arrangement w₄ = ${W4(S.d)}, w₃ = ${W3(S.c)} of ${M.name}(a), ${abelianSquares(w) === 0 ? 'abelian square-free (checked)' : 'with ' + abelianSquares(w) + ' abelian squares'}` : `; the letters spell ${M.name}(a)`;
     else {
       let i = 0; while (i < letters.length && i < w.length && letters[i] === w[i]) i++;
       msg += `; <span class="bad">${i < Math.min(letters.length, w.length) ? `differs from ${M.name}(a) at letter ${i + 1}` : `${letters.length < w.length ? 'shorter' : 'longer'} than ${M.name}(a) (${w.length} letters)`}</span>`;
@@ -314,6 +330,36 @@ for (const M of MORPH) {
     if (ignored) msg += `; ${ignored} other character${ignored === 1 ? '' : 's'} ignored`;
     if (M.mark && letters === w) msg += '; the moving d and c are ringed, and w₄ and w₃ shaded';
     st.innerHTML = msg;
+    h.querySelectorAll('.mvd button').forEach(b => b.classList.toggle('on', +b.dataset.k === S.d));
+    h.querySelectorAll('.mvc button').forEach(b => b.classList.toggle('on', +b.dataset.k === S.c));
+  }
+  // move the d or the c: change the word, carry the letters into an own layout of the same length, redraw
+  function setShift(which, k) {
+    if (S[which] === k) return;
+    const old = w; S[which] = k; w = variant();
+    if (mode() === 'own') {
+      const n = [...ta.value].filter(ch => 'abcd'.includes(ch)).length;
+      if (n === old.length) { let i = 0; ta.value = [...ta.value].map(ch => 'abcd'.includes(ch) ? w[i++] : ch).join(''); }
+    }
+    draw();
+  }
+  if (M.mark) {
+    h.querySelector('.mvd').addEventListener('click', e => { const b = e.target.closest('button'); if (b) setShift('d', +b.dataset.k); });
+    h.querySelector('.mvc').addEventListener('click', e => { const b = e.target.closest('button'); if (b) setShift('c', +b.dataset.k); });
+    let drag = null;
+    box.addEventListener('pointerdown', e => {
+      const t = e.target.closest('.dk.dm'); if (!t) return;
+      const step = t.getBoundingClientRect().width * 1.22;
+      drag = { which: t.dataset.mv, x0: e.clientX, s0: S[t.dataset.mv], step, max: t.dataset.mv === 'd' ? 3 : 2 };
+      box.setPointerCapture(e.pointerId); box.classList.add('dragging'); e.preventDefault();
+    });
+    box.addEventListener('pointermove', e => {
+      if (!drag) return;
+      const k = Math.max(0, Math.min(drag.max, drag.s0 + Math.round((e.clientX - drag.x0) / drag.step)));
+      setShift(drag.which, k);
+    });
+    const end = () => { drag = null; box.classList.remove('dragging'); };
+    box.addEventListener('pointerup', end); box.addEventListener('pointercancel', end);
   }
   h.querySelectorAll(`input[name="mode-${M.key}"]`).forEach(r => r.onchange = draw);
   nIn.oninput = () => { h.querySelector(`input[name="mode-${M.key}"][value="cut"]`).checked = true; draw(); };
