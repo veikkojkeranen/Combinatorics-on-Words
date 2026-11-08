@@ -68,6 +68,7 @@
   ul, ol{ max-width:820px; box-sizing:border-box; padding-left:1.4em; } li{ margin:5px 0; }
   .ov{ text-decoration:overline; }
   .tfig{ margin:18px 0; max-width:820px; } .tfig svg{ display:block; width:100%; max-width:640px; height:auto; margin:0 auto; background:var(--fig); border:1px solid var(--rule); border-radius:6px; }
+  .tfig img{ display:block; width:100%; max-width:420px; height:auto; margin:0 auto; border:1px solid var(--rule); border-radius:6px; }
   .tfig figcaption{ font-size:15px; color:var(--ink-soft); margin-top:8px; }
   .tf-e{ stroke:var(--ink-faint); stroke-width:1.4; } .tf-l{ stroke:var(--hl-edge); stroke-width:1.2; stroke-dasharray:7 5; opacity:.8; }
   .tf-p{ stroke:var(--ink-faint); stroke-width:1; stroke-dasharray:3 3; }
@@ -170,6 +171,11 @@
   <li><b>Tandem repeats</b> are squares <i>uu</i>, mostly with a few mutations. Unlike the words on this page, real DNA is full of squares and abelian squares, that is, midpoints of its walk; programs like Tandem Repeats Finder [6] search for approximate ones.</li>
   <li><b>The walk itself</b> is essentially the <b>Z-curve</b> of Zhang and Zhang [1], which also steps towards the vertices of a regular tetrahedron; its three coordinates measure purines against pyrimidines, amino against keto bases and A+T against G+C. Its drift shows changes of composition, such as the GC skew that changes sign at the replication origin of a bacterial genome. Older relatives are the one-dimensional DNA walk of Peng et al. [2] and the chaos game representation of Jeffrey [3]. A loop of the walk is a window with equal amounts of A, C, G and T.</li>
 </ul>
+<p>Hairpins also matter in medicine. Expandable repeats, such as the CGG repeats of fragile X syndrome and the CAG repeats of Huntington's disease, can fold into hairpins while DNA is copied. Their expansion causes a group of hereditary diseases, as Mirkin's review explains [11]. Even g85(a), which has no abelian squares at all, folds back on itself when written as DNA:</p>
+<figure class="tfig">
+<img src="__JENSEN__" width="603" height="818" alt="Folded DNA strand of g85(a): a long hairpin stem with base pairs marked by red and blue dots, a loop at its end and three smaller loops at the top; dG = −14.9.">
+<figcaption>A representation of g85(a) in the form of DNA. The figure was designed by <b>Erik Jensen</b>, University of California, Berkeley, in 2005, and is shown with his credit. The strand was folded and drawn with M. Zuker's mfold [12]. Dots mark base pairs: red for G–C and blue for A–T. The strand forms a long hairpin stem, with a loop at its end and three smaller loops above; the folding energy is ΔG = −14.9.</figcaption>
+</figure>
 <p>The page itself takes only g85, g98 and g109; a DNA version would need an input box for any sequence, a coarser drawing for long genomes and searches that allow mismatches. Sequences can be taken from GenBank at <a href="https://www.ncbi.nlm.nih.gov/">NCBI</a>; Gusfield's book [4] covers the string algorithms behind such searches.</p>
 <p>Such searches could also serve AI agents. In the Virtual Biotech of Zhang et al. [10], agents built on Claude use over a hundred database tools to assess drug targets and clinical trials. Their drugs are antibodies and small molecules. For nucleic-acid drugs, such as antisense oligonucleotides, siRNAs and CRISPR guide RNAs, a sequence tool would check that a designed strand has no long Watson–Crick palindromes or hairpins, so that it does not fold back on itself.</p>
 <h3>Complementarity and computational universality: the twin-shuffle language</h3>
@@ -264,6 +270,8 @@
   <li>A. Salomaa, Turing, Watson–Crick and Lindenmayer. Aspects of DNA complementarity, TUCS Technical Report No 128, Turku Centre for Computer Science, September 1997. See also G. Rozenberg and A. Salomaa, Watson–Crick complementarity, universal computations and genetic engineering, Leiden University, Computer Science Technical Report 28, 1996.</li>
   <li>J. Engelfriet and G. Rozenberg, Fixed point languages, equality languages, and representation of recursively enumerable languages, <i>J. ACM</i> 27 (1980) 499–518. See also A. Salomaa, <i>Jewels of Formal Language Theory</i>, Computer Science Press, 1981.</li>
   <li>H. G. Zhang, P. Eckmann, J. Miao, A. B. Mahon and J. Zou, The Virtual Biotech: a multi-agent AI framework for therapeutic discovery and development, <i>Science</i> 394 (2026) eaeg6779, <a href="https://doi.org/10.1126/science.aeg6779">doi:10.1126/science.aeg6779</a>.</li>
+  <li>S. M. Mirkin, Expandable DNA repeats and human disease, <i>Nature</i> 447 (2007) 932–940, <a href="https://doi.org/10.1038/nature05977">doi:10.1038/nature05977</a>.</li>
+  <li>M. Zuker, Mfold web server for nucleic acid folding and hybridization prediction, <i>Nucleic Acids Res.</i> 31 (2003) 3406–3415, <a href="https://doi.org/10.1093/nar/gkg595">doi:10.1093/nar/gkg595</a>.</li>
 </ol>
 
 <footer>
