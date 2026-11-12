@@ -1,0 +1,495 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Words as Combinators</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=STIX+Two+Text:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600;700&display=swap">
+<style>
+  :root{
+    --bg:#FBFBF8; --ink:#1D2230; --ink-soft:#505769; --ink-faint:#80869A; --rule:#D9DBD2;
+    --accent:#2F4F8A; --panel:#F1F2EC; --fig:#FFFFFF; --hl:#7A5FC8; --node:#9AA0B2;
+    /* letter colours: a red, b green, c yellow, d blue */
+    --try-bg:#EFEAFB; --try-edge:#C9BDF0; --try-ink:#5B3FB0;
+    --la:#e74c3c; --lb:#27ae60; --lc:#f1c40f; --ld:#2980b9;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#15171E; --ink:#E7E8E2; --ink-soft:#B0B5C4; --ink-faint:#7C8296; --rule:#33374A;
+      --accent:#8FAAE6; --panel:#1E212B; --fig:#1A1D26; --hl:#C9B8FF; --node:#5A6075; --try-bg:#2A2440; --try-edge:#4D4180; --try-ink:#D9CCFF;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#15171E; --ink:#E7E8E2; --ink-soft:#B0B5C4; --ink-faint:#7C8296; --rule:#33374A;
+    --accent:#8FAAE6; --panel:#1E212B; --fig:#1A1D26; --hl:#C9B8FF; --node:#5A6075; --try-bg:#2A2440; --try-edge:#4D4180; --try-ink:#D9CCFF;
+  }
+  *{ box-sizing:border-box; }
+  body{ margin:0; background:var(--bg); color:var(--ink); font-family:"STIX Two Text",Cambria,"Times New Roman",serif; font-size:18px; line-height:1.6; }
+  .page{ max-width:1180px; margin:0 auto; padding:56px 16px 90px; }
+  header{ margin-bottom:28px; }
+  h1{ font-weight:600; font-size:clamp(1.75rem,4.4vw,2.35rem); line-height:1.14; margin:0 0 20px; text-wrap:balance; }
+  h1 .sub{ display:block; font-weight:400; font-style:italic; color:var(--ink-soft); font-size:0.72em; margin-top:8px; }
+  .byline{ font-family:"JetBrains Mono",ui-monospace,Consolas,monospace; font-size:13px; color:var(--ink-soft);
+           display:flex; gap:14px; flex-wrap:wrap; padding-top:16px; border-top:1px solid var(--rule); }
+  .byline b{ color:var(--ink); }
+  h2{ font-size:0.82rem; font-family:"JetBrains Mono",ui-monospace,Consolas,monospace; font-weight:600; letter-spacing:0.1em;
+      text-transform:uppercase; color:var(--accent); margin:56px 0 14px; }
+  h3{ font-size:1.02rem; font-weight:600; margin:22px 0 6px; }
+  p{ max-width:820px; margin:0 0 1em; }
+  a{ color:var(--accent); }
+  code, .m{ font-family:"JetBrains Mono",ui-monospace,Consolas,monospace; font-size:0.86em; }
+  .w{ font-family:"JetBrains Mono",ui-monospace,Consolas,monospace; font-weight:700; }
+  .a{ color:var(--la); } .b{ color:var(--lb); } .c{ color:var(--lc); } .d{ color:var(--ld); }
+  .ui{ font-family:system-ui,sans-serif; font-size:14px; color:var(--ink-soft); }
+  .bar{ display:flex; flex-wrap:wrap; gap:8px 18px; align-items:center; margin:8px 0; }
+  .seg{ display:inline-flex; gap:4px; flex-wrap:wrap; }
+  .seg button{ font-family:system-ui,sans-serif; font-size:13.5px; color:var(--ink); background:transparent; border:1px solid var(--rule); border-radius:4px; padding:2px 9px; cursor:pointer; }
+  .seg button:hover{ border-color:var(--ink-faint); }
+  .seg button.on{ background:var(--panel); border-color:var(--ink-soft); box-shadow:inset 0 0 0 1px var(--ink-soft); }
+  select{ font:13.5px system-ui,sans-serif; color:var(--ink); background:var(--fig); border:1px solid var(--rule); border-radius:4px; padding:1px 4px; }
+  .frame{ background:var(--fig); border:1px solid var(--rule); border-radius:6px; padding:8px; }
+  .scroll{ overflow-x:auto; }
+  .fw{ font-family:"JetBrains Mono",monospace; font-weight:700; font-size:14px; line-height:1.6; word-break:break-all; background:var(--panel); border-radius:4px; padding:4px 8px; margin:6px 0; max-height:150px; overflow-y:auto; }
+  .cols{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:22px; margin-top:18px; }
+  @media (max-width:860px){ .cols{ grid-template-columns:1fr; } }
+  .box{ border:1px solid var(--rule); border-radius:6px; padding:10px 12px; background:var(--fig); min-width:0; }
+  .box h3{ margin-top:0; }
+  .list{ max-height:360px; overflow-y:auto; border-top:1px solid var(--rule); margin-top:8px; padding-top:6px; }
+  .list button{ display:block; width:100%; text-align:left; font-family:"JetBrains Mono",monospace; font-size:12.5px; color:var(--ink); background:transparent; border:0; border-bottom:1px dotted var(--rule); padding:3px 4px; cursor:pointer; overflow-wrap:anywhere; }
+  .list button:hover{ background:var(--panel); }
+  .list button.on{ background:var(--panel); box-shadow:inset 3px 0 0 var(--hl); }
+  .muted{ color:var(--ink-faint); }
+  .try{ display:inline-block; font-family:system-ui,sans-serif; font-size:14px; font-weight:600; color:var(--try-ink); background:var(--try-bg); border:1px solid var(--try-edge); border-radius:999px; padding:3px 12px; margin:8px 0 2px; }
+  .try::before{ content:"▸ "; }
+  .readout{ font-family:"JetBrains Mono",monospace; font-size:12.5px; color:var(--ink-soft); margin:6px 2px 0; overflow-wrap:anywhere; }
+  ul, ol{ max-width:820px; padding-left:1.4em; } li{ margin:5px 0; }
+  .rule{ display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:4px 18px; background:var(--fig); border:1px solid var(--rule); border-radius:6px; padding:10px; margin:12px 0; max-width:820px; }
+  .rule .arrow{ font-size:28px; color:var(--ink-faint); }
+  .rule .lab{ width:100%; text-align:center; font-family:"JetBrains Mono",monospace; font-size:14px; color:var(--ink-soft); }
+  figure{ margin:18px 0; max-width:820px; } figcaption{ font-size:15px; color:var(--ink-soft); margin-top:8px; }
+  .eq{ font-family:"JetBrains Mono",monospace; font-size:15px; background:var(--panel); border-radius:4px; padding:6px 10px; margin:8px 0 14px; max-width:820px; overflow-x:auto; white-space:pre; }
+  table.t{ border-collapse:collapse; font-size:15px; margin:8px 0 14px; }
+  table.t td, table.t th{ border-bottom:1px solid var(--rule); padding:3px 10px; text-align:left; }
+  table.t th{ font-family:system-ui,sans-serif; font-size:13px; color:var(--ink-soft); font-weight:600; }
+  .hist div{ display:flex; align-items:center; gap:8px; font-family:"JetBrains Mono",monospace; font-size:12.5px; margin:2px 0; }
+  .hist .bar1{ height:12px; background:var(--hl); border-radius:2px; opacity:.75; flex:none; }
+  .hist .lbl{ min-width:7em; overflow-wrap:anywhere; }
+  .steps{ font-family:"JetBrains Mono",monospace; font-size:12.5px; max-height:220px; overflow-y:auto; background:var(--panel); border-radius:4px; padding:4px 8px; overflow-wrap:anywhere; }
+  .steps div{ border-bottom:1px dotted var(--rule); padding:1px 0; }
+  ol.refs{ font-size:15px; color:var(--ink-soft); } ol.refs li{ overflow-wrap:anywhere; }
+  footer{ margin-top:60px; font-size:14px; color:var(--ink-soft); border-top:1px solid var(--rule); padding-top:12px; }
+  svg text{ font-family:"JetBrains Mono",monospace; }
+</style>
+</head>
+<body>
+<div class="page">
+<header>
+  <h1>Words as combinators
+    <span class="sub">Reading the abelian square-free word g85(a) and ternary aa2f words as nested functions: Polish notation, combinatory logic and lambda calculus</span></h1>
+  <div class="byline"><b>V. Keränen</b><span>Working notes, 12 November 2026</span><span>Drawn with Claude Code</span></div>
+</header>
+
+<p>This page explores some aspects of reading abelian square-free words from the point of view of general computability: as programs that can, in principle, compute anything computable. In the latter part, <a href="#run">section 5</a>, the reader can quickly try out experiments of their own.</p>
+<p>Can an abelian square-free (a2f) word, or an almost abelian square-free (aa2f) word, be read as a program, that is, as many functions applied to each other, possibly nested? Brackets are not a good way to do it. With <span class="w b">b</span> = ( and <span class="w d">d</span> = ), the word g85(a) is not even balanced, and deep nesting needs runs like (( that are squares. The natural way is to <b>drop the brackets</b>. Every letter becomes a function symbol with a fixed number of arguments, and the word is read in Polish notation. This page explains that reading, and then fills it with the oldest universal programming language there is: <b>combinatory logic</b> with the two combinators S and K. The interactive part in section 5 reads g85(a), g85²(a) and a 3268-letter aa2f word in this way and computes what the resulting programs evaluate to.</p>
+
+<h2>1 · Polish notation</h2>
+<p>Łukasiewicz [1] noticed that brackets are not needed if every function symbol is written <i>before</i> its arguments and the number of arguments, the <b>arity</b>, is fixed. For example, with a binary symbol + and constants 2, 3, 4, the word + + 2 3 4 can only mean (2 + 3) + 4, while + 2 + 3 4 means 2 + (3 + 4). A word over such symbols is read from left to right; every symbol opens as many slots as its arity and fills one slot itself.</p>
+<p>To read a word, keep count of the <b>open slots</b>: the arguments that some symbol is still waiting for. At the start there is one open slot, for the whole term. Every letter <i>x</i> fills one open slot and opens arity(<i>x</i>) new ones for its own arguments. So reading <i>x</i> changes the number of open slots by arity(<i>x</i>) − 1. The term is complete when no open slot is left.</p>
+<p>It is convenient to count the other way round. The <b>weight</b> of a letter <i>x</i> is</p>
+<p style="text-align:center">weight(<i>x</i>) = 1 − arity(<i>x</i>),</p>
+<p>the number of open slots that reading <i>x</i> removes. So:</p>
+<table class="t">
+  <tr><th>kind of symbol</th><th>arity</th><th>weight</th><th>effect on the open slots</th></tr>
+  <tr><td>constant</td><td>0</td><td>1</td><td>fills one slot, opens none</td></tr>
+  <tr><td>unary symbol</td><td>1</td><td>0</td><td>fills one slot, opens one</td></tr>
+  <tr><td>binary symbol</td><td>2</td><td>−1</td><td>fills one slot, opens two</td></tr>
+</table>
+<p>The weight of a word is the sum of the weights of its letters, and the <b>prefix weights</b> <i>W</i><sub>0</sub> = 0, <i>W</i><sub>1</sub>, <i>W</i><sub>2</sub>, … are the weights of its prefixes of length 0, 1, 2, …. After the first <i>i</i> letters there are 1 − <i>W</i><sub><i>i</i></sub> open slots. For + + 2 3 4 the weights are −1, −1, 1, 1, 1, the prefix weights are 0, −1, −2, −1, 0, 1, and the open slots 1, 2, 3, 2, 1, 0. Then:</p>
+<ul>
+  <li>A word is <b>one complete term</b> exactly when its weights add up to 1 and every proper prefix has weight at most 0. Equivalently, the path of prefix weights first reaches the height 1 at the very end.</li>
+  <li>A complete term can be neither shortened nor extended to another complete term, since no proper prefix of a term is a term. So a word can be cut into complete terms in at most one way, and that way is found <b>greedily</b>: start at the first letter, read until the open slots first run out, cut there, and start again with the next letter. "Greedy" means that every cut is made as early as possible, without looking ahead; for prefix-free terms this is never a mistake. If the word ends while slots are still open, the last piece is an <b>unfinished term</b> of weight <i>w</i> ≤ 0, which still needs 1 − <i>w</i> arguments.</li>
+  <li>Every complete term adds exactly 1 to the prefix weight. So in the path of prefix weights of the whole word, the <i>k</i>-th term ends where the path first reaches the height <i>k</i>, that is, at a new height record. An infinite word is cut into infinitely many terms if the path keeps setting new records; otherwise, after the last record, the rest of the word is one infinite term.</li>
+  <li>Raney's cycle lemma [11]: if a word has total weight 1, exactly one of its cyclic rotations is a complete term.</li>
+</ul>
+<p>The path of prefix weights is the only thing the parse needs. It depends only on how many letters of each kind a prefix has. So it is a straight projection of the tetrahedral walk of <a href="Diamond%20walks%20of%20g85,%20g98%20and%20g109.html">Diamond walks of g85, g98 and g109</a>: with weights +1 for a and c and −1 for b and d, it is the coordinate of the walk along the line through the midpoints of the opposite edges ac and bd.</p>
+<figure>
+  <div class="frame scroll" id="fig1"></div>
+  <figcaption>The 7-letter factor <span class="w"><span class="d">d</span><span class="c">c</span><span class="b">b</span><span class="c">c</span><span class="d">d</span><span class="c">c</span><span class="a">a</span></span> of g85(a) as one term. Left: its tree. Right: the path of its prefix weights, with the letters below the steps. The reading is explained below.</figcaption>
+</figure>
+<h3>The figure step by step</h3>
+<p>The figure uses the letter meanings that are also the default in section 5:</p>
+<ul>
+  <li><span class="w a">a</span> = S and <span class="w c">c</span> = K are <b>constants</b> (arity 0). They are the combinators of section 2; for the parse it only matters that they take no arguments in the word.</li>
+  <li><span class="w b">b</span> = <b>application</b> is binary: <span class="w b">b</span> <i>p</i> <i>q</i> stands for <i>p q</i>, the term <i>p</i> applied to the term <i>q</i>.</li>
+  <li><span class="w d">d</span> = <b>reversed application</b> is binary too: <span class="w d">d</span> <i>p</i> <i>q</i> stands for <i>q p</i>, the second term applied to the first. Without the reversal, <span class="w b">b</span> and <span class="w d">d</span> would mean the same thing.</li>
+</ul>
+<p>Reading <span class="w"><span class="d">d</span><span class="c">c</span><span class="b">b</span><span class="c">c</span><span class="d">d</span><span class="c">c</span><span class="a">a</span></span> from left to right:</p>
+<table class="t">
+  <tr><th><i>i</i></th><th>letter</th><th>meaning</th><th>arity</th><th>weight</th><th>prefix weight <i>W</i><sub><i>i</i></sub></th><th>open slots 1 − <i>W</i><sub><i>i</i></sub></th></tr>
+  <tr><td>0</td><td></td><td>start</td><td></td><td></td><td>0</td><td>1</td></tr>
+  <tr><td>1</td><td class="w d">d</td><td>reversed application</td><td>2</td><td>−1</td><td>−1</td><td>2</td></tr>
+  <tr><td>2</td><td class="w c">c</td><td>K</td><td>0</td><td>1</td><td>0</td><td>1</td></tr>
+  <tr><td>3</td><td class="w b">b</td><td>application</td><td>2</td><td>−1</td><td>−1</td><td>2</td></tr>
+  <tr><td>4</td><td class="w c">c</td><td>K</td><td>0</td><td>1</td><td>0</td><td>1</td></tr>
+  <tr><td>5</td><td class="w d">d</td><td>reversed application</td><td>2</td><td>−1</td><td>−1</td><td>2</td></tr>
+  <tr><td>6</td><td class="w c">c</td><td>K</td><td>0</td><td>1</td><td>0</td><td>1</td></tr>
+  <tr><td>7</td><td class="w a">a</td><td>S</td><td>0</td><td>1</td><td>1</td><td>0</td></tr>
+</table>
+<p>The prefix weights stay at most 0 until the seventh letter, where they reach 1 for the first time and no slot is left open. So the seven letters form exactly one complete term. This is the zigzag in the right half of the figure. The term itself is built from the inside out, each binary letter taking the two complete terms that follow it:</p>
+<ol>
+  <li><span class="w"><span class="d">d</span><span class="c">c</span><span class="a">a</span></span>: the two terms written after <span class="w d">d</span> are first K, then S. Reversed application applies the second to the first, so the result is S K, that is, S applied to K.</li>
+  <li><span class="w"><span class="b">b</span><span class="c">c</span><span class="d">d</span><span class="c">c</span><span class="a">a</span></span>: the two terms written after <span class="w b">b</span> are first K, then S K (from step 1). Plain application applies the first to the second, so the result is K (S K).</li>
+  <li><span class="w"><span class="d">d</span><span class="c">c</span><span class="b">b</span><span class="c">c</span><span class="d">d</span><span class="c">c</span><span class="a">a</span></span>: the two terms written after <span class="w d">d</span> are first K, then K (S K) (from step 2). Reversed application again applies the second to the first, so the result is K (S K) K, that is, (K (S K)) applied to K.</li>
+</ol>
+<p>Each <span class="w d">d</span> reverses exactly once, at the moment it is turned into an application. The steps follow the <b>word</b>, where the arguments of a letter stand in the order in which they are written. The <b>tree</b> shows the <b>result</b>, where the function is always on the left and the argument on the right. Under a green dot (<span class="w b">b</span>) the two orders agree. Under a blue dot (<span class="w d">d</span>) they are opposite: its left subtree comes from the second argument in the word and its right subtree from the first. So the word lists the leaves as K, K, K, S, while the tree reads them from left to right as K, S, K, K. No second reversal is to be made when reading the tree.</p>
+<p>In the tree, each small coloured dot is one of these applications, coloured by the letter that made it (green for <span class="w b">b</span>, blue for <span class="w d">d</span>). Its left child is the function and its right child the argument, and the circles at the leaves are the combinators. The tree is read top-down: the root is the last application, of K (S K) to K. By the rule K <i>x</i> <i>y</i> → <i>x</i> of section 2, with <i>x</i> = S K and <i>y</i> = K, this term reduces in one step to S K.</p>
+<p>Here <i>x</i> is the whole subterm S K, not just S. With the parentheses written out, the term is ((K (S K)) K): K is applied first to its one argument (S K), and the result is then applied to K. The rule needs K followed by two arguments. The first is the complete term S K, the right subtree under the lower dot, and the second is the final K at the root. K keeps its first argument as one unit and throws the second away, so (S K) comes out whole. The inner part K (S K) alone cannot be reduced, because there K has only one argument. Taking <i>x</i> = S and <i>y</i> = K would be reducing the different term K S K = ((K S) K), whose tree is not the one in the figure; that term reduces to S, ours to S K.</p>
+
+<h2>2 · Combinatory logic: S and K</h2>
+<p>Combinatory logic was introduced by Schönfinkel in 1924 [2] and developed by Curry [3]. It has no variables in its programs, only <b>application</b> and a few constants called <b>combinators</b>. The <b>terms</b> are built in two ways:</p>
+<ul>
+  <li>every combinator is a term;</li>
+  <li>if <i>M</i> and <i>N</i> are terms, then (<i>M N</i>) is a term: <i>M</i> applied to <i>N</i>.</li>
+</ul>
+<p>Here and below, the capital letters <i>M</i> and <i>N</i>, as well as the lower-case <i>x</i>, <i>y</i>, <i>z</i> in the rules, stand for arbitrary terms. A term is thus the same as a tree like the one in section 1: its leaves are combinators, and each inner node applies its left subtree to its right subtree. Application is written by juxtaposition and associates to the left, so <i>x y z</i> means ((<i>x y</i>) <i>z</i>). Two combinators are enough, with these reduction rules:</p>
+<div class="rule" id="ruleK"></div>
+<div class="rule" id="ruleS"></div>
+<ul>
+  <li><b>K</b> (German <i>Konstanzfunktion</i>) makes constant functions. K <i>x</i> is the function that ignores its argument and always returns <i>x</i>. K throws information away.</li>
+  <li><b>S</b> (<i>Verschmelzungsfunktion</i>, the fusion function) passes the same argument <i>z</i> to two functions <i>x</i> and <i>y</i> and applies the first result to the second. S copies information: <i>z</i> appears twice on the right.</li>
+  <li><b>I</b> = S K K is the identity, since S K K <i>x</i> → K <i>x</i> (K <i>x</i>) → <i>x</i>. It is often added as a third combinator for convenience.</li>
+</ul>
+<div class="rule" id="ruleI"></div>
+<h3>Arguments one at a time</h3>
+<p>Every application has exactly one function and one argument. So a combinator that "needs two arguments" receives them in two separate applications, one level apart in the tree. Take K S K, which by the convention above is ((K S) K):</p>
+<ul>
+  <li><b>K S</b> is K applied to its first argument S alone. It is a correct term, but no rule applies to it yet, because K has only one argument. It is a function waiting for its second argument: the function that ignores its input and returns S.</li>
+  <li><b>(K S) K</b> applies that waiting function to K. Now K has both arguments, x = S and y = K, and the rule K x y → x gives S.</li>
+</ul>
+<p>The term K (S K) K of section 1, that is, ((K (S K)) K), works in exactly the same way. Its first argument is the whole term S K:</p>
+<table class="t">
+  <tr><th>term</th><th>inner part, still waiting</th><th>second argument</th><th>result</th></tr>
+  <tr><td>((K S) K)</td><td>K S</td><td>K</td><td>S</td></tr>
+  <tr><td>((K (S K)) K)</td><td>K (S K)</td><td>K</td><td>S K</td></tr>
+</table>
+<p>This is Schönfinkel's idea, now called <b>currying</b> after Curry: a function of two variables is the same as a function of one variable that returns another function of one variable. "K takes two arguments" means that K <i>x</i> is a function, and that function applied to <i>y</i> gives <i>x</i>. S works the same way with three arguments, S <i>x</i>, then (S <i>x</i>) <i>y</i>, then ((S <i>x</i>) <i>y</i>) <i>z</i>, and only the last of these can be reduced.</p>
+<p>Rules may be applied anywhere inside a term. A term in which no rule applies is in <b>normal form</b>. Normal forms are unique when they exist (the Church–Rosser theorem), and the <b>normal-order</b> strategy, which always reduces the leftmost outermost redex first, finds the normal form whenever there is one [4, 5]. Not every term has one: S I I (S I I) reduces to itself forever.</p>
+<p>The surprise is that S and K are <b>complete</b>. Every function that can be written with variables can be written without them, using S and K only. The translation is called <b>bracket abstraction</b>. Here the terms <i>M</i> and <i>N</i> may also contain variables, and [<i>x</i>] <i>M</i> denotes a term without <i>x</i> that behaves like the function <i>x</i> ↦ <i>M</i>, that is, ([<i>x</i>] <i>M</i>) <i>N</i> reduces to <i>M</i> with <i>N</i> put in place of <i>x</i>. It is computed by three rules:</p>
+<div class="eq">[x] x       = I
+[x] M       = K M                  if x does not occur in M
+[x] (M N)   = S ([x] M) ([x] N)</div>
+<p>For example, the function that swaps its two arguments, <i>f</i> <i>x</i> <i>y</i> = <i>y</i> <i>x</i>, becomes S (K (S I)) K. Consequently combinatory logic with S and K is Turing complete: every computable function is a combination of S and K. Turner used bracket abstraction to compile functional programming languages into S and K and run them as graph reduction [10]. Smullyan's book [12] tells the same story with birds: K is the kestrel and S the starling. For the centenary of Schönfinkel's work, Wolfram explored S and K experimentally, with many pictures of how combinator terms grow, shrink and fail to terminate, in his book <i>Combinators: A Centennial View</i> [15]. His <a href="https://www.wolfram.com/combinators/">combinator resources page</a> [16] collects the essays behind the book, the 2020 centenary event and the Wolfram Language functions for combinators.</p>
+
+<h2>3 · Lambda calculus</h2>
+<p>Church's lambda calculus [6] writes functions with variables: λ<i>x</i>.<i>M</i> is the function that sends <i>x</i> to <i>M</i>, and applying it to an argument substitutes the argument for <i>x</i> (β-reduction: (λ<i>x</i>.<i>M</i>) <i>N</i> → <i>M</i>[<i>x</i> := <i>N</i>]). The combinators are particular lambda terms:</p>
+<div class="eq">K = λx.λy.x                 I = λx.x
+S = λx.λy.λz. x z (y z)</div>
+<p>Church and Turing showed that the lambda calculus computes exactly the Turing computable functions. In Polish notation a lambda term has three kinds of symbols: λ is <b>unary</b> (one body), application is <b>binary</b> and a variable is a <b>constant</b>. De Bruijn [7] removed the variable names by writing each variable as the number of λs between it and its binder; then K = λλ2, S = λλλ 3 1 (2 1) and I = λ1. So a word over three letters with arities 0, 1, 2 is exactly the shape of a lambda term, while the variable numbers carry the rest of the information.</p>
+<p>Two well-known codings go all the way down to bits. Tromp's binary lambda calculus [8] writes λ as 00, application as 01 and the variable <i>n</i> as 1<sup><i>n</i></sup>0, a prefix code in which every closed lambda term is a self-delimiting bit string. Barker's Jot [9] goes further: <i>every</i> binary word is a valid combinator. With a coding of letters into bits, any a2f or aa2f word therefore runs as a program. But these codings ignore the square structure of the word, so the questions on this page stay with letters as symbols.</p>
+
+<h2>4 · Why g85 suits this reading</h2>
+<p>For g85 the natural choice is to take <span class="w a">a</span> and <span class="w c">c</span> as constants and <span class="w b">b</span> and <span class="w d">d</span> as binary symbols. The weight of g85(<i>x</i>) is then exactly 7 times the weight of <i>x</i>:</p>
+<table class="t" id="wtab"></table>
+<p>The reason is linear algebra. The weight is the linear form (1, −1, 1, −1) on the letter counts. The letter-count matrix of g85 is circulant, because g85(b), g85(c), g85(d) are g85(a) with the letters shifted cyclically, and (1, −1, 1, −1) is one of its eigenvectors, with eigenvalue 19 − 21 + 27 − 18 = 7 (g85(a) has 19 a, 21 b, 27 c and 18 d). So g85 maps a word of weight <i>k</i> to a word of weight 7<i>k</i>. In particular g85(a) has weight 7: it reads as complete terms with an unfinished tail, and the numbers add up to 7. On g85²(a) the weight is 49, on g85<sup><i>n</i></sup>(a) it is 7<sup><i>n</i></sup>. In the infinite fixed point the path of prefix weights grows like <i>n</i><sup>log 7 / log 85</sup> ≈ <i>n</i><sup>0.44</sup>, much more slowly than the length, so the terms get longer and longer.</p>
+<h3>All four eigenvalues</h3>
+<p>Let <i>M</i> be the letter-count matrix of g85: row <i>x</i> lists the numbers of a, b, c and d in g85(<i>x</i>). Then the letter counts of g85(<i>w</i>) are the counts of <i>w</i> multiplied by <i>M</i>, and a linear form on the counts is multiplied by λ under g85 exactly when its coefficient vector is an eigenvector of <i>M</i> for λ. Since <i>M</i> is circulant, its eigenvectors are (1, ω, ω², ω³) for the four fourth roots of unity ω, and the eigenvalues are 19 + 21ω + 27ω² + 18ω³:</p>
+<table class="t">
+  <tr><th>ω</th><th>eigenvector</th><th>linear form</th><th>eigenvalue</th><th>meaning</th></tr>
+  <tr><td>1</td><td>(1, 1, 1, 1)</td><td>#a + #b + #c + #d</td><td>85</td><td>length</td></tr>
+  <tr><td>−1</td><td>(1, −1, 1, −1)</td><td>#a − #b + #c − #d</td><td>7</td><td>weight (sections 1 and 4)</td></tr>
+  <tr><td>±<i>i</i></td><td>(1, ±<i>i</i>, −1, ∓<i>i</i>)</td><td>(#a − #c) ± <i>i</i> (#b − #d)</td><td>−8 ± 3<i>i</i></td><td>the remaining plane</td></tr>
+</table>
+<p>The last two eigenvalues are complex conjugates, so they act on a real plane instead of on two lines. It is easiest to combine the two differences of that plane into one complex number,</p>
+<div class="eq"><i>z</i>(<i>w</i>) = (#a − #c) + <i>i</i> (#b − #d).</div>
+<p>Then, for every word <i>w</i>,</p>
+<div class="eq"><i>z</i>(g85(<i>w</i>)) = (−8 + 3<i>i</i>) · <i>z</i>(<i>w</i>).</div>
+<p>For the letters themselves: <i>z</i>(a) = 1, and g85(a) has 19 − 27 = −8 and 21 − 18 = 3, so <i>z</i>(g85(a)) = −8 + 3<i>i</i>; <i>z</i>(b) = <i>i</i> and <i>z</i>(g85(b)) = −3 − 8<i>i</i>; similarly g85(c) and g85(d) give 8 − 3<i>i</i> and 3 + 8<i>i</i>. Multiplication by −8 + 3<i>i</i> is a rotation by 159.4° combined with a stretch by |−8 + 3<i>i</i>| = √73 ≈ 8.544. In the picture of <a href="Diamond%20walks%20of%20g85,%20g98%20and%20g109.html">the diamond walks</a>, the walk splits into its component along the axis through the midpoints of ac and bd, which is the weight and is stretched by 7 without turning, and its component in the plane perpendicular to that axis, which is turned by 159.4° and stretched by 8.544 each time g85 is applied.</p>
+<p>This is why the bracket reading b = (, d = ) of g85 does not behave well. The bracket depth #b − #d is the imaginary part of <i>z</i>, and from the formula above</p>
+<div class="eq">depth of g85(<i>w</i>) = 3 (#a − #c) − 8 (#b − #d).</div>
+<p>So the depth after g85 depends on #a − #c, which the brackets do not see at all, and a single opening bracket b becomes g85(b), with eight more closing than opening brackets. Because of the rotation, the sign of the depth keeps changing from one level of g85 to the next. Along the fixed point the depth goes far both up and down: on g85³(a), of length 614125, the prefix depths range from −72 to 628 and end at 549, the imaginary part of (−8 + 3<i>i</i>)³ = −296 + 549<i>i</i>. Their size grows like <i>n</i><sup>log 8.544 / log 85</sup> ≈ <i>n</i><sup>0.48</sup>. The weight is different. It belongs to the real eigenvalue 7, so g85 keeps it in one direction, and its prefix values stay small on the negative side: on g85³(a) they range from −16 to 457 and end at 7³ = 343. That is why the page reads b and d as binary operators and not as brackets.</p>
+
+<h2 id="run">5 · Running the words</h2>
+<p>Choose a word and what each letter means. The constants are the combinators S, K and I; the binary letters are <b>application</b>, which applies its first argument to its second, or <b>reversed application</b>, which applies the second to the first. The word is cut greedily into complete terms (section 1), and each term is reduced in normal order to its normal form, with a limit of 2000 steps.</p>
+<div class="ui bar"><span>word</span><span class="seg" id="wsel"></span></div>
+<div class="ui bar" id="roles"></div>
+<div class="fw" id="wshow"></div>
+<div class="readout" id="stats"></div>
+<h3>The path of prefix weights</h3>
+<div class="frame"><svg id="path" viewBox="0 0 1000 210" width="100%" preserveAspectRatio="none" style="display:block;height:210px;cursor:crosshair" role="img" aria-label="Path of prefix weights"></svg></div>
+<div class="readout">Dots mark the ends of terms, the new height records of the path. The shaded part at the end is the unfinished tail.</div>
+<div class="try">Click the path at different points to select the term at that location.</div>
+<div class="cols">
+  <div class="box">
+    <h3>Terms</h3>
+    <div class="ui" id="tinfo"></div>
+    <div class="list" id="terms"></div>
+  </div>
+  <div class="box">
+    <h3>Normal forms</h3>
+    <div class="ui">How often each normal form occurs among the complete terms (at most the first 2000 terms).</div>
+    <div class="hist" id="hist" style="margin-top:8px"></div>
+  </div>
+</div>
+<div class="box" style="margin-top:22px">
+  <h3>The picked term</h3>
+  <div class="try" style="margin-top:0">Pick another term in the list or on the path, or change the word and the letter meanings above.</div>
+  <div class="ui" id="pinfo" style="margin-top:8px"></div>
+  <div class="scroll" id="ptree"></div>
+  <div class="ui" id="pnfh" style="margin-top:8px"></div>
+  <div class="scroll" id="pnf"></div>
+  <div class="steps" id="psteps" style="margin-top:8px"></div>
+</div>
+
+<h2>6 · aa2f words</h2>
+<p>An <b>aa2f</b> (almost abelian square-free) word is a word with no abelian squares of period 2 or more; abelian squares of period 1, that is, two equal adjacent letters, are allowed. Over three letters this is the best one can hope for, since every long enough ternary word has abelian squares. The word used here is a 3268-letter aa2f word over a, b, c from the experiments in <a href="From%20a2f%20words%20over%20four%20or%20more%20letters%20to%20ternary%20aa2f%20words%20-%20experiments.html">From a2f words over four or more letters to ternary aa2f words</a>. Its typical feature, runs such as aaa, bbb, ccc, shows up directly in the reading:</p>
+<ul>
+  <li>A run of a binary letter, such as <span class="w a">aaa</span> with <span class="w a">a</span> = application, is a chain of nested applications: the term begins with three opened function positions at once.</li>
+  <li>A run of a constant, such as <span class="w c">ccc</span> with <span class="w c">c</span> = K, gives three equal arguments, or three consecutive one-letter terms K K K.</li>
+</ul>
+<p>With three letters there is no choice of combinators and applications that makes the mean arity exactly 1: two constants and one binary letter (the default) give mean arity 2/3, so the words fall apart into many short terms; one constant and two binary letters give mean arity 4/3, so the path of prefix weights drifts down and almost the whole word is one long unfinished term. Mean arity 1 needs the arities 0, 1, 2, which is exactly the shape of lambda terms in de Bruijn notation (section 3).</p>
+
+<h2>7 · What the square-free property means for programs</h2>
+<ul>
+  <li><b>A term with two equal adjacent arguments is forbidden.</b> If <i>t</i> is a term, then <i>f</i> <i>t</i> <i>t</i> written in Polish notation contains the square <i>t</i> <i>t</i>. In an a2f word no function is ever applied to the same subterm twice in a row, even with that subterm's letters permuted. In an aa2f word this is allowed only when <i>t</i> is a single letter.</li>
+  <li><b>a2f is a property of the written program, not of its execution.</b> S copies its third argument and K deletes its second, so reduction usually creates squares. The normal forms in section 5 are short words such as SK, S and K, regardless of how square-free the programs were.</li>
+  <li><b>The parse sees only the arities.</b> The path of prefix weights is one projection of the walk. Abelian square-freeness is a condition on all four coordinates at once, so different a2f words can have the same parse structure and different meanings, and vice versa.</li>
+  <li><b>Morphisms become tree substitutions only in special cases.</b> g85 multiplies weights by 7, but it does not map a single term to a single term: g85(a) is seven terms' worth of weight, not one term. Finding a morphism that is a2f and also maps every term to a term would need weight eigenvalue 1, which g85 does not have.</li>
+</ul>
+
+<h2>References</h2>
+<ol class="refs">
+  <li>J. Łukasiewicz, <i>Elementy logiki matematycznej</i>, Warsaw, 1929. English translation: <i>Elements of Mathematical Logic</i>, Pergamon Press, 1963.</li>
+  <li>M. Schönfinkel, Über die Bausteine der mathematischen Logik, <i>Math. Ann.</i> 92 (1924) 305–316, <a href="https://doi.org/10.1007/BF01448013">doi:10.1007/BF01448013</a>.</li>
+  <li>H. B. Curry and R. Feys, <i>Combinatory Logic</i>, Vol. I, North-Holland, Amsterdam, 1958.</li>
+  <li>H. P. Barendregt, <i>The Lambda Calculus: Its Syntax and Semantics</i>, revised edition, North-Holland, Amsterdam, 1984.</li>
+  <li>J. R. Hindley and J. P. Seldin, <i>Lambda-Calculus and Combinators: An Introduction</i>, Cambridge University Press, 2008.</li>
+  <li>A. Church, An unsolvable problem of elementary number theory, <i>Amer. J. Math.</i> 58 (1936) 345–363, <a href="https://doi.org/10.2307/2371045">doi:10.2307/2371045</a>.</li>
+  <li>N. G. de Bruijn, Lambda calculus notation with nameless dummies, a tool for automatic formula manipulation, with application to the Church–Rosser theorem, <i>Indag. Math.</i> 34 (1972) 381–392, <a href="https://doi.org/10.1016/1385-7258(72)90034-0">doi:10.1016/1385-7258(72)90034-0</a>.</li>
+  <li>J. Tromp, Binary lambda calculus and combinatory logic, in: C. S. Calude (ed.), <i>Randomness and Complexity, from Leibniz to Chaitin</i>, World Scientific, 2007, 237–260.</li>
+  <li>C. Barker, Iota and Jot: the simplest languages?, 2001 (web note on languages in which every binary string is a combinator).</li>
+  <li>D. A. Turner, A new implementation technique for applicative languages, <i>Software: Practice and Experience</i> 9 (1979) 31–49, <a href="https://doi.org/10.1002/spe.4380090105">doi:10.1002/spe.4380090105</a>.</li>
+  <li>G. N. Raney, Functional composition patterns and power series reversion, <i>Trans. Amer. Math. Soc.</i> 94 (1960) 441–451.</li>
+  <li>R. M. Smullyan, <i>To Mock a Mockingbird</i>, Alfred A. Knopf, New York, 1985.</li>
+  <li>V. Keränen, Abelian squares are avoidable on 4 letters, in: <i>Automata, Languages and Programming (ICALP 1992)</i>, Lecture Notes in Computer Science 623, Springer, 1992, 41–52.</li>
+  <li>V. Keränen, A powerful abelian square-free substitution over 4 letters, <i>Theoret. Comput. Sci.</i> 410 (2009) 3893–3900, <a href="https://doi.org/10.1016/j.tcs.2009.05.027">doi:10.1016/j.tcs.2009.05.027</a>.</li>
+  <li>S. Wolfram, <i>Combinators: A Centennial View</i>, Wolfram Media, Champaign, IL, 2021, ISBN 978-1-57955-043-1; <a href="https://www.wolfram-media.com/products/combinators-a-centennial-view.html">publisher's page</a>.</li>
+  <li>Wolfram Research, Combinator Resources: essays by S. Wolfram, the livestreamed event "Combinators: A 100-Year Celebration" (7 December 2020) and the Wolfram Language combinator functions, <a href="https://www.wolfram.com/combinators/">www.wolfram.com/combinators</a>.</li>
+</ol>
+
+<footer>
+  Source: <code>research_4to3/combinators/template.html</code>, built by <code>research_4to3/combinators/build.js</code>. g85 comes from <code>research_4to3/lib.js</code> [13, 14] and the aa2f word from <code>research_4to3/data/len3268.txt</code>. Combinator reduction runs in the page, in normal order.
+</footer>
+</div>
+
+<script>
+'use strict';
+const G85 = __G85__;
+const AA2F = '__AA2F__';
+const gimg = w => [...w].map(x => G85[x]).join('');
+const WORDS = [
+  ['g85(a)', G85.a], ['g85(b)', G85.b], ['g85(c)', G85.c], ['g85(d)', G85.d],
+  ['g85(abcd)', G85.a + G85.b + G85.c + G85.d], ['g85²(a)', gimg(G85.a)],
+  ['aa2f, 85 letters', AA2F.slice(0, 85)], ['aa2f, 340 letters', AA2F.slice(0, 340)], ['aa2f, 3268 letters', AA2F]
+];
+const ROLE = { S: 0, K: 0, I: 0, app: 2, rev: 2 };
+const RNAME = { S: 'S', K: 'K', I: 'I', app: 'application', rev: 'reversed application' };
+const DEF4 = { a: 'S', b: 'app', c: 'K', d: 'rev' }, DEF3 = { a: 'app', b: 'S', c: 'K' };
+const st = { k: 0, R: { ...DEF4 }, parse: null, pick: -1 };
+const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const LC = x => `var(--l${x})`;
+const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;');
+
+// ---------- terms ----------
+// leaf {k:'S'|'K'|'I'|var, L}, application {f, x, L}
+const leaf = (k, L) => ({ k, L });
+const app = (f, x, L) => ({ f, x, L });
+function parseAll(w, R) {
+  const terms = []; let i = 0;
+  const ar = x => ROLE[R[x]];
+  const build = () => { const x = w[i++], r = R[x];
+    if (ROLE[r] === 0) return leaf(r, x);
+    const p = build(), q = build(); return r === 'app' ? app(p, q, x) : app(q, p, x); };
+  while (i < w.length) {
+    let need = 1, j = i; while (j < w.length && need > 0) { need += ar(w[j]) - 1; j++; }
+    if (need > 0) return { terms, tail: { s: i, need } };
+    const s = i; const t = build(); terms.push({ s, e: i, t });
+  }
+  return { terms, tail: null };
+}
+function show(t) {
+  if (t.k) return t.k;
+  const fs = show(t.f), xs = show(t.x);
+  return fs + (t.x.k ? xs : '(' + xs + ')');
+}
+function size(t) { return t.k ? 1 : size(t.f) + size(t.x); }
+// one normal-order step; returns null if t is in normal form
+function step(t) {
+  const sp = []; let h = t; while (!h.k) { sp.push(h.x); h = h.f; } sp.reverse();
+  const rebuild = (r, from) => { for (let i = from; i < sp.length; i++) r = app(r, sp[i]); return r; };
+  if (h.k === 'K' && sp.length >= 2) return rebuild(sp[0], 2);
+  if (h.k === 'I' && sp.length >= 1) return rebuild(sp[0], 1);
+  if (h.k === 'S' && sp.length >= 3) { const [x, y, z] = sp; return rebuild(app(app(x, z), app(y, z)), 3); }
+  for (let i = 0; i < sp.length; i++) { const u = step(sp[i]); if (u) { sp[i] = u; return rebuild(h, 0); } }
+  return null;
+}
+function normalize(t, lim = 2000, keep = 0) {
+  const trace = [];
+  for (let n = 0; n < lim; n++) {
+    if (keep && trace.length < keep) trace.push(t);
+    const u = step(t); if (!u) return { t, n, ok: true, trace };
+    t = u; if (size(t) > 4000) return { t, n: n + 1, ok: false, why: 'grows beyond 4000 symbols', trace };
+  }
+  return { t, n: lim, ok: false, why: 'no normal form within ' + lim + ' steps', trace };
+}
+
+// ---------- tree drawing ----------
+function treeSVG(t, opt = {}) {
+  const dx = opt.dx || 26, dy = opt.dy || 34, r = 11;
+  let nl = 0; const nodes = [], edges = [];
+  const lay = (u, d) => {
+    if (u.k) { const n = { x: nl++ * dx, y: d * dy, u }; nodes.push(n); return n; }
+    const a = lay(u.f, d + 1), b = lay(u.x, d + 1);
+    const n = { x: (a.x + b.x) / 2, y: d * dy, u }; nodes.push(n); edges.push([n, a], [n, b]); return n;
+  };
+  lay(t, 0);
+  const W = Math.max(...nodes.map(n => n.x)) + 2 * r + 8, H = Math.max(...nodes.map(n => n.y)) + 2 * r + 8, o = r + 4;
+  let s = `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" style="display:block;margin:0 auto;max-width:none" role="img" aria-label="${esc(opt.label || 'term tree')}">`;
+  for (const [p, q] of edges) s += `<line x1="${p.x + o}" y1="${p.y + o}" x2="${q.x + o}" y2="${q.y + o}" stroke="var(--ink-faint)" stroke-width="1.2"/>`;
+  for (const n of nodes) {
+    const u = n.u, X = n.x + o, Y = n.y + o;
+    if (u.k) {
+      const isVar = !/^[SKI]$/.test(u.k);
+      const col = isVar ? 'var(--ink-faint)' : u.L ? LC(u.L) : 'var(--node)';
+      s += `<circle cx="${X}" cy="${Y}" r="${r}" fill="var(--fig)" stroke="${col}" stroke-width="2.2"/><text x="${X}" y="${Y + 4.5}" text-anchor="middle" font-size="13" font-weight="700" fill="${isVar ? 'var(--ink-soft)' : 'var(--ink)'}"${isVar ? ' font-style="italic"' : ''}>${esc(u.k)}</text>`;
+    } else s += `<circle cx="${X}" cy="${Y}" r="5.5" fill="${u.L ? LC(u.L) : 'var(--node)'}"/>`;
+  }
+  return s + '</svg>';
+}
+const V = k => leaf(k, null);
+const A = (...ts) => ts.reduce((p, q) => app(p, q, null));
+function ruleBox(id, lhs, rhs, label, mid) {
+  let h = treeSVG(lhs, { dx: 24, dy: 30 }) + '<span class="arrow">→</span>';
+  if (mid) h += treeSVG(mid, { dx: 24, dy: 30 }) + '<span class="arrow">→</span>';
+  h += treeSVG(rhs, { dx: 24, dy: 30 }) + `<div class="lab">${label}</div>`;
+  document.getElementById(id).innerHTML = h;
+}
+ruleBox('ruleK', A(leaf('K', 'c'), V('x'), V('y')), V('x'), 'K x y → x');
+ruleBox('ruleS', A(leaf('S', 'a'), V('x'), V('y'), V('z')), A(A(V('x'), V('z')), A(V('y'), V('z'))), 'S x y z → x z (y z)');
+ruleBox('ruleI', A(leaf('S', 'a'), leaf('K', 'c'), leaf('K', 'c'), V('x')), V('x'), 'S K K x → K x (K x) → x', A(A(leaf('K', 'c'), V('x')), A(leaf('K', 'c'), V('x'))));
+
+// ---------- figure 1 ----------
+(function fig1() {
+  const w = 'dcbcdca', R = DEF4, p = parseAll(w, R), t = p.terms[0].t;
+  const ws = [0]; for (const x of w) ws.push(ws[ws.length - 1] + 1 - ROLE[R[x]]);
+  const mn = Math.min(...ws), mx = Math.max(...ws), X = i => 40 + i * 40, Y = v => 20 + (mx - v) * 34;
+  let s = `<svg viewBox="0 0 340 ${Y(mn) + 46}" width="340" height="${Y(mn) + 46}" role="img" aria-label="path of prefix weights">`;
+  for (let v = mn; v <= mx; v++) s += `<line x1="30" x2="${X(7) + 10}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--rule)" stroke-width="1"${v ? ' stroke-dasharray="3 3"' : ''}/><text x="22" y="${Y(v) + 4}" text-anchor="end" font-size="11" fill="var(--ink-soft)">${v}</text>`;
+  s += `<polyline fill="none" stroke="var(--hl)" stroke-width="2.2" points="${ws.map((v, i) => X(i) + ',' + Y(v)).join(' ')}"/>`;
+  ws.forEach((v, i) => s += `<circle cx="${X(i)}" cy="${Y(v)}" r="3.5" fill="var(--hl)"/>`);
+  [...w].forEach((x, i) => s += `<text x="${(X(i) + X(i + 1)) / 2}" y="${Y(mn) + 34}" text-anchor="middle" font-size="15" font-weight="700" fill="${LC(x)}">${x}</text>`);
+  s += '</svg>';
+  document.getElementById('fig1').innerHTML = `<div style="display:flex;flex-wrap:wrap;gap:24px;align-items:center;justify-content:center">${treeSVG(t, { label: 'tree of K(SK)K' })}${s}</div>`;
+})();
+
+// ---------- weight table ----------
+function weightTable() {
+  const R = st.R, al = Object.keys(R);
+  if (al.length !== 4) { document.getElementById('wtab').innerHTML = ''; return; }
+  const wt = u => [...u].reduce((s, x) => s + 1 - ROLE[R[x]], 0);
+  let h = '<tr><th>letter x</th><th>weight of x</th><th>weight of g85(x)</th><th>ratio</th></tr>';
+  for (const x of 'abcd') { const a = wt(x), b = wt(G85[x]); h += `<tr><td class="w ${x}">${x}</td><td>${a}</td><td>${b}</td><td>${a ? b / a : '–'}</td></tr>`; }
+  document.getElementById('wtab').innerHTML = h;
+}
+
+// ---------- explorer ----------
+const wsel = document.getElementById('wsel');
+wsel.innerHTML = WORDS.map(([n], i) => `<button data-i="${i}">${n}</button>`).join('');
+wsel.addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return;
+  const k = +b.dataset.i, was4 = WORDS[st.k][0].startsWith('g85'), is4 = WORDS[k][0].startsWith('g85');
+  st.k = k; if (was4 !== is4) st.R = is4 ? { ...DEF4 } : { ...DEF3 }; renderRoles(); run(); });
+function renderRoles() {
+  const al = WORDS[st.k][0].startsWith('g85') ? 'abcd' : 'abc';
+  document.getElementById('roles').innerHTML = [...al].map(x => `<label><span class="w ${x}">${x}</span> = <select data-x="${x}">${Object.keys(ROLE).map(r => `<option value="${r}"${st.R[x] === r ? ' selected' : ''}>${RNAME[r]}</option>`).join('')}</select></label>`).join('') +
+    '<button class="btn" id="rdef" style="font:13px system-ui;border:1px solid var(--rule);background:transparent;color:var(--ink);border-radius:4px;padding:1px 8px;cursor:pointer">default roles</button>';
+  document.querySelectorAll('#roles select').forEach(s => s.onchange = () => { st.R[s.dataset.x] = s.value; run(); });
+  document.getElementById('rdef').onclick = () => { st.R = al.length === 4 ? { ...DEF4 } : { ...DEF3 }; renderRoles(); run(); };
+  wsel.querySelectorAll('button').forEach(b => b.classList.toggle('on', +b.dataset.i === st.k));
+}
+const colourWord = u => [...u].map(x => `<span class="${x}">${x}</span>`).join('');
+const nfCache = new Map();
+function nfOf(term) {
+  const key = show(term); if (nfCache.has(key)) return nfCache.get(key);
+  const r = normalize(term); const v = r.ok ? { s: show(r.t), n: r.n } : { s: null, n: r.n, why: r.why };
+  nfCache.set(key, v); return v;
+}
+function run() {
+  nfCache.clear();
+  const [name, w] = WORDS[st.k], R = st.R;
+  document.getElementById('wshow').innerHTML = colourWord(w.length > 1200 ? w.slice(0, 1200) : w) + (w.length > 1200 ? ' <span class="muted">… (' + w.length + ' letters)</span>' : '');
+  const p = parseAll(w, R); st.parse = p; st.pick = -1;
+  const ws = [0]; for (const x of w) ws.push(ws[ws.length - 1] + 1 - ROLE[R[x]]);
+  const mean = [...w].reduce((s, x) => s + ROLE[R[x]], 0) / w.length;
+  document.getElementById('stats').textContent = `${name}: ${w.length} letters, total weight ${ws[w.length]}, mean arity ${mean.toFixed(3)}; ${p.terms.length} complete term${p.terms.length === 1 ? '' : 's'}` +
+    (p.tail ? `, then an unfinished tail of ${w.length - p.tail.s} letters still needing ${p.tail.need} argument${p.tail.need === 1 ? '' : 's'}.` : ', no unfinished tail.');
+  drawPath(w, ws, p);
+  // list
+  const show1 = p.terms.slice(0, 600);
+  document.getElementById('tinfo').textContent = `${p.terms.length} terms${p.terms.length > 600 ? ', the first 600 shown' : ''}. Each line: positions, letters → term ⇒ normal form.`;
+  document.getElementById('terms').innerHTML = show1.map((q, i) => {
+    const u = w.slice(q.s, q.e), ts = show(q.t), nf = q.e - q.s <= 400 ? nfOf(q.t) : null;
+    return `<button data-i="${i}">${q.s + 1}–${q.e} · ${u.length <= 40 ? colourWord(u) : colourWord(u.slice(0, 36)) + '…'} → ${esc(ts.length <= 60 ? ts : ts.slice(0, 56) + '…')} ⇒ ${nf ? (nf.s !== null ? esc(nf.s.length <= 40 ? nf.s : nf.s.slice(0, 36) + '…') : '<span class="muted">?</span>') : '<span class="muted">(long)</span>'}</button>`;
+  }).join('');
+  document.querySelectorAll('#terms button').forEach(b => b.onclick = () => pick(+b.dataset.i));
+  // histogram
+  const cnt = new Map(); let unk = 0;
+  for (const q of p.terms.slice(0, 2000)) { const nf = q.e - q.s <= 400 ? nfOf(q.t) : null; if (nf && nf.s !== null) cnt.set(nf.s, (cnt.get(nf.s) || 0) + 1); else unk++; }
+  const rows = [...cnt].sort((a, b) => b[1] - a[1]).slice(0, 12); if (unk) rows.push(['no normal form found / long', unk]);
+  const top = Math.max(1, ...rows.map(r => r[1]));
+  document.getElementById('hist').innerHTML = rows.map(([k, v]) => `<div><span class="lbl">${esc(k.length <= 30 ? k : k.slice(0, 27) + '…')}</span><span class="bar1" style="width:${Math.max(2, 220 * v / top)}px"></span><span>${v}</span></div>`).join('') || '<div class="muted">no complete terms</div>';
+  weightTable();
+  ['ptree', 'pnfh', 'pnf', 'psteps'].forEach(id => document.getElementById(id).innerHTML = '');
+  // preselect a term with a small but non-trivial tree, so the reader sees a reduction at once
+  let best = -1, bestN = 0;
+  for (let i = 0; i < Math.min(p.terms.length, 200); i++) {
+    const t = p.terms[i].t, z = size(t); if (z < 5 || z > 40) continue;
+    const r = normalize(t, 300, 0); if (r.ok && r.n > bestN && r.n <= 30) { best = i; bestN = r.n; }
+  }
+  if (p.terms.length) pick(best >= 0 ? best : 0);
+  else document.getElementById('pinfo').textContent = 'With these letter meanings the whole word is one unfinished term, so there is no complete term to pick. Try another word, or change the letter meanings.';
+}
+function drawPath(w, ws, p) {
+  const svg = document.getElementById('path'), N = w.length;
+  const mn = Math.min(...ws), mx = Math.max(...ws), X = i => 10 + i * 980 / N, Y = v => 12 + (mx - v) * 186 / Math.max(1, mx - mn);
+  let s = '';
+  if (p.tail) s += `<rect x="${X(p.tail.s)}" y="0" width="${X(N) - X(p.tail.s)}" height="210" fill="var(--panel)"/>`;
+  s += `<line x1="10" x2="990" y1="${Y(0)}" y2="${Y(0)}" stroke="var(--rule)" stroke-dasharray="4 4" vector-effect="non-scaling-stroke"/>`;
+  const step = Math.max(1, Math.floor(N / 3000));
+  let pts = []; for (let i = 0; i <= N; i += step) pts.push(X(i).toFixed(1) + ',' + Y(ws[i]).toFixed(1)); pts.push(X(N) + ',' + Y(ws[N]));
+  s += `<polyline fill="none" stroke="var(--ink-soft)" stroke-width="1.3" vector-effect="non-scaling-stroke" points="${pts.join(' ')}"/>`;
+  if (p.terms.length <= 1500) for (const q of p.terms) s += `<circle cx="${X(q.e)}" cy="${Y(ws[q.e])}" r="2.6" fill="var(--hl)"/>`;
+  s += `<g id="psel"></g>`;
+  svg.innerHTML = s;
+  svg.onclick = e => { const r = svg.getBoundingClientRect(), i = Math.round(((e.clientX - r.left) / r.width * 1000 - 10) * N / 980);
+    const k = p.terms.findIndex(q => i > q.s && i <= q.e); if (k >= 0) pick(k); };
+  svg._X = X; svg._Y = Y; svg._ws = ws;
+}
+function pick(i) {
+  const p = st.parse, q = p.terms[i], w = WORDS[st.k][1]; st.pick = i;
+  document.querySelectorAll('#terms button').forEach(b => b.classList.toggle('on', +b.dataset.i === i));
+  const svg = document.getElementById('path');
+  document.getElementById('psel').innerHTML = `<rect x="${svg._X(q.s)}" y="0" width="${Math.max(1.5, svg._X(q.e) - svg._X(q.s))}" height="210" fill="var(--hl)" opacity=".18"/>`;
+  const u = w.slice(q.s, q.e), sz = size(q.t);
+  document.getElementById('pinfo').innerHTML = `Term ${i + 1}, letters ${q.s + 1}–${q.e} (${u.length} letters): <span class="w">${u.length <= 300 ? colourWord(u) : colourWord(u.slice(0, 300)) + '…'}</span><br>= <span class="m">${esc(show(q.t).length <= 600 ? show(q.t) : show(q.t).slice(0, 600) + '…')}</span>`;
+  document.getElementById('ptree').innerHTML = sz <= 160 ? treeSVG(q.t, { dx: sz > 60 ? 18 : 26, label: 'term tree' }) : `<div class="ui muted">The tree has ${sz} leaves; it is drawn only up to 160 leaves.</div>`;
+  const r = normalize(q.t, 2000, 80);
+  document.getElementById('pnfh').innerHTML = r.ok ? `Normal form after ${r.n} step${r.n === 1 ? '' : 's'}: <b class="m">${esc(show(r.t))}</b>` : `No normal form: the term ${r.why}.`;
+  document.getElementById('pnf').innerHTML = r.ok && size(r.t) > 1 && size(r.t) <= 160 ? treeSVG(r.t, { label: 'normal form tree' }) : '';
+  const tr = r.trace.slice(); if (r.ok) tr.push(r.t);
+  document.getElementById('psteps').innerHTML = (r.n ? '<div class="muted">Reduction, one step per line (normal order):</div>' : '') +
+    (r.n ? tr.map((t, k) => { const s = show(t); return `<div>${k}: ${esc(s.length <= 300 ? s : s.slice(0, 296) + '…')}</div>`; }).join('') + (r.n + 1 > tr.length ? `<div class="muted">… ${r.n + 1 - tr.length} more steps</div>` : '') : '<div class="muted">The term is already in normal form.</div>');
+}
+renderRoles(); run();
+</script>
+</body>
+</html>
